@@ -47,6 +47,12 @@
     .rest-days { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
     .rest-day { padding: 0.5rem 0.9rem; border-radius: 20px; border: 0.5px solid #E8E6DF; background: #fff; font-size: 0.85rem; color: #888780; cursor: pointer; transition: all 0.15s; }
     .rest-day.sel { background: #163A28; border-color: #163A28; color: #fff; }
+    .slider-block { background: #fff; border: 0.5px solid #E8E6DF; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+    .slider-block-title { font-size: 0.9rem; font-weight: 500; color: #111110; margin-bottom: 0.25rem; }
+    .slider-block-sub { font-size: 0.78rem; color: #888780; margin-bottom: 0.75rem; }
+    .slider-row { display: flex; align-items: center; gap: 0.75rem; }
+    .slider-row input { flex: 1; accent-color: #163A28; }
+    .slider-val { font-size: 1rem; font-weight: 500; color: #163A28; min-width: 50px; text-align: right; }
     .ai-preview { background: #EBF5EF; border-radius: 12px; padding: 0.9rem 1rem; margin-bottom: 1.5rem; display: flex; gap: 0.6rem; align-items: flex-start; }
     .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: #163A28; margin-top: 5px; flex-shrink: 0; }
     .ai-text { font-size: 0.82rem; color: #163A28; line-height: 1.5; }
@@ -61,6 +67,10 @@
     .btn-next { width: 100%; background: #163A28; color: #fff; border: none; border-radius: 12px; padding: 0.95rem; font-size: 1rem; font-weight: 500; font-family: 'Outfit', sans-serif; cursor: pointer; margin-top: auto; transition: opacity 0.15s; }
     .btn-next:hover { opacity: 0.9; }
     .btn-next:disabled { opacity: 0.3; cursor: default; }
+    .zones-preview { display: grid; grid-template-columns: repeat(5,1fr); gap: 4px; margin-top: 1rem; }
+    .zone-bar { border-radius: 6px; padding: 6px 4px; text-align: center; }
+    .zone-label { font-size: 0.65rem; font-weight: 500; color: #fff; }
+    .zone-range { font-size: 0.6rem; color: rgba(255,255,255,0.8); margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -68,11 +78,11 @@
   <div class="top">
     <div class="nav">
       <span class="nav-logo">trai<span class="nav-neo">neo</span></span>
-      <button class="btn-skip" onclick="window.location.href='dashboard.html'">Saltar →</button>
+      <button class="btn-skip" onclick="savePlan()">Saltar →</button>
     </div>
     <div class="progress-wrap">
-      <div class="progress-bar"><div class="progress-fill" id="prog" style="width:20%"></div></div>
-      <div class="progress-text" id="prog-text">Paso 1 de 5</div>
+      <div class="progress-bar"><div class="progress-fill" id="prog" style="width:16%"></div></div>
+      <div class="progress-text" id="prog-text">Paso 1 de 6</div>
     </div>
   </div>
 
@@ -143,11 +153,65 @@
     <button class="btn-next" id="btn2" disabled onclick="nextStep(3)">Siguiente →</button>
   </div>
 
-  <!-- STEP 3: DIES -->
+  <!-- STEP 3: NIVEL -->
   <div class="step" id="s3">
+    <div class="step-label">Tu nivel</div>
+    <div class="step-title">¿Cómo describirías tu forma actual?</div>
+    <div class="step-sub">Sé honesto — el plan será mejor cuanto más preciso seas.</div>
+    <div class="options">
+      <div class="opt" onclick="selOpt(this,'s3')">
+        <span class="opt-icon">🌱</span>
+        <div><div class="opt-title">Empezando</div><div class="opt-sub">Menos de 6 meses entrenando regularmente</div></div>
+      </div>
+      <div class="opt" onclick="selOpt(this,'s3')">
+        <span class="opt-icon">📈</span>
+        <div><div class="opt-title">Intermedio</div><div class="opt-sub">1-3 años entrenando. Hago carreras o eventos ocasionales</div></div>
+      </div>
+      <div class="opt" onclick="selOpt(this,'s3')">
+        <span class="opt-icon">🔥</span>
+        <div><div class="opt-title">Avanzado</div><div class="opt-sub">3+ años. Compito regularmente y sigo planes estructurados</div></div>
+      </div>
+      <div class="opt" onclick="selOpt(this,'s3')">
+        <span class="opt-icon">😴</span>
+        <div><div class="opt-title">Volviendo</div><div class="opt-sub">Tenía buen nivel pero llevo tiempo parado</div></div>
+      </div>
+    </div>
+    <button class="btn-next" id="btn3" disabled onclick="nextStep(4)">Siguiente →</button>
+  </div>
+
+  <!-- STEP 4: FC I VOLUM -->
+  <div class="step" id="s4">
+    <div class="step-label">Tus datos físicos</div>
+    <div class="step-title">Calibremos tus zonas</div>
+    <div class="step-sub">Con estos datos tu plan será mucho más preciso. Puedes ajustarlo después.</div>
+
+    <div class="slider-block">
+      <div class="slider-block-title">Frecuencia cardíaca máxima</div>
+      <div class="slider-block-sub">Si no la sabes, usa: 220 − tu edad</div>
+      <div class="slider-row">
+        <input type="range" min="150" max="210" value="185" id="fc-slider" oninput="updateFC(this.value)">
+        <span class="slider-val" id="fc-val">185 bpm</span>
+      </div>
+      <div class="zones-preview" id="zones-preview"></div>
+    </div>
+
+    <div class="slider-block">
+      <div class="slider-block-title">Horas de entreno por semana (ahora mismo)</div>
+      <div class="slider-block-sub">En una semana normal, ¿cuánto entrenas?</div>
+      <div class="slider-row">
+        <input type="range" min="1" max="15" value="4" id="vol-slider" oninput="updateVol(this.value)">
+        <span class="slider-val" id="vol-val">4h / sem</span>
+      </div>
+    </div>
+
+    <button class="btn-next" onclick="nextStep(5)">Siguiente →</button>
+  </div>
+
+  <!-- STEP 5: DIES -->
+  <div class="step" id="s5">
     <div class="step-label">Disponibilidad</div>
     <div class="step-title">¿Cuántos días puedes entrenar?</div>
-    <div class="step-sub">En una semana normal. Lo ajustamos cada lunes si cambia.</div>
+    <div class="step-sub">En una semana normal. Lo ajustamos cada lunes.</div>
     <div class="days-selector">
       <div class="day-num" onclick="selDay(this)">2</div>
       <div class="day-num" onclick="selDay(this)">3</div>
@@ -167,37 +231,11 @@
       <div class="rest-day" onclick="selRest(this)">Do</div>
       <div class="rest-day" onclick="selRest(this)">Ninguno</div>
     </div>
-    <button class="btn-next" id="btn3" disabled onclick="nextStep(4)">Siguiente →</button>
+    <button class="btn-next" id="btn5" disabled onclick="nextStep(6)">Siguiente →</button>
   </div>
 
-  <!-- STEP 4: WEARABLE -->
-  <div class="step" id="s4">
-    <div class="step-label">Tus datos</div>
-    <div class="step-title">¿Usas algún dispositivo?</div>
-    <div class="step-sub">Importaré tu historial para calibrar el plan desde el primer día.</div>
-    <div class="options">
-      <div class="opt" onclick="selOpt(this,'s4')">
-        <span class="opt-icon">⌚</span>
-        <div><div class="opt-title">Garmin</div><div class="opt-sub">Importo tu historial completo automáticamente</div></div>
-      </div>
-      <div class="opt" onclick="selOpt(this,'s4')">
-        <span class="opt-icon">🍎</span>
-        <div><div class="opt-title">Apple Watch</div><div class="opt-sub">Conecto con Apple Health</div></div>
-      </div>
-      <div class="opt" onclick="selOpt(this,'s4')">
-        <span class="opt-icon">🔷</span>
-        <div><div class="opt-title">Polar</div><div class="opt-sub">Conecto con Polar Flow</div></div>
-      </div>
-      <div class="opt" onclick="selOpt(this,'s4')">
-        <span class="opt-icon">📱</span>
-        <div><div class="opt-title">Solo el móvil</div><div class="opt-sub">Usaré el GPS del teléfono</div></div>
-      </div>
-    </div>
-    <button class="btn-next" id="btn4" disabled onclick="nextStep(5)">Siguiente →</button>
-  </div>
-
-  <!-- STEP 5: PREVIEW -->
-  <div class="step" id="s5">
+  <!-- STEP 6: PREVIEW -->
+  <div class="step" id="s6">
     <div class="step-label">Tu plan</div>
     <div class="step-title">Aquí está tu primera semana</div>
     <div class="step-sub">Generado según tus respuestas.</div>
@@ -211,41 +249,62 @@
 </div>
 
 <script>
-  let userData = { objetivo: '', sports: [], dias: 0, descanso: '', wearable: '' };
-
   const dayNames = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+  let userData = { objetivo:'', sports:[], nivel:'', fcmax:185, volum:4, dias:0, descanso:'' };
 
   const sportSessions = {
-    running: [
-      {icon:'🏃', title:'Rodaje Z2', sub:'45 min · Aeróbico base'},
-      {icon:'🏃', title:'Rodaje largo', sub:'60 min · Fondo'},
-      {icon:'🏃', title:'Series de velocidad', sub:'40 min · Calidad'}
+    running:[
+      {icon:'🏃',title:'Rodaje Z2',sub:'Aeróbico base'},
+      {icon:'🏃',title:'Rodaje largo',sub:'Fondo'},
+      {icon:'🏃',title:'Series',sub:'Calidad · Umbral'}
     ],
-    ciclismo: [
-      {icon:'🚴', title:'Rodada Z2', sub:'60 min · Fondo en bici'},
-      {icon:'🚴', title:'Series en bici', sub:'50 min · Potencia'}
+    ciclismo:[
+      {icon:'🚴',title:'Rodada Z2',sub:'Fondo en bici'},
+      {icon:'🚴',title:'Series en bici',sub:'Potencia'}
     ],
-    gimnasio: [
-      {icon:'🏋️', title:'Fuerza tren inferior', sub:'50 min · Piernas'},
-      {icon:'🏋️', title:'Fuerza tren superior', sub:'50 min · Upper'}
+    gimnasio:[
+      {icon:'🏋️',title:'Fuerza inferior',sub:'Piernas y glúteos'},
+      {icon:'🏋️',title:'Fuerza superior',sub:'Empuje y tracción'}
     ],
-    natacion: [
-      {icon:'🏊', title:'Técnica en piscina', sub:'45 min · Brazada'}
-    ],
-    calistenia: [
-      {icon:'🤸', title:'Calistenia básica', sub:'40 min · Dominadas'}
-    ],
-    triatlon: [
-      {icon:'🥇', title:'Brick bici-running', sub:'60 min · Transición'}
-    ]
+    natacion:[{icon:'🏊',title:'Técnica piscina',sub:'Eficiencia'}],
+    calistenia:[{icon:'🤸',title:'Calistenia',sub:'Dominadas y fondos'}],
+    triatlon:[{icon:'🥇',title:'Brick bici-run',sub:'Transición'}]
   };
 
+  function updateFC(v) {
+    userData.fcmax = parseInt(v);
+    document.getElementById('fc-val').textContent = v+' bpm';
+    const fc = parseInt(v);
+    const zones = [
+      {label:'Z1', color:'#60B8F0', min:Math.round(fc*0.50), max:Math.round(fc*0.60)},
+      {label:'Z2', color:'#4EA84A', min:Math.round(fc*0.60), max:Math.round(fc*0.70)},
+      {label:'Z3', color:'#F0C84A', min:Math.round(fc*0.70), max:Math.round(fc*0.80)},
+      {label:'Z4', color:'#F08C30', min:Math.round(fc*0.80), max:Math.round(fc*0.90)},
+      {label:'Z5', color:'#E04040', min:Math.round(fc*0.90), max:fc}
+    ];
+    document.getElementById('zones-preview').innerHTML = zones.map(z=>`
+      <div class="zone-bar" style="background:${z.color}">
+        <div class="zone-label">${z.label}</div>
+        <div class="zone-range">${z.min}-${z.max}</div>
+      </div>
+    `).join('');
+  }
+
+  function updateVol(v) {
+    userData.volum = parseInt(v);
+    document.getElementById('vol-val').textContent = v+'h / sem';
+  }
+
+  updateFC(185);
+
   function nextStep(n) {
-    document.getElementById('s'+(n-1)).classList.remove('active');
+    const prev = n===6?5:n-1;
+    document.getElementById('s'+prev).classList.remove('active');
     document.getElementById('s'+n).classList.add('active');
-    document.getElementById('prog').style.width = (n*20)+'%';
-    document.getElementById('prog-text').textContent = 'Paso '+n+' de 5';
-    if(n===5) generatePreview();
+    const total = 6;
+    document.getElementById('prog').style.width = (n/total*100)+'%';
+    document.getElementById('prog-text').textContent = 'Paso '+n+' de '+total;
+    if(n===6) generatePreview();
     window.scrollTo(0,0);
   }
 
@@ -254,7 +313,7 @@
     el.classList.add('sel');
     const n = stepId.replace('s','');
     if(n==='1') userData.objetivo = el.querySelector('.opt-title').textContent;
-    if(n==='4') userData.wearable = el.querySelector('.opt-title').textContent;
+    if(n==='3') userData.nivel = el.querySelector('.opt-title').textContent;
     document.getElementById('btn'+n).disabled = false;
   }
 
@@ -266,10 +325,10 @@
       userData.sports = userData.sports.filter(s=>s!==sport);
     }
     const count = userData.sports.length;
-    const hint = document.getElementById('sport-hint');
-    if(count===0) hint.textContent = 'Selecciona al menos un deporte';
-    else if(count===1) hint.textContent = '1 deporte seleccionado · puedes añadir más';
-    else hint.textContent = count+' deportes seleccionados ✓';
+    document.getElementById('sport-hint').textContent =
+      count===0 ? 'Selecciona al menos un deporte' :
+      count===1 ? '1 deporte · puedes añadir más' :
+      count+' deportes seleccionados ✓';
     document.getElementById('btn2').disabled = count===0;
   }
 
@@ -277,44 +336,38 @@
     document.querySelectorAll('.day-num').forEach(d=>d.classList.remove('sel'));
     el.classList.add('sel');
     userData.dias = parseInt(el.textContent);
-    checkStep3();
+    checkStep5();
   }
 
   function selRest(el) {
     document.querySelectorAll('.rest-day').forEach(d=>d.classList.remove('sel'));
     el.classList.add('sel');
     userData.descanso = el.textContent;
-    checkStep3();
+    checkStep5();
   }
 
-  function checkStep3() {
-    document.getElementById('btn3').disabled = !(userData.dias && userData.descanso);
+  function checkStep5() {
+    document.getElementById('btn5').disabled = !(userData.dias && userData.descanso);
   }
 
   function generatePreview() {
-    const sports = userData.sports.length > 0 ? userData.sports : ['running'];
-    const dias = userData.dias || 3;
-    const descanso = userData.descanso || 'Ninguno';
-
+    const sports = userData.sports.length>0 ? userData.sports : ['running'];
+    const dias = userData.dias||3;
+    const descanso = userData.descanso||'Ninguno';
     let allSessions = [];
-    sports.forEach(sport => {
-      (sportSessions[sport]||[]).forEach(s => allSessions.push(s));
-    });
-
+    sports.forEach(s=>(sportSessions[s]||[]).forEach(x=>allSessions.push(x)));
     let planDays = [];
-    let sessionIdx = 0;
-    dayNames.forEach(d => {
-      if(d === descanso) {
-        planDays.push({day:d, rest:true, icon:'💤', title:'Descanso', sub:''});
-      } else if(sessionIdx < dias) {
-        const s = allSessions[sessionIdx % allSessions.length];
-        planDays.push({day:d, rest:false, ...s});
-        sessionIdx++;
+    let idx = 0;
+    dayNames.forEach(d=>{
+      if(d===descanso) {
+        planDays.push({day:d,rest:true,icon:'💤',title:'Descanso',sub:''});
+      } else if(idx<dias) {
+        planDays.push({day:d,rest:false,...allSessions[idx%allSessions.length]});
+        idx++;
       } else {
-        planDays.push({day:d, rest:true, icon:'💤', title:'Descanso', sub:''});
+        planDays.push({day:d,rest:true,icon:'💤',title:'Descanso',sub:''});
       }
     });
-
     document.getElementById('plan-preview').innerHTML = planDays.map(d=>`
       <div class="plan-day ${d.rest?'rest-day-plan':''}">
         <span class="plan-day-name">${d.day}</span>
@@ -325,17 +378,23 @@
         </div>
       </div>
     `).join('');
-
+    const fc = userData.fcmax;
+    const z2min = Math.round(fc*0.60);
+    const z2max = Math.round(fc*0.70);
     const sportNames = sports.map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(' + ');
     document.getElementById('ai-summary').textContent =
-      `He creado un plan de ${dias} días con ${sportNames}. Empezamos suave — el cuerpo necesita adaptarse la primera semana.`;
+      `Plan de ${dias} días con ${sportNames}. Tu Z2 es ${z2min}-${z2max} bpm. Empezamos con fase base — aeróbico y fuerza. La primera semana es suave para que el cuerpo se adapte.`;
   }
 
   function savePlan() {
-    const sports = userData.sports.length > 0 ? userData.sports.join(',') : 'running';
-    const dias = userData.dias || 3;
-    const descanso = encodeURIComponent(userData.descanso || 'Ninguno');
-    window.location.href = 'dashboard.html?sports='+sports+'&dias='+dias+'&descanso='+descanso;
+    const sports = userData.sports.length>0 ? userData.sports.join(',') : 'running';
+    const url = 'dashboard.html?sports='+sports+
+      '&dias='+(userData.dias||3)+
+      '&descanso='+encodeURIComponent(userData.descanso||'Ninguno')+
+      '&nivel='+encodeURIComponent(userData.nivel||'Intermedio')+
+      '&fcmax='+(userData.fcmax||185)+
+      '&volum='+(userData.volum||4);
+    window.location.href = url;
   }
 </script>
 </body>
