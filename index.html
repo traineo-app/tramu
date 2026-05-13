@@ -4,37 +4,171 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>traineo — Entrena con inteligencia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, sans-serif; background: #F1EFE8; }
-    .hero { background: #163A28; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; }
-    .logo-wrap { margin-bottom: 2rem; }
-    .logo-name { font-size: 2.5rem; font-weight: 400; color: #fff; letter-spacing: -1px; }
+    body { font-family: 'Outfit', sans-serif; background: #163A28; }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .logo-wrap { margin-bottom: 2.5rem; }
+
+    .logo-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+    }
+
+    .logo-name {
+      font-size: 2.2rem;
+      font-weight: 400;
+      color: #fff;
+      letter-spacing: -1px;
+    }
+
     .logo-neo { color: rgba(255,255,255,0.35); }
-    .tagline { font-size: 1rem; color: rgba(255,255,255,0.4); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.5rem; }
-    h1 { font-size: 2rem; font-weight: 500; color: #fff; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 1rem; max-width: 400px; }
-    p { font-size: 1rem; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 2rem; max-width: 360px; }
-    .form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 340px; }
-    input { padding: 0.875rem 1rem; border-radius: 10px; border: none; font-size: 1rem; background: rgba(255,255,255,0.1); color: #fff; outline: none; }
-    input::placeholder { color: rgba(255,255,255,0.35); }
-    button { padding: 0.875rem; background: #fff; color: #163A28; border: none; border-radius: 10px; font-size: 1rem; font-weight: 500; cursor: pointer; }
-    .legal { font-size: 0.75rem; color: rgba(255,255,255,0.25); margin-top: 1rem; }
+
+    .tagline {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+      font-weight: 400;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: -0.8px;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      max-width: 420px;
+    }
+
+    .sub {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      max-width: 360px;
+      font-weight: 300;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    input {
+      padding: 0.9rem 1.1rem;
+      border-radius: 10px;
+      border: 0.5px solid rgba(255,255,255,0.15);
+      font-size: 0.95rem;
+      font-family: 'Outfit', sans-serif;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus { border-color: rgba(255,255,255,0.4); }
+    input::placeholder { color: rgba(255,255,255,0.3); }
+
+    button {
+      padding: 0.9rem;
+      background: #fff;
+      color: #163A28;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-top: 0.25rem;
+    }
+
+    button:hover { opacity: 0.92; }
+
+    .badges {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.08);
+      border: 0.5px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.75rem;
+      font-weight: 400;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .legal {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.2);
+      margin-top: 1.25rem;
+      font-weight: 300;
+    }
+
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: rgba(255,255,255,0.15);
+      margin: 2rem auto;
+    }
   </style>
 </head>
 <body>
   <div class="hero">
+
     <div class="logo-wrap">
+      <svg class="logo-icon" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="56" height="56" rx="16" fill="rgba(255,255,255,0.08)"/>
+        <rect x="8" y="11" width="32" height="7" rx="2" fill="white" transform="skewX(-12)"/>
+        <rect x="21" y="11" width="9" height="28" rx="2" fill="white" transform="skewX(-12)"/>
+        <circle cx="32" cy="43" r="3.5" fill="white"/>
+      </svg>
       <div class="logo-name">trai<span class="logo-neo">neo</span></div>
       <div class="tagline">Entrena con inteligencia</div>
     </div>
-    <h1>Fuerza y resistencia. A tu ritmo.</h1>
-    <p>Tu entrenador personal con IA para running, ciclismo, triatlón y gimnasio. El plan que se adapta a tu semana, no al revés.</p>
+
+    <h1>Fuerza y resistencia.<br>A tu ritmo.</h1>
+
+    <p class="sub">Tu entrenador personal con IA para running, ciclismo, triatlón y gimnasio. El plan que se adapta a tu semana, no al revés.</p>
+
+    <div class="badges">
+      <span class="badge">Running</span>
+      <span class="badge">Ciclismo</span>
+      <span class="badge">Triatlón</span>
+      <span class="badge">Gimnasio</span>
+    </div>
+
     <div class="form">
       <input type="text" placeholder="Tu nombre">
       <input type="email" placeholder="Tu correo electrónico">
       <button>Quiero acceso anticipado →</button>
     </div>
+
     <p class="legal">Tus datos deportivos no se venderán nunca.</p>
+
   </div>
 </body>
 </html>
