@@ -339,10 +339,14 @@
       `He creado un plan de ${dias} días combinando ${sportNames}. Empezamos con una fase base — aeróbico y fuerza funcional. La primera semana es suave para que el cuerpo se adapte.`;
   }
 
-  function savePlan() {
-    localStorage.setItem('traineo_user', JSON.stringify(userData));
-    window.location.href = 'dashboard.html';
-  }
+function savePlan() {
+    const data = JSON.stringify(userData);
+    localStorage.setItem('traineo_user', data);
+    console.log('Guardado:', data);
+    setTimeout(() => {
+        window.location.href = 'dashboard.html';
+    }, 500);
+}
 </script>
 </body>
 </html>
