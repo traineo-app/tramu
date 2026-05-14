@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>traineo — Sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:#F1EFE8;min-height:100vh}
+    .app{max-width:390px;margin:0 auto;min-height:100vh;background:#F8F7F4;padding-bottom:5rem}
+
+    /* HERO */
+    .hero{background:#163A28;padding:1rem 1.25rem 1.5rem}
+    .nav{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem}
+    .btn-back{background:rgba(255,255,255,0.1);border:none;color:#fff;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .nav-logo{font-size:1rem;font-weight:400;color:rgba(255,255,255,0.5);letter-spacing:-.2px}
+    .nav-neo{color:rgba(255,255,255,0.25)}
+    .hero-icon{font-size:2rem;margin-bottom:0.5rem}
+    .hero-title{font-size:1.7rem;font-weight:500;color:#fff;letter-spacing:-.4px;margin-bottom:0.3rem}
+    .hero-stats{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap}
+    .hero-stat{background:rgba(255,255,255,0.1);border-radius:20px;padding:0.3rem 0.75rem;font-size:0.78rem;color:rgba(255,255,255,0.75);display:flex;align-items:center;gap:0.3rem}
+    .hero-why{background:rgba(255,255,255,0.07);border-radius:10px;padding:0.75rem;font-size:0.82rem;color:rgba(255,255,255,0.5);font-style:italic;line-height:1.6}
+
+    /* BODY */
+    .body{padding:1.25rem}
+    .section{margin-bottom:1.5rem}
+    .section-title{font-size:0.72rem;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:.08em;margin-bottom:0.75rem}
+
+    /* ZONES */
+    .zones-row{display:flex;gap:5px}
+    .zone{flex:1;border-radius:8px;padding:7px 3px;text-align:center}
+    .zone-label{font-size:0.65rem;font-weight:600;color:#fff}
+    .zone-range{font-size:0.58rem;color:rgba(255,255,255,.8);margin-top:2px}
+    .zone.dim{opacity:.35}
+
+    /* ESTRUCTURA */
+    .blocks{display:flex;flex-direction:column;gap:6px}
+    .block{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem}
+    .block-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .block-info{flex:1}
+    .block-title{font-size:.9rem;font-weight:500;color:#111110;margin-bottom:2px}
+    .block-sub{font-size:.75rem;color:#888780}
+    .block-time{font-size:.85rem;font-weight:500;color:#163A28;flex-shrink:0}
+
+    /* EXERCICIS */
+    .exercises{display:flex;flex-direction:column;gap:8px}
+    .exercise{background:#fff;border:.5px solid #E8E6DF;border-radius:12px;padding:1rem;display:flex;align-items:center;gap:1rem}
+    .exercise-figure{width:56px;height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .exercise-info{flex:1}
+    .exercise-name{font-size:.9rem;font-weight:500;color:#111110;margin-bottom:3px}
+    .exercise-detail{font-size:.75rem;color:#888780;line-height:1.4}
+    .exercise-muscle{display:inline-block;font-size:.68rem;font-weight:500;padding:2px 7px;border-radius:20px;background:#E8F4ED;color:#163A28;margin-top:4px}
+
+    /* TIP */
+    .tip{background:#EBF5EF;border-radius:10px;padding:.875rem 1rem;display:flex;gap:.75rem}
+    .tip-dot{width:6px;height:6px;border-radius:50%;background:#163A28;margin-top:5px;flex-shrink:0}
+    .tip-text{font-size:.82rem;color:#163A28;line-height:1.6}
+
+    /* GPX */
+    .gpx-card{background:#111110;border-radius:12px;padding:1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+    .gpx-info{flex:1}
+    .gpx-title{font-size:.9rem;font-weight:500;color:#fff;margin-bottom:2px}
+    .gpx-sub{font-size:.75rem;color:rgba(255,255,255,.45)}
+    .btn-gpx{background:#163A28;border:none;color:#fff;font-size:.8rem;font-weight:500;font-family:'Outfit',sans-serif;padding:.6rem 1rem;border-radius:8px;cursor:pointer;white-space:nowrap}
+
+    /* BOTTOM BUTTONS */
+    .bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:390px;background:#F8F7F4;border-top:.5px solid #E8E6DF;padding:.875rem 1.25rem;display:flex;gap:.75rem}
+    .btn-start{flex:1;background:#163A28;color:#fff;border:none;border-radius:12px;padding:.9rem;font-size:1rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer}
+    .btn-detail{background:#fff;border:.5px solid #E8E6DF;color:#163A28;border-radius:12px;padding:.9rem 1.1rem;font-size:.85rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;white-space:nowrap}
+
+    /* MODE GUIAT */
+    .guided-overlay{display:none;position:fixed;inset:0;background:#163A28;z-index:200;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
+    .guided-overlay.open{display:flex}
+    .guided-step-label{font-size:.75rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem}
+    .guided-title{font-size:2rem;font-weight:500;color:#fff;letter-spacing:-.4px;text-align:center;margin-bottom:.5rem}
+    .guided-sub{font-size:1rem;color:rgba(255,255,255,.55);text-align:center;margin-bottom:2rem}
+    .guided-timer{font-size:4rem;font-weight:300;color:#fff;letter-spacing:-2px;margin-bottom:.5rem;font-variant-numeric:tabular-nums}
+    .guided-timer-label{font-size:.8rem;color:rgba(255,255,255,.35);margin-bottom:2rem}
+    .guided-progress{width:100%;max-width:280px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden;margin-bottom:2.5rem}
+    .guided-progress-fill{height:100%;background:#fff;border-radius:2px;transition:width .5s linear}
+    .guided-actions{display:flex;gap:.75rem;width:100%;max-width:280px}
+    .btn-guided-prev{background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.875rem;font-size:.9rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;flex:1}
+    .btn-guided-next{background:#fff;border:none;color:#163A28;border-radius:12px;padding:.875rem;font-size:.9rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;flex:2}
+    .btn-guided-close{position:absolute;top:1.5rem;right:1.5rem;background:rgba(255,255,255,.1);border:none;color:#fff;width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:1rem}
+    .guided-steps-dots{display:flex;gap:6px;margin-bottom:2rem}
+    .step-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25)}
+    .step-dot.done{background:#fff}
+    .step-dot.current{background:#fff;transform:scale(1.3)}
+
+    /* EXERCICI GUIAT */
+    .guided-exercise{display:none;flex-direction:column;align-items:center;width:100%;max-width:320px}
+    .guided-exercise.open{display:flex}
+    .guided-ex-figure{width:120px;height:120px;margin-bottom:1rem}
+    .guided-ex-name{font-size:1.5rem;font-weight:500;color:#fff;text-align:center;margin-bottom:.5rem}
+    .guided-ex-detail{font-size:.9rem;color:rgba(255,255,255,.55);text-align:center;margin-bottom:.5rem}
+    .guided-ex-sets{font-size:1.1rem;font-weight:500;color:rgba(255,255,255,.8);text-align:center}
+
+    .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <div class="nav">
+      <button class="btn-back" onclick="history.back()">←</button>
+      <span class="nav-logo">trai<span class="nav-neo">neo</span></span>
+    </div>
+    <div class="hero-icon" id="h-icon">🏃</div>
+    <div class="hero-title" id="h-title">Cargando...</div>
+    <div class="hero-stats" id="h-stats"></div>
+    <div class="hero-why" id="h-why"></div>
+  </div>
+  <div class="body">
+    <div id="zones-section"></div>
+    <div id="structure-section"></div>
+    <div id="exercises-section"></div>
+    <div id="tip-section"></div>
+    <div id="gpx-section"></div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <button class="btn-detail" onclick="scrollToTop()">↑ Ver todo</button>
+  <button class="btn-start" id="btn-start" onclick="startGuided()">▶ Empezar</button>
+</div>
+
+<!-- MODE GUIAT -->
+<div class="guided-overlay" id="guided">
+  <button class="btn-guided-close" onclick="closeGuided()">✕</button>
+  <div id="guided-content"></div>
+</div>
+
+<script>
+const params=new URLSearchParams(window.location.search);
+const title=decodeURIComponent(params.get('title')||'Sesión');
+const sub=decodeURIComponent(params.get('sub')||'');
+const why=decodeURIComponent(params.get('why')||'');
+const tags=(params.get('tags')||'').split(',').filter(Boolean);
+const icon=decodeURIComponent(params.get('icon')||'🏃');
+const fcmax=parseInt(params.get('fcmax'))||185;
+const nivel=decodeURIComponent(params.get('nivel')||'Intermedio');
+const duracio=parseInt(params.get('duracio'))||45;
+const isGym=['Fuerza tren inferior','Fuerza tren superior','Full body funcional','Calistenia básica','Core y movilidad'].includes(title);
+const isCardio=['Rodaje Z2','Rodaje largo','Series de velocidad','Rodaje de recuperación','Rodada Z2','Series en bici','Ruta larga','Brick bici-running','Trail Z2','Series de cuestas','Técnica en piscina','Series en piscina'].includes(title);
+
+// ZONES
+const zones=[
+  {label:'Z1',color:'#60B8F0',min:Math.round(fcmax*.50),max:Math.round(fcmax*.60)},
+  {label:'Z2',color:'#4EA84A',min:Math.round(fcmax*.60),max:Math.round(fcmax*.70)},
+  {label:'Z3',color:'#F0C84A',min:Math.round(fcmax*.70),max:Math.round(fcmax*.80)},
+  {label:'Z4',color:'#F08C30',min:Math.round(fcmax*.80),max:Math.round(fcmax*.90)},
+  {label:'Z5',color:'#E04040',min:Math.round(fcmax*.90),max:fcmax}
+];
+
+function getMainZone(t){
+  const tl=t.toLowerCase();
+  if(tl.includes('recuperación')||tl.includes('z1')) return 0;
+  if(tl.includes('z2')||tl.includes('aeróbico')||tl.includes('fondo')||tl.includes('largo')) return 1;
+  if(tl.includes('z3')||tl.includes('tempo')||tl.includes('sweetspot')) return 2;
+  if(tl.includes('series')||tl.includes('calidad')||tl.includes('z4')||tl.includes('cuestas')) return 3;
+  if(tl.includes('z5')||tl.includes('máxima')) return 4;
+  return 1;
+}
+const mainZone=getMainZone(title);
+
+// STICK FIGURES SVG
+const figures={
+  'Sentadilla':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="8" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="28" y1="14" x2="28" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="14" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="42" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="18" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="38" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="18" y1="56" x2="14" y2="70" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="38" y1="56" x2="42" y2="70" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+  'Romanian Deadlift':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="8" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="28" y1="14" x2="28" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round" transform="rotate(-30 28 14)"/>
+    <line x1="22" y1="26" x2="8" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="22" y1="26" x2="44" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="44" x2="20" y2="62" stroke="#163A28" stroke-width="2" stroke-linecap="round" transform="rotate(-30 28 14)"/>
+    <line x1="28" y1="44" x2="36" y2="62" stroke="#163A28" stroke-width="2" stroke-linecap="round" transform="rotate(-30 28 14)"/>
+    <line x1="16" y1="58" x2="14" y2="72" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="32" y1="62" x2="34" y2="76" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+  'Sentadilla búlgara':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="24" cy="8" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="24" y1="14" x2="24" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="24" y1="22" x2="10" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="24" y1="22" x2="38" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="24" y1="38" x2="14" y2="58" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="24" y1="38" x2="36" y2="52" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="14" y1="58" x2="12" y2="74" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="52" x2="44" y2="68" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <rect x="40" y="60" width="12" height="4" rx="2" fill="#163A28" opacity=".3"/>
+  </svg>`,
+  'Hip thrust':`<svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="62" cy="10" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="62" y1="16" x2="44" y2="28" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="44" y1="28" x2="28" y2="24" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="24" x2="14" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="24" x2="36" y2="42" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="14" y1="38" x2="10" y2="52" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="42" x2="32" y2="54" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <rect x="4" y="46" width="56" height="6" rx="3" fill="#163A28" opacity=".15"/>
+    <line x1="44" y1="28" x2="56" y2="22" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="44" y1="28" x2="40" y2="18" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+  'Step-up':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="26" cy="8" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="26" y1="14" x2="26" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="26" y1="22" x2="12" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="26" y1="22" x2="40" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="26" y1="38" x2="16" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="26" y1="38" x2="34" y2="52" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="16" y1="56" x2="14" y2="70" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="34" y1="52" x2="38" y2="62" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <rect x="28" y="60" width="22" height="6" rx="2" fill="#163A28" opacity=".2"/>
+    <rect x="32" y="54" width="18" height="6" rx="2" fill="#163A28" opacity=".15"/>
+  </svg>`,
+  'Elevación de talones':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="8" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="28" y1="14" x2="28" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="14" y2="30" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="42" y2="30" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="20" y2="58" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="36" y2="58" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="58" x2="18" y2="68" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="58" x2="38" y2="68" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="16" y1="72" x2="24" y2="68" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="34" y1="72" x2="42" y2="68" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+  'Press de banca':`<svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="8" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="40" y1="14" x2="40" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="20" x2="22" y2="28" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="20" x2="58" y2="28" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="22" y1="28" x2="14" y2="18" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="58" y1="28" x2="66" y2="18" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="32" x2="32" y2="48" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="32" x2="48" y2="48" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <rect x="6" y="40" width="68" height="8" rx="3" fill="#163A28" opacity=".1"/>
+    <line x1="8" y1="18" x2="72" y2="18" stroke="#163A28" stroke-width="2.5" stroke-linecap="round" opacity=".4"/>
+  </svg>`,
+  'Remo con mancuerna':`<svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="58" cy="10" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="58" y1="16" x2="50" y2="34" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="50" y1="24" x2="68" y2="20" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="50" y1="24" x2="32" y2="28" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="32" y1="28" x2="20" y2="16" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="50" y1="34" x2="40" y2="50" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="50" y1="34" x2="58" y2="50" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <rect x="4" y="40" width="52" height="8" rx="3" fill="#163A28" opacity=".1"/>
+    <ellipse cx="18" cy="16" rx="6" ry="4" stroke="#163A28" stroke-width="1.5" opacity=".4"/>
+  </svg>`,
+  'Dominadas':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="4" y1="4" x2="52" y2="4" stroke="#163A28" stroke-width="2.5" stroke-linecap="round" opacity=".35"/>
+    <circle cx="28" cy="18" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="22" y1="14" x2="14" y2="4" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="34" y1="14" x2="42" y2="4" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="24" x2="28" y2="48" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="36" x2="14" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="36" x2="42" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="48" x2="20" y2="64" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="48" x2="36" y2="64" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+  'Press militar':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="8" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="28" y1="14" x2="28" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="10" y2="18" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="46" y2="18" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="8" y1="14" x2="50" y2="14" stroke="#163A28" stroke-width="2.5" stroke-linecap="round" opacity=".35"/>
+    <line x1="10" y1="18" x2="8" y2="14" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="46" y1="18" x2="50" y2="14" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="20" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="36" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="56" x2="18" y2="70" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="56" x2="38" y2="70" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+  'Flexiones':`<svg viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="62" cy="10" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="62" y1="16" x2="48" y2="28" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="48" y1="22" x2="64" y2="18" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="48" y1="22" x2="34" y2="26" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="34" y1="26" x2="20" y2="20" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="20" x2="14" y2="30" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="48" y1="28" x2="36" y2="40" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="48" y1="28" x2="54" y2="40" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="40" x2="30" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="54" y1="40" x2="52" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+  'Dips':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="12" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="28" y1="18" x2="28" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="24" x2="10" y2="30" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="24" x2="46" y2="30" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="10" y1="30" x2="8" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="46" y1="30" x2="48" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="22" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="34" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <rect x="4" y="42" width="8" height="28" rx="2" fill="#163A28" opacity=".15"/>
+    <rect x="44" y="42" width="8" height="28" rx="2" fill="#163A28" opacity=".15"/>
+  </svg>`,
+  'Plancha':`<svg viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="68" cy="10" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="68" y1="16" x2="54" y2="22" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="54" y1="22" x2="14" y2="22" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="54" y1="18" x2="62" y2="10" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="54" y1="18" x2="48" y2="10" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="14" y1="22" x2="10" y2="34" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="26" y2="34" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="8" y1="32" x2="32" y2="32" stroke="#163A28" stroke-width="1.5" opacity=".2"/>
+  </svg>`,
+  'Bird dog':`<svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="14" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="40" y1="20" x2="40" y2="36" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="28" x2="60" y2="22" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="28" x2="20" y2="22" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="60" y1="22" x2="72" y2="20" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="22" x2="10" y2="30" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="10" y1="30" x2="8" y2="42" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="36" x2="30" y2="46" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="36" x2="52" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="52" y1="44" x2="66" y2="46" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="30" y1="46" x2="28" y2="54" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <rect x="4" y="44" width="72" height="6" rx="2" fill="#163A28" opacity=".08"/>
+  </svg>`,
+  'Dead bug':`<svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="20" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="40" y1="26" x2="40" y2="42" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="32" x2="20" y2="22" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="32" x2="60" y2="22" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="22" x2="10" y2="10" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="60" y1="22" x2="70" y2="10" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="42" x2="22" y2="52" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="40" y1="42" x2="58" y2="52" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="22" y1="52" x2="12" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="58" y1="52" x2="70" y2="44" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <rect x="4" y="26" width="72" height="6" rx="2" fill="#163A28" opacity=".08"/>
+  </svg>`,
+  'Curl de bíceps':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="8" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="28" y1="14" x2="28" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="14" y2="28" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="14" y1="28" x2="10" y2="16" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="42" y2="30" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="42" y1="30" x2="44" y2="18" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="10" cy="14" rx="4" ry="3" stroke="#163A28" stroke-width="1.5" opacity=".4"/>
+    <ellipse cx="46" cy="16" rx="4" ry="3" stroke="#163A28" stroke-width="1.5" opacity=".4"/>
+    <line x1="28" y1="38" x2="20" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="36" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="56" x2="18" y2="70" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="56" x2="38" y2="70" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+  'default':`<svg viewBox="0 0 56 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="8" r="6" stroke="#163A28" stroke-width="2"/>
+    <line x1="28" y1="14" x2="28" y2="38" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="14" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="22" x2="42" y2="32" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="20" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="38" x2="36" y2="56" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="56" x2="18" y2="70" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="56" x2="38" y2="70" stroke="#163A28" stroke-width="2" stroke-linecap="round"/>
+  </svg>`
+};
+
+// SESSIONS DATA
+const sessionStructures={
+  'Rodaje Z2':[
+    {title:'Calentamiento',sub:'Trote suave Z1',duration:'10 min',durationMin:10,color:'#60B8F0'},
+    {title:'Bloque Z2',sub:'Ritmo conversacional · '+Math.round(fcmax*.63)+'-'+Math.round(fcmax*.70)+' bpm',duration:(duracio-15)+' min',durationMin:duracio-15,color:'#4EA84A'},
+    {title:'Vuelta a la calma',sub:'Trote suave + estiramientos',duration:'5 min',durationMin:5,color:'#60B8F0'}
+  ],
+  'Rodaje largo':[
+    {title:'Calentamiento',sub:'Trote Z1 muy suave',duration:'10 min',durationMin:10,color:'#60B8F0'},
+    {title:'Fondo Z2',sub:'Ritmo cómodo · hablar sin problemas',duration:(duracio-15)+' min',durationMin:duracio-15,color:'#4EA84A'},
+    {title:'Vuelta a la calma',sub:'Andar + estirar',duration:'5 min',durationMin:5,color:'#60B8F0'}
+  ],
+  'Series de velocidad':[
+    {title:'Calentamiento',sub:'15 min trote + 4 strides',duration:'15 min',durationMin:15,color:'#60B8F0'},
+    {title:'6 × 400m a Z4',sub:'90 seg recuperación entre series',duration:'20 min',durationMin:20,color:'#F08C30'},
+    {title:'Vuelta a la calma',sub:'10 min trote suave',duration:'10 min',durationMin:10,color:'#60B8F0'}
+  ],
+  'Rodaje de recuperación':[
+    {title:'Trote Z1',sub:'Muy suave · ritmo cómodo',duration:duracio+' min',durationMin:duracio,color:'#60B8F0'}
+  ],
+  'Rodada Z2':[
+    {title:'Calentamiento',sub:'Cadencia alta, potencia baja',duration:'10 min',durationMin:10,color:'#60B8F0'},
+    {title:'Z2 en bici',sub:'Cadencia 90+ rpm · '+Math.round(fcmax*.62)+'-'+Math.round(fcmax*.70)+' bpm',duration:(duracio-15)+' min',durationMin:duracio-15,color:'#4EA84A'},
+    {title:'Vuelta a la calma',sub:'Reducir potencia gradualmente',duration:'5 min',durationMin:5,color:'#60B8F0'}
+  ],
+  'Series en bici':[
+    {title:'Calentamiento',sub:'15 min cadencia alta Z2',duration:'15 min',durationMin:15,color:'#60B8F0'},
+    {title:'4 × 8 min sweetspot',sub:'88-93% FTP · 4 min recuperación',duration:'25 min',durationMin:25,color:'#F08C30'},
+    {title:'Vuelta a la calma',sub:'10 min Z1',duration:'10 min',durationMin:10,color:'#60B8F0'}
+  ],
+  'Ruta larga':[
+    {title:'Salida suave Z1',sub:'Los primeros 20 min muy tranquilo',duration:'20 min',durationMin:20,color:'#60B8F0'},
+    {title:'Fondo Z2',sub:'Ritmo sostenible largo',duration:(duracio-30)+' min',durationMin:duracio-30,color:'#4EA84A'},
+    {title:'Vuelta a casa Z1',sub:'Reducir intensidad al final',duration:'10 min',durationMin:10,color:'#60B8F0'}
+  ],
+  'Brick bici-running':[
+    {title:'Bici Z2-Z3',sub:'Ritmo medio-alto',duration:Math.round(duracio*.65)+' min',durationMin:Math.round(duracio*.65),color:'#F0C84A'},
+    {title:'Transición',sub:'Cambio rápido de zapatillas',duration:'2 min',durationMin:2,color:'#888780'},
+    {title:'Running Z3',sub:'Aguanta con piernas cargadas',duration:Math.round(duracio*.33)+' min',durationMin:Math.round(duracio*.33),color:'#F08C30'}
+  ],
+  'Trail Z2':[
+    {title:'Calentamiento en llano',sub:'Trote Z1',duration:'10 min',durationMin:10,color:'#60B8F0'},
+    {title:'Trail Z2',sub:'Ritmo por esfuerzo · caminar subidas si FC > Z3',duration:(duracio-15)+' min',durationMin:duracio-15,color:'#4EA84A'},
+    {title:'Vuelta a la calma',sub:'Trote suave',duration:'5 min',durationMin:5,color:'#60B8F0'}
+  ],
+  'Series de cuestas':[
+    {title:'Calentamiento en llano',sub:'15 min Z1-Z2',duration:'15 min',durationMin:15,color:'#60B8F0'},
+    {title:'8-10 × 45" cuesta arriba',sub:'A Z4 · bajar trotando',duration:'25 min',durationMin:25,color:'#F08C30'},
+    {title:'Vuelta a la calma',sub:'10 min llano suave',duration:'10 min',durationMin:10,color:'#60B8F0'}
+  ],
+  'Técnica en piscina':[
+    {title:'Calentamiento',sub:'200m estilo libre suave',duration:'10 min',durationMin:10,color:'#60B8F0'},
+    {title:'Drills técnicos',sub:'Catch-up · dedos al muslo · one arm',duration:'15 min',durationMin:15,color:'#4EA84A'},
+    {title:'Series técnica',sub:'6 × 100m · foco en la brazada',duration:'20 min',durationMin:20,color:'#F0C84A'},
+    {title:'Vuelta a la calma',sub:'100m muy suave',duration:'5 min',durationMin:5,color:'#60B8F0'}
+  ],
+  'Series en piscina':[
+    {title:'Calentamiento',sub:'300m estilo libre suave',duration:'10 min',durationMin:10,color:'#60B8F0'},
+    {title:'8 × 100m a Z3-Z4',sub:'20 seg pausa entre series',duration:'25 min',durationMin:25,color:'#F08C30'},
+    {title:'Vuelta a la calma',sub:'200m muy suave',duration:'5 min',durationMin:5,color:'#60B8F0'}
+  ],
+  'Nado técnico':[
+    {title:'Calentamiento',sub:'200m suave',duration:'8 min',durationMin:8,color:'#60B8F0'},
+    {title:'Drills de brazada',sub:'Pull · kick · rotación',duration:'20 min',durationMin:20,color:'#4EA84A'},
+    {title:'Nado técnico',sub:'Foco en entrada y tracción',duration:'12 min',durationMin:12,color:'#F0C84A'},
+    {title:'Vuelta a la calma',sub:'100m suave',duration:'5 min',durationMin:5,color:'#60B8F0'}
+  ]
+};
+
+const gymExercises={
+  'Fuerza tren inferior':[
+    {name:'Sentadilla',figure:'Sentadilla',detail:'4 × 8 reps · 75-80% RM · 2 min descanso',muscle:'Cuádriceps · Glúteos'},
+    {name:'Romanian Deadlift',figure:'Romanian Deadlift',detail:'3 × 10 reps · controla la bajada 3 seg',muscle:'Isquios · Glúteos'},
+    {name:'Sentadilla búlgara',figure:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},
+    {name:'Step-up',figure:'Step-up',detail:'3 × 10 reps cada pierna',muscle:'Cuádriceps · Glúteos'},
+    {name:'Hip thrust',figure:'Hip thrust',detail:'4 × 12 reps · aprieta glúteo arriba',muscle:'Glúteos'},
+    {name:'Elevación de talones',figure:'Elevación de talones',detail:'3 × 15 reps · lento y controlado',muscle:'Gemelos · Sóleo'}
+  ],
+  'Fuerza tren superior':[
+    {name:'Press de banca',figure:'Press de banca',detail:'4 × 8-10 reps',muscle:'Pectoral · Tríceps'},
+    {name:'Remo con mancuerna',figure:'Remo con mancuerna',detail:'3 × 10 reps cada brazo',muscle:'Espalda · Bíceps'},
+    {name:'Press militar',figure:'Press militar',detail:'3 × 8 reps · core activado',muscle:'Hombros · Tríceps'},
+    {name:'Dominadas',figure:'Dominadas',detail:'3 × máx reps o 5 negativas lentas',muscle:'Espalda · Bíceps'},
+    {name:'Curl de bíceps',figure:'Curl de bíceps',detail:'3 × 12 reps',muscle:'Bíceps'},
+    {name:'Dips',figure:'Dips',detail:'3 × máx reps controladas',muscle:'Tríceps · Pectoral'}
+  ],
+  'Full body funcional':[
+    {name:'Sentadilla',figure:'Sentadilla',detail:'3 × 12 reps dinámicas',muscle:'Piernas · Glúteos'},
+    {name:'Flexiones',figure:'Flexiones',detail:'3 × 10-15 reps',muscle:'Pectoral · Tríceps'},
+    {name:'Dominadas',figure:'Dominadas',detail:'3 × 8 reps o máximo',muscle:'Espalda · Bíceps'},
+    {name:'Plancha',figure:'Plancha',detail:'3 × 45 segundos',muscle:'Core · Estabilidad'},
+    {name:'Bird dog',figure:'Bird dog',detail:'3 × 10 reps cada lado · lento',muscle:'Core · Lumbares'},
+    {name:'Dead bug',figure:'Dead bug',detail:'3 × 8 reps cada lado · espalda pegada al suelo',muscle:'Core · Transverso'}
+  ],
+  'Calistenia básica':[
+    {name:'Flexiones',figure:'Flexiones',detail:'4 × máx reps controladas',muscle:'Pectoral · Tríceps'},
+    {name:'Dominadas',figure:'Dominadas',detail:'4 × máx o 5 negativas lentas',muscle:'Espalda · Bíceps'},
+    {name:'Dips',figure:'Dips',detail:'3 × máx reps',muscle:'Tríceps · Pectoral'},
+    {name:'Sentadilla búlgara',figure:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},
+    {name:'Plancha',figure:'Plancha',detail:'3 × 1 min',muscle:'Core'},
+    {name:'Bird dog',figure:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'}
+  ],
+  'Core y movilidad':[
+    {name:'Plancha frontal',figure:'Plancha',detail:'3 × 45-60 segundos',muscle:'Core · Transverso'},
+    {name:'Bird dog',figure:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'},
+    {name:'Dead bug',figure:'Dead bug',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'},
+    {name:'Hip thrust',figure:'Hip thrust',detail:'2 × 15 reps · movilidad cadera',muscle:'Cadera · Glúteos'},
+    {name:'Sentadilla búlgara',figure:'Sentadilla búlgara',detail:'2 × 8 reps · mobilitat maluc',muscle:'Cadera · Flexors'},
+    {name:'Elevación de talones',figure:'Elevación de talones',detail:'2 × 12 reps · mobilitat turmell',muscle:'Gemelos · Turmell'}
+  ]
+};
+
+const tips={
+  'Rodaje Z2':'Si puedes mantener una conversación sin problemas, vas bien. Si no puedes hablar, baja el ritmo. El Z2 es donde construyes todo.',
+  'Rodaje largo':'Ve siempre más despacio de lo que crees. Bebe cada 20 minutos aunque no tengas sed. El ritmo del fondo es el que puedes mantener horas.',
+  'Series de velocidad':'La recuperación es tan importante como el esfuerzo. Si llegas fatigado a la siguiente serie, paras. Mejor 6 series buenas que 10 malas.',
+  'Rodaje de recuperación':'Ve lento de verdad. Este entreno activa la circulación y elimina el lactato. Si te sientes bien, no aceleres.',
+  'Rodada Z2':'Mantén cadencia por encima de 85-90 rpm. Cadencia baja fatiga más las piernas para el running.',
+  'Series en bici':'El sweetspot (88-93% FTP) es el rango más eficiente para mejorar el umbral. No te pases o no podrás entrenar mañana.',
+  'Fuerza tren inferior':'Controla la bajada contando 3 segundos. La rodilla no pasa el pie en sentadilla. Core siempre activado.',
+  'Fuerza tren superior':'El remo es tan importante como el press. La mayoría de corredores tienen pectoral fuerte y espalda débil. Equilibra.',
+  'Full body funcional':'Foco en calidad del movimiento, no en el peso. Bird dog y dead bug son los más importantes para corredores.',
+  'Calistenia básica':'Las negativas en dominadas son el mejor ejercicio para aprender. 5 negativas lentas > 0 dominadas completas.',
+  'Core y movilidad':'El core no es solo el abdomen. Bird dog y dead bug son los más importantes para prevenir lesiones de espalda.',
+  'Brick bici-running':'Las primeras transiciones son raras — las piernas pesan el doble. Con el tiempo el cuerpo se adapta. Es normal.',
+  'Técnica en piscina':'En natación la técnica vale el doble que el esfuerzo. Una brazada eficiente te hace más rápido que nadar más fuerte.',
+  'Series en piscina':'La pausa entre series es para llegar fresco a cada una. Si necesitas más descanso, tómatelo.',
+  'Trail Z2':'En trail el Z2 es por esfuerzo, no por ritmo. Las subidas pronunciadas, camina. Los mejores trailrunners caminan las subidas.',
+  'Series de cuestas':'Las cuestas son el gimnasio del runner — fuerza específica sin impacto. Sube de puntillas con zancada corta.',
+  'Nado técnico':'Graba un vídeo de tu brazada si puedes. Ver tus errores vale más que 10 horas de entrenamiento.'
+};
+
+// RENDERITZA HERO
+document.getElementById('h-icon').textContent=icon;
+document.getElementById('h-title').textContent=title;
+document.getElementById('h-why').textContent='"'+(why||'Cada sesión tiene un propósito.')+'"';
+
+const statItems=[
+  {icon:'⏱',text:duracio+' min'},
+  ...tags.map(t=>({icon:'',text:t})),
+  {icon:'📊',text:nivel}
+];
+document.getElementById('h-stats').innerHTML=statItems.map(s=>`<span class="hero-stat">${s.icon?s.icon+' ':''}${s.text}</span>`).join('');
+
+// ZONES (cardio only)
+if(isCardio){
+  document.getElementById('zones-section').innerHTML=`
+    <div class="section">
+      <div class="section-title">Zonas de FC</div>
+      <div class="zones-row">
+        ${zones.map((z,i)=>`
+          <div class="zone ${i===mainZone?'':'dim'}" style="background:${z.color}">
+            <div class="zone-label">${z.label}</div>
+            <div class="zone-range">${z.min}-${z.max}</div>
+          </div>`).join('')}
+      </div>
+      <p style="font-size:.72rem;color:#888780;margin-top:.5rem">Zona objetivo: <strong style="color:#111110">${zones[mainZone].label} · ${zones[mainZone].min}-${zones[mainZone].max} bpm</strong></p>
+    </div>`;
+}
+
+// ESTRUCTURA (cardio)
+const structure=sessionStructures[title];
+if(structure){
+  document.getElementById('structure-section').innerHTML=`
+    <div class="section">
+      <div class="section-title">Estructura</div>
+      <div class="blocks">
+        ${structure.map(b=>`
+          <div class="block">
+            <div class="block-dot" style="background:${b.color}"></div>
+            <div class="block-info">
+              <div class="block-title">${b.title}</div>
+              <div class="block-sub">${b.sub}</div>
+            </div>
+            <div class="block-time">${b.duration}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// EXERCICIS amb monigotes (gym)
+const exList=gymExercises[title];
+if(exList){
+  document.getElementById('exercises-section').innerHTML=`
+    <div class="section">
+      <div class="section-title">Ejercicios</div>
+      <div class="exercises">
+        ${exList.map(e=>`
+          <div class="exercise">
+            <div class="exercise-figure">${figures[e.figure]||figures['default']}</div>
+            <div class="exercise-info">
+              <div class="exercise-name">${e.name}</div>
+              <div class="exercise-detail">${e.detail}</div>
+              <span class="exercise-muscle">${e.muscle}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// TIP
+const tip=tips[title]||why;
+if(tip){
+  document.getElementById('tip-section').innerHTML=`
+    <div class="section">
+      <div class="section-title">Consejo del coach</div>
+      <div class="tip"><div class="tip-dot"></div><div class="tip-text">${tip}</div></div>
+    </div>`;
+}
+
+// GPX (cardio outdoor)
+if(['Rodaje Z2','Rodaje largo','Series de velocidad','Rodaje de recuperación','Trail Z2','Series de cuestas','Rodada Z2','Ruta larga'].includes(title)){
+  document.getElementById('gpx-section').innerHTML=`
+    <div class="section">
+      <div class="section-title">Exportar al reloj</div>
+      <div class="gpx-card">
+        <div class="gpx-info">
+          <div class="gpx-title">⌚ Enviar a Garmin</div>
+          <div class="gpx-sub">Descarga el entreno con zonas y estructura</div>
+        </div>
+        <button class="btn-gpx" onclick="downloadGPX()">Descargar .fit</button>
+      </div>
+    </div>`;
+}
+
+// GPX GENERATOR
+function downloadGPX(){
+  const blocks=structure||[{title:title,durationMin:duracio,color:'#4EA84A'}];
+  const zoneTarget=zones[mainZone];
+  let gpx=`<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2">
+  <Workouts>
+    <Workout Sport="Running">
+      <Name>${title}</Name>
+      ${blocks.map(b=>`
+      <Step xsi:type="Step_t">
+        <StepId>1</StepId>
+        <Name>${b.title}</Name>
+        <Duration xsi:type="Time_t">
+          <Seconds>${(b.durationMin||10)*60}</Seconds>
+        </Duration>
+        <Intensity>Active</Intensity>
+        <Target xsi:type="HeartRate_t">
+          <HeartRateZone xsi:type="CustomHeartRateZone_t">
+            <Low>${zoneTarget.min}</Low>
+            <High>${zoneTarget.max}</High>
+          </HeartRateZone>
+        </Target>
+      </Step>`).join('')}
+    </Workout>
+  </Workouts>
+</TrainingCenterDatabase>`;
+
+  const blob=new Blob([gpx],{type:'application/xml'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=title.replace(/\s+/g,'_')+'.tcx';
+  a.click();
+}
+
+// MODE GUIAT
+let guidedSteps=[];
+let currentStep=0;
+let timerInterval=null;
+let timeLeft=0;
+
+function buildGuidedSteps(){
+  if(structure){
+    guidedSteps=structure.map(b=>({type:'cardio',...b}));
+  } else if(exList){
+    guidedSteps=[
+      {type:'intro',title:'¡A por ello!',sub:'Prepara el espacio y calienta 5 min',duration:'5 min',durationMin:5,color:'#60B8F0'},
+      ...exList.map(e=>({type:'exercise',...e,duration:'',durationMin:0})),
+      {type:'outro',title:'¡Sesión completada!',sub:'Estira y recupera bien',duration:'5 min',durationMin:5,color:'#4EA84A'}
+    ];
+  }
+}
+
+function startGuided(){
+  buildGuidedSteps();
+  currentStep=0;
+  document.getElementById('guided').classList.add('open');
+  renderGuidedStep();
+}
+
+function closeGuided(){
+  document.getElementById('guided').classList.remove('open');
+  clearInterval(timerInterval);
+}
+
+function renderGuidedStep(){
+  clearInterval(timerInterval);
+  const step=guidedSteps[currentStep];
+  const isLast=currentStep===guidedSteps.length-1;
+  const isFirst=currentStep===0;
+
+  const dots=guidedSteps.map((_,i)=>`<div class="step-dot ${i<currentStep?'done':i===currentStep?'current':''}"></div>`).join('');
+
+  let content='';
+
+  if(step.type==='exercise'){
+    content=`
+      <div class="guided-step-label">Ejercicio ${currentStep} de ${guidedSteps.length-2}</div>
+      <div style="width:100px;height:100px;margin-bottom:1rem">${figures[step.figure]||figures['default']}</div>
+      <div class="guided-title">${step.name}</div>
+      <div class="guided-sub">${step.detail}</div>
+      <div style="font-size:0.85rem;color:rgba(255,255,255,0.4);margin-bottom:2rem">${step.muscle}</div>`;
+  } else {
+    timeLeft=(step.durationMin||1)*60;
+    content=`
+      <div class="guided-step-label">Paso ${currentStep+1} de ${guidedSteps.length}</div>
+      <div class="guided-title">${step.title}</div>
+      <div class="guided-sub">${step.sub}</div>
+      <div class="guided-timer" id="guided-timer">${formatTime(timeLeft)}</div>
+      <div class="guided-timer-label">minutos restantes</div>
+      <div class="guided-progress"><div class="guided-progress-fill" id="guided-progress" style="width:0%"></div></div>`;
+
+    setTimeout(()=>{
+      const total=(step.durationMin||1)*60;
+      timerInterval=setInterval(()=>{
+        timeLeft--;
+        const el=document.getElementById('guided-timer');
+        const pr=document.getElementById('guided-progress');
+        if(el) el.textContent=formatTime(timeLeft);
+        if(pr) pr.style.width=((total-timeLeft)/total*100)+'%';
+        if(timeLeft<=0){
+          clearInterval(timerInterval);
+          if(!isLast) nextGuidedStep();
+        }
+      },1000);
+    },100);
+  }
+
+  document.getElementById('guided-content').innerHTML=`
+    <div class="guided-steps-dots">${dots}</div>
+    ${content}
+    <div class="guided-actions">
+      ${!isFirst?`<button class="btn-guided-prev" onclick="prevGuidedStep()">← Anterior</button>`:''}
+      <button class="btn-guided-next" onclick="${isLast?'closeGuided()':'nextGuidedStep()'}">
+        ${isLast?'¡Completado! 🎉':step.type==='exercise'?'Hecho ✓':'Siguiente →'}
+      </button>
+    </div>`;
+}
+
+function nextGuidedStep(){
+  if(currentStep<guidedSteps.length-1){currentStep++;renderGuidedStep();}
+}
+function prevGuidedStep(){
+  if(currentStep>0){currentStep--;renderGuidedStep();}
+}
+function formatTime(secs){
+  const m=Math.floor(secs/60);
+  const s=secs%60;
+  return m+':'+(s<10?'0':'')+s;
+}
+function scrollToTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
+</script>
+</body>
+</html>
