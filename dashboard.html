@@ -308,7 +308,12 @@
       });
       const data=await response.json();
       if(data.setmana){
-        planDays=data.setmana;
+       planDays=data.setmana.map((d,i)=>({
+  ...d,
+  day:d.day||d.dia||dayNames[i]||dayNames[0],
+  title:d.title||d.titulo||d.name||'Sesión',
+  duracio_min:d.duracio_min||d.duracion||d.duration||45
+}));
         if(data.resum) window._coachResum=data.resum;
         renderAll();
         if(currentEmail) await savePlanToSupabase();
@@ -346,13 +351,21 @@
       });
       const data=await response.json();
       if(data.setmana){
-        planDays=data.setmana;
+        planDays=data.setmana.map((d,i)=>({
+  ...d,
+  day:d.day||d.dia||dayNames[i]||dayNames[0],
+  title:d.title||d.titulo||d.name||'Sesión',
+  duracio_min:d.duracio_min||d.duracion||d.duration||45
+}));
         if(data.resum) window._coachResum=data.resum;
-        if(data.missatge){
-          document.getElementById('reajust-text').textContent=data.missatge;
-          document.getElementById('reajust-banner').classList.add('show');
-          setTimeout(()=>document.getElementById('reajust-banner').classList.remove('show'),5000);
-        }
+        renderAll();
+        if(currentEmail) await savePlanToSupabase();
+        else setTimeout(()=>openEmailModal(),2000);
+      } else throw new Error('Format incorrecte');
+    } catch(error){
+      console.error('Error IA:',error);
+      buildPlanStatic(user);
+      renderAll();
         renderAll();
         if(currentEmail) await savePlanToSupabase();
       }
