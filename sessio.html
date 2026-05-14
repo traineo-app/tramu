@@ -35,11 +35,9 @@
     .block-title{font-size:.95rem;font-weight:500;color:#111110;margin-bottom:3px}
     .block-sub{font-size:.8rem;color:#888780}
     .block-time{font-size:.9rem;font-weight:600;color:#163A28;flex-shrink:0}
-    .exercises{display:flex;flex-direction:column;gap:10px}
+    .exercises{display:flex;flex-direction:column;gap:8px}
     .exercise{background:#fff;border:.5px solid #E8E6DF;border-radius:12px;padding:1rem;display:flex;align-items:center;gap:1rem}
-    .ex-fig{width:80px;height:80px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#F1EFE8;border-radius:10px;overflow:hidden}
-    .ex-fig img{width:80px;height:80px;object-fit:cover;border-radius:10px}
-    .ex-fig-spinner{width:24px;height:24px;border:2px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite}
+    .ex-num{width:36px;height:36px;border-radius:50%;background:#163A28;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:600;flex-shrink:0}
     .ex-info{flex:1}
     .ex-name{font-size:.95rem;font-weight:500;color:#111110;margin-bottom:4px}
     .ex-detail{font-size:.82rem;color:#888780;margin-bottom:5px;line-height:1.4}
@@ -59,17 +57,16 @@
     .guided-header{width:100%;display:flex;align-items:center;justify-content:space-between}
     .guided-step-info{font-size:.8rem;color:rgba(255,255,255,.5)}
     .btn-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:.9rem;font-family:'Outfit',sans-serif}
-    .guided-dots{display:flex;gap:5px}
+    .guided-dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;max-width:200px}
     .gdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .2s}
     .gdot.done{background:rgba(255,255,255,.6)}
     .gdot.active{background:#fff;transform:scale(1.3)}
     .guided-body{display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;justify-content:center;gap:.75rem;width:100%}
     .guided-type{font-size:.72rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em}
-    .guided-gif{width:140px;height:140px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center}
-    .guided-gif img{width:140px;height:140px;object-fit:cover}
-    .guided-gif-spinner{width:32px;height:32px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    .guided-emoji{font-size:4rem;line-height:1}
     .guided-name{font-size:1.6rem;font-weight:500;color:#fff;letter-spacing:-.3px;line-height:1.2}
     .guided-detail{font-size:.95rem;color:rgba(255,255,255,.6);line-height:1.5}
+    .guided-muscle{font-size:.8rem;color:rgba(255,255,255,.35)}
     .guided-timer{font-size:3.5rem;font-weight:300;color:#fff;letter-spacing:-2px;font-variant-numeric:tabular-nums}
     .guided-timer-lbl{font-size:.75rem;color:rgba(255,255,255,.35)}
     .guided-progress{width:100%;height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden}
@@ -132,7 +129,7 @@ const fcmax=parseInt(params.get('fcmax'))||185;
 const duracio=parseInt(params.get('duracio'))||45;
 
 const titleLower=title.toLowerCase();
-const isGym=titleLower.includes('inferior')||titleLower.includes('superior')||titleLower.includes('full body')||titleLower.includes('calistenia')||titleLower.includes('core')||titleLower.includes('fuerza')||titleLower.includes('gimnas')||titleLower.includes('gym')||titleLower.includes('lower')||titleLower.includes('upper');
+const isGym=titleLower.includes('inferior')||titleLower.includes('superior')||titleLower.includes('full body')||titleLower.includes('calistenia')||titleLower.includes('core')||titleLower.includes('fuerza')||titleLower.includes('gimnas')||titleLower.includes('gym')||titleLower.includes('lower')||titleLower.includes('upper')||titleLower.includes('tren');
 const isCardio=!isGym;
 
 const zones=[
@@ -155,61 +152,61 @@ function getMainZone(t){
 const mainZone=getMainZone(title);
 
 const structures={
-  'Rodaje Z2':[{title:'Calentamiento',sub:'Trote suave Z1 · ritmo cómodo',dur:10,color:'#60B8F0'},{title:'Bloque Z2',sub:'Ritmo conversacional · '+Math.round(fcmax*.63)+'-'+Math.round(fcmax*.70)+' bpm',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave + estirar',dur:5,color:'#60B8F0'}],
-  'Rodaje largo':[{title:'Calentamiento',sub:'10 min Z1 muy suave',dur:10,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo cómodo · si puedes hablar, vas bien',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Andar + estirar',dur:5,color:'#60B8F0'}],
+  'Rodaje Z2':[{title:'Calentamiento',sub:'Trote suave Z1',dur:10,color:'#60B8F0'},{title:'Bloque Z2',sub:'Ritmo conversacional · '+Math.round(fcmax*.63)+'-'+Math.round(fcmax*.70)+' bpm',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave + estirar',dur:5,color:'#60B8F0'}],
+  'Rodaje largo':[{title:'Calentamiento',sub:'Z1 muy suave',dur:10,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo cómodo · hablar sin problemas',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Andar + estirar',dur:5,color:'#60B8F0'}],
   'Series de velocidad':[{title:'Calentamiento',sub:'15 min trote + 4 strides',dur:15,color:'#60B8F0'},{title:'6 × 400m a Z4',sub:'90 seg recuperación entre series',dur:20,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min trote suave',dur:10,color:'#60B8F0'}],
   'Rodaje de recuperación':[{title:'Trote Z1',sub:'Muy suave · nunca forzar',dur:duracio,color:'#60B8F0'}],
-  'Rodada Z2':[{title:'Calentamiento',sub:'Cadencia alta, potencia baja',dur:10,color:'#60B8F0'},{title:'Z2 en bici',sub:'Cadencia 90+ rpm · '+Math.round(fcmax*.62)+'-'+Math.round(fcmax*.70)+' bpm',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Reducir potencia gradualmente',dur:5,color:'#60B8F0'}],
+  'Rodada Z2':[{title:'Calentamiento',sub:'Cadencia alta, potencia baja',dur:10,color:'#60B8F0'},{title:'Z2 en bici',sub:'Cadencia 90+ rpm · '+Math.round(fcmax*.62)+'-'+Math.round(fcmax*.70)+' bpm',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Reducir potencia',dur:5,color:'#60B8F0'}],
   'Series en bici':[{title:'Calentamiento',sub:'15 min cadencia alta Z2',dur:15,color:'#60B8F0'},{title:'4 × 8 min sweetspot',sub:'88-93% FTP · 4 min recuperación',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min Z1',dur:10,color:'#60B8F0'}],
-  'Ruta larga':[{title:'Salida suave Z1',sub:'Los primeros 20 min tranquilo',dur:20,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo sostenible largo',dur:duracio-30,color:'#4EA84A'},{title:'Vuelta a casa Z1',sub:'Reducir intensidad al final',dur:10,color:'#60B8F0'}],
+  'Ruta larga':[{title:'Salida suave Z1',sub:'Primeros 20 min tranquilo',dur:20,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo sostenible',dur:duracio-30,color:'#4EA84A'},{title:'Vuelta a casa Z1',sub:'Reducir intensidad',dur:10,color:'#60B8F0'}],
   'Brick bici-running':[{title:'Bici Z2-Z3',sub:'Ritmo medio-alto',dur:Math.round(duracio*.65),color:'#F0C84A'},{title:'Transición',sub:'Cambio rápido de zapatillas',dur:2,color:'#888780'},{title:'Running Z3',sub:'Aguanta con piernas cargadas',dur:Math.round(duracio*.33),color:'#F08C30'}],
-  'Trail Z2':[{title:'Calentamiento en llano',sub:'Trote Z1',dur:10,color:'#60B8F0'},{title:'Trail Z2',sub:'Per esfuerzo · caminar subidas si FC > Z3',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave',dur:5,color:'#60B8F0'}],
+  'Trail Z2':[{title:'Calentamiento en llano',sub:'Trote Z1',dur:10,color:'#60B8F0'},{title:'Trail Z2',sub:'Por esfuerzo · caminar subidas fuertes',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave',dur:5,color:'#60B8F0'}],
   'Series de cuestas':[{title:'Calentamiento en llano',sub:'15 min Z1-Z2',dur:15,color:'#60B8F0'},{title:'8-10 × 45" cuesta arriba',sub:'A Z4 · bajar trotando',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min llano suave',dur:10,color:'#60B8F0'}],
-  'Técnica en piscina':[{title:'Calentamiento',sub:'200m estilo libre suave',dur:10,color:'#60B8F0'},{title:'Drills técnicos',sub:'Catch-up · dedos al muslo · one arm',dur:15,color:'#4EA84A'},{title:'Series técnica',sub:'6 × 100m · foco en la brazada',dur:20,color:'#F0C84A'},{title:'Vuelta a la calma',sub:'100m muy suave',dur:5,color:'#60B8F0'}],
-  'Series en piscina':[{title:'Calentamiento',sub:'300m suave',dur:10,color:'#60B8F0'},{title:'8 × 100m a Z3-Z4',sub:'20 seg pausa entre series',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'200m muy suave',dur:5,color:'#60B8F0'}],
-  'Nado técnico':[{title:'Calentamiento',sub:'200m suave',dur:8,color:'#60B8F0'},{title:'Drills',sub:'Pull · kick · rotación de cadera',dur:20,color:'#4EA84A'},{title:'Nado técnico',sub:'Foco en entrada y tracción',dur:12,color:'#F0C84A'},{title:'Vuelta a la calma',sub:'100m suave',dur:5,color:'#60B8F0'}]
+  'Técnica en piscina':[{title:'Calentamiento',sub:'200m estilo libre suave',dur:10,color:'#60B8F0'},{title:'Drills técnicos',sub:'Catch-up · dedos al muslo',dur:15,color:'#4EA84A'},{title:'Series técnica',sub:'6 × 100m · foco en brazada',dur:20,color:'#F0C84A'},{title:'Vuelta a la calma',sub:'100m suave',dur:5,color:'#60B8F0'}],
+  'Series en piscina':[{title:'Calentamiento',sub:'300m suave',dur:10,color:'#60B8F0'},{title:'8 × 100m a Z3-Z4',sub:'20 seg pausa entre series',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'200m suave',dur:5,color:'#60B8F0'}],
+  'Nado técnico':[{title:'Calentamiento',sub:'200m suave',dur:8,color:'#60B8F0'},{title:'Drills',sub:'Pull · kick · rotación',dur:20,color:'#4EA84A'},{title:'Nado técnico',sub:'Foco en entrada y tracción',dur:12,color:'#F0C84A'},{title:'Vuelta a la calma',sub:'100m suave',dur:5,color:'#60B8F0'}]
 };
 
 const gymData={
   'Fuerza tren inferior':[
-    {name:'Sentadilla',detail:'4 × 8 reps · 75-80% RM · 2 min descanso',muscle:'Cuádriceps · Glúteos'},
-    {name:'Romanian Deadlift',detail:'3 × 10 reps · controla la bajada 3 seg',muscle:'Isquios · Glúteos'},
-    {name:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},
-    {name:'Hip thrust',detail:'4 × 12 reps · aprieta el glúteo arriba',muscle:'Glúteos'},
-    {name:'Step-up',detail:'3 × 10 reps cada pierna',muscle:'Cuádriceps · Glúteos'},
-    {name:'Elevación de talones',detail:'3 × 15 reps · lento y controlado',muscle:'Gemelos · Sóleo'}
+    {name:'Sentadilla',emoji:'🏋️',detail:'4 × 8 reps · 75-80% RM · 2 min descanso',muscle:'Cuádriceps · Glúteos'},
+    {name:'Romanian Deadlift',emoji:'🏋️',detail:'3 × 10 reps · controla la bajada 3 seg',muscle:'Isquios · Glúteos'},
+    {name:'Sentadilla búlgara',emoji:'🦵',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},
+    {name:'Hip thrust',emoji:'🍑',detail:'4 × 12 reps · aprieta el glúteo arriba',muscle:'Glúteos'},
+    {name:'Step-up',emoji:'⬆️',detail:'3 × 10 reps cada pierna',muscle:'Cuádriceps · Glúteos'},
+    {name:'Elevación de talones',emoji:'🦶',detail:'3 × 15 reps · lento y controlado',muscle:'Gemelos · Sóleo'}
   ],
   'Fuerza tren superior':[
-    {name:'Press de banca',detail:'4 × 8-10 reps',muscle:'Pectoral · Tríceps'},
-    {name:'Remo con mancuerna',detail:'3 × 10 reps cada brazo',muscle:'Espalda · Bíceps'},
-    {name:'Press militar',detail:'3 × 8 reps · core activado',muscle:'Hombros · Tríceps'},
-    {name:'Dominadas',detail:'3 × máx o 5 negativas lentas',muscle:'Espalda · Bíceps'},
-    {name:'Curl de bíceps',detail:'3 × 12 reps',muscle:'Bíceps'},
-    {name:'Dips',detail:'3 × máx reps controladas',muscle:'Tríceps · Pectoral'}
+    {name:'Press de banca',emoji:'💪',detail:'4 × 8-10 reps',muscle:'Pectoral · Tríceps'},
+    {name:'Remo con mancuerna',emoji:'🏋️',detail:'3 × 10 reps cada brazo',muscle:'Espalda · Bíceps'},
+    {name:'Press militar',emoji:'⬆️',detail:'3 × 8 reps · core activado',muscle:'Hombros · Tríceps'},
+    {name:'Dominadas',emoji:'🔼',detail:'3 × máx o 5 negativas lentas',muscle:'Espalda · Bíceps'},
+    {name:'Curl de bíceps',emoji:'💪',detail:'3 × 12 reps',muscle:'Bíceps'},
+    {name:'Dips',emoji:'🔽',detail:'3 × máx reps controladas',muscle:'Tríceps · Pectoral'}
   ],
   'Full body funcional':[
-    {name:'Sentadilla',detail:'3 × 12 reps dinámicas',muscle:'Piernas · Glúteos'},
-    {name:'Flexiones',detail:'3 × 10-15 reps',muscle:'Pectoral · Tríceps'},
-    {name:'Dominadas',detail:'3 × 8 reps o máximo',muscle:'Espalda · Bíceps'},
-    {name:'Plancha',detail:'3 × 45 segundos',muscle:'Core'},
-    {name:'Bird dog',detail:'3 × 10 reps cada lado · lento',muscle:'Core · Lumbares'},
-    {name:'Dead bug',detail:'3 × 8 reps · espalda pegada al suelo',muscle:'Core · Transverso'}
+    {name:'Sentadilla',emoji:'🏋️',detail:'3 × 12 reps dinámicas',muscle:'Piernas · Glúteos'},
+    {name:'Flexiones',emoji:'💪',detail:'3 × 10-15 reps',muscle:'Pectoral · Tríceps'},
+    {name:'Dominadas',emoji:'🔼',detail:'3 × 8 reps o máximo',muscle:'Espalda · Bíceps'},
+    {name:'Plancha',emoji:'⚡',detail:'3 × 45 segundos',muscle:'Core'},
+    {name:'Bird dog',emoji:'🐦',detail:'3 × 10 reps cada lado · lento',muscle:'Core · Lumbares'},
+    {name:'Dead bug',emoji:'🐛',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'}
   ],
   'Calistenia básica':[
-    {name:'Flexiones',detail:'4 × máx reps controladas',muscle:'Pectoral · Tríceps'},
-    {name:'Dominadas',detail:'4 × máx o 5 negativas',muscle:'Espalda · Bíceps'},
-    {name:'Dips',detail:'3 × máx reps',muscle:'Tríceps · Pectoral'},
-    {name:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},
-    {name:'Plancha',detail:'3 × 1 min',muscle:'Core'},
-    {name:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'}
+    {name:'Flexiones',emoji:'💪',detail:'4 × máx reps controladas',muscle:'Pectoral · Tríceps'},
+    {name:'Dominadas',emoji:'🔼',detail:'4 × máx o 5 negativas',muscle:'Espalda · Bíceps'},
+    {name:'Dips',emoji:'🔽',detail:'3 × máx reps',muscle:'Tríceps · Pectoral'},
+    {name:'Sentadilla búlgara',emoji:'🦵',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},
+    {name:'Plancha',emoji:'⚡',detail:'3 × 1 min',muscle:'Core'},
+    {name:'Bird dog',emoji:'🐦',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'}
   ],
   'Core y movilidad':[
-    {name:'Plancha frontal',detail:'3 × 45-60 seg',muscle:'Core · Transverso'},
-    {name:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'},
-    {name:'Dead bug',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'},
-    {name:'Hip thrust',detail:'2 × 15 reps · movilidad cadera',muscle:'Cadera · Glúteos'},
-    {name:'Sentadilla búlgara',detail:'2 × 8 reps movilidad',muscle:'Cadera · Flexores'},
-    {name:'Elevación de talones',detail:'2 × 12 reps lento',muscle:'Gemelos · Tobillo'}
+    {name:'Plancha frontal',emoji:'⚡',detail:'3 × 45-60 seg',muscle:'Core · Transverso'},
+    {name:'Bird dog',emoji:'🐦',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'},
+    {name:'Dead bug',emoji:'🐛',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'},
+    {name:'Hip thrust',emoji:'🍑',detail:'2 × 15 reps · movilidad cadera',muscle:'Cadera · Glúteos'},
+    {name:'Sentadilla búlgara',emoji:'🦵',detail:'2 × 8 reps movilidad',muscle:'Cadera · Flexores'},
+    {name:'Elevación de talones',emoji:'🦶',detail:'2 × 12 reps lento',muscle:'Gemelos · Tobillo'}
   ]
 };
 
@@ -233,7 +230,6 @@ const tips={
   'Nado técnico':'Graba un vídeo de tu brazada si puedes. Ver tus errores vale más que horas de entrenamiento.'
 };
 
-// MATCHING PER PARAULES CLAU
 function findStruct(t){
   if(structures[t]) return structures[t];
   const tl=t.toLowerCase();
@@ -247,44 +243,22 @@ function findStruct(t){
   if(tl.includes('piscina')||tl.includes('natación')||tl.includes('nado')) return structures['Técnica en piscina'];
   if(tl.includes('ruta')) return structures['Ruta larga'];
   if(tl.includes('bici')||tl.includes('cicl')||tl.includes('rodada')) return structures['Rodada Z2'];
-  if(tl.includes('z2')||tl.includes('aeróbico')||tl.includes('rodaje')) return structures['Rodaje Z2'];
-  return null;
+  return structures['Rodaje Z2'];
 }
 
 function findGym(t){
   if(gymData[t]) return gymData[t];
   const tl=t.toLowerCase();
   if(tl.includes('inferior')||tl.includes('lower')||tl.includes('pierna')||tl.includes('leg')) return gymData['Fuerza tren inferior'];
-  if(tl.includes('superior')||tl.includes('upper')||tl.includes('pecho')||tl.includes('espalda')) return gymData['Fuerza tren superior'];
-  if(tl.includes('full body')||tl.includes('funcional')||tl.includes('total')||tl.includes('completo')) return gymData['Full body funcional'];
+  if(tl.includes('superior')||tl.includes('upper')||tl.includes('pecho')||tl.includes('espalda')||tl.includes('a ')) return gymData['Fuerza tren superior'];
+  if(tl.includes('full body')||tl.includes('funcional')||tl.includes('total')||tl.includes('completo')||tl.includes('b ')) return gymData['Full body funcional'];
   if(tl.includes('calistenia')) return gymData['Calistenia básica'];
-  if(tl.includes('core')||tl.includes('movilidad')||tl.includes('mobility')) return gymData['Core y movilidad'];
-  if(tl.includes('fuerza')||tl.includes('gimnas')||tl.includes('gym')||tl.includes('strength')) return gymData['Full body funcional'];
-  return null;
+  if(tl.includes('core')||tl.includes('movilidad')) return gymData['Core y movilidad'];
+  return gymData['Full body funcional'];
 }
 
 const struct=isCardio?findStruct(title):null;
 const exList=isGym?findGym(title):null;
-
-// GIF CACHE
-const gifCache={};
-
-async function loadGif(exName, containerId){
-  try {
-    if(gifCache[exName]){
-      const el=document.getElementById(containerId);
-      if(el) el.innerHTML=`<img src="${gifCache[exName]}" alt="${exName}" loading="lazy">`;
-      return;
-    }
-    const res=await fetch('/api/exercise?name='+encodeURIComponent(exName.toLowerCase()));
-    const data=await res.json();
-    if(data.gif){
-      gifCache[exName]=data.gif;
-      const el=document.getElementById(containerId);
-      if(el) el.innerHTML=`<img src="${data.gif}" alt="${exName}" loading="lazy">`;
-    }
-  } catch(e){ console.log('GIF not found:', exName); }
-}
 
 // HERO
 document.getElementById('h-icon').textContent=icon;
@@ -332,7 +306,7 @@ if(struct){
     </div>`;
 }
 
-// EXERCICIS AMB GIFs
+// EXERCICIS
 if(exList){
   document.getElementById('exercises-sec').innerHTML=`
     <div class="section">
@@ -340,9 +314,7 @@ if(exList){
       <div class="exercises">
         ${exList.map((e,i)=>`
           <div class="exercise">
-            <div class="ex-fig" id="gif-${i}">
-              <div class="ex-fig-spinner"></div>
-            </div>
+            <div class="ex-num">${e.emoji}</div>
             <div class="ex-info">
               <div class="ex-name">${e.name}</div>
               <div class="ex-detail">${e.detail}</div>
@@ -351,12 +323,10 @@ if(exList){
           </div>`).join('')}
       </div>
     </div>`;
-  // Carrega GIFs en paral·lel
-  exList.forEach((e,i)=>loadGif(e.name,'gif-'+i));
 }
 
 // TIP
-const tipText=tips[title]||Object.entries(tips).find(([k])=>title.toLowerCase().includes(k.toLowerCase().split(' ')[0]))?.[1]||why;
+const tipText=tips[title]||Object.entries(tips).find(([k])=>titleLower.includes(k.toLowerCase().split(' ')[0]))?.[1]||why;
 if(tipText){
   document.getElementById('tip-sec').innerHTML=`
     <div class="section">
@@ -366,8 +336,7 @@ if(tipText){
 }
 
 // TCX
-const outdoorKeywords=['rodaje','rodada','ruta','trail','series','brick'];
-if(isCardio&&outdoorKeywords.some(k=>titleLower.includes(k))){
+if(isCardio){
   document.getElementById('tcx-sec').innerHTML=`
     <div class="section">
       <div class="section-title">Exportar al reloj</div>
@@ -412,9 +381,9 @@ function buildSteps(){
   if(struct){
     struct.forEach(b=>steps.push({type:'cardio',...b}));
   } else if(exList){
-    steps.push({type:'intro',title:'¡A por ello!',sub:'Prepara el espacio · 5 min de calentamiento',dur:5,color:'#60B8F0'});
+    steps.push({type:'intro',title:'¡A por ello!',sub:'Prepara el espacio · calienta 5 min',emoji:'💪',dur:5,color:'#60B8F0'});
     exList.forEach(e=>steps.push({type:'exercise',...e}));
-    steps.push({type:'outro',title:'¡Sesión completada! 🎉',sub:'Estira bien y descansa',dur:5,color:'#4A9E6B'});
+    steps.push({type:'outro',title:'¡Sesión completada!',sub:'Estira bien y descansa',emoji:'🎉',dur:5,color:'#4A9E6B'});
   } else {
     steps.push({type:'cardio',title,sub,dur:duracio,color:'#4EA84A'});
   }
@@ -449,18 +418,17 @@ function renderStep(){
   if(s.type==='exercise'){
     bodyHTML=`
       <div class="guided-type">Ejercicio ${cur} de ${steps.length-2}</div>
-      <div class="guided-gif" id="guided-gif-${cur}">
-        <div class="guided-gif-spinner"></div>
-      </div>
+      <div class="guided-emoji">${s.emoji||'💪'}</div>
       <div class="guided-name">${s.name}</div>
       <div class="guided-detail">${s.detail}</div>
-      <div style="font-size:.8rem;color:rgba(255,255,255,.4);margin-top:.25rem">${s.muscle}</div>`;
+      <div class="guided-muscle">${s.muscle}</div>`;
     document.getElementById('g-progress').style.width='0%';
   } else {
     timeLeft=(s.dur||1)*60;
     const total=timeLeft;
     bodyHTML=`
       <div class="guided-type">${s.type==='intro'?'Preparación':s.type==='outro'?'¡Completado!':'Bloque'}</div>
+      <div class="guided-emoji">${s.emoji||'🏃'}</div>
       <div class="guided-name">${s.title}</div>
       <div class="guided-detail">${s.sub||''}</div>
       <div class="guided-timer" id="g-timer">${fmt(timeLeft)}</div>
@@ -478,29 +446,6 @@ function renderStep(){
   }
 
   document.getElementById('g-body').innerHTML=bodyHTML;
-
-  // Carrega GIF al mode guiat
-  if(s.type==='exercise'){
-    const gifId='guided-gif-'+cur;
-    if(gifCache[s.name]){
-      const el=document.getElementById(gifId);
-      if(el) el.innerHTML=`<img src="${gifCache[s.name]}" alt="${s.name}">`;
-    } else {
-      loadGifGuided(s.name, gifId);
-    }
-  }
-}
-
-async function loadGifGuided(exName, containerId){
-  try {
-    const res=await fetch('/api/exercise?name='+encodeURIComponent(exName.toLowerCase()));
-    const data=await res.json();
-    if(data.gif){
-      gifCache[exName]=data.gif;
-      const el=document.getElementById(containerId);
-      if(el) el.innerHTML=`<img src="${data.gif}" alt="${exName}">`;
-    }
-  } catch(e){}
 }
 
 function nextStep(){if(cur<steps.length-1){cur++;renderStep();}else closeGuided();}
