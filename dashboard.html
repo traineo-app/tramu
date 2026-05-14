@@ -12,7 +12,7 @@
     .nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; }
     .nav-logo { font-size: 1.2rem; font-weight: 400; color: #111110; letter-spacing: -0.3px; }
     .nav-neo { color: #163A28; }
-    .nav-avatar { width: 34px; height: 34px; border-radius: 50%; background: #163A28; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 500; }
+    .nav-avatar { width: 34px; height: 34px; border-radius: 50%; background: #163A28; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
     .greeting { padding: 0 1.25rem 1rem; }
     .greeting-sub { font-size: 0.75rem; color: #888780; margin-bottom: 2px; }
     .greeting-name { font-size: 1.3rem; font-weight: 500; color: #111110; letter-spacing: -0.3px; }
@@ -25,6 +25,7 @@
     .today-tags { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .today-tag { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 20px; }
     .today-why { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.75rem; font-size: 0.8rem; color: rgba(255,255,255,0.45); font-style: italic; line-height: 1.5; margin-bottom: 1rem; }
+    .coach-resum { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-top: 0.5rem; font-style: normal; padding: 0 0.25rem; }
     .today-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
     .btn-white { background: #fff; color: #163A28; border: none; border-radius: 8px; padding: 0.7rem; font-size: 0.85rem; font-weight: 500; font-family: 'Outfit', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; }
     .btn-ghost { background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 8px; padding: 0.7rem; font-size: 0.85rem; font-weight: 500; font-family: 'Outfit', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; }
@@ -100,6 +101,9 @@
     .btn-start { background: #163A28; color: #fff; border: none; border-radius: 10px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 500; font-family: 'Outfit', sans-serif; cursor: pointer; }
     .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #111110; color: #fff; font-size: 0.85rem; font-weight: 500; padding: 0.65rem 1.25rem; border-radius: 20px; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
+    .email-modal-input { width: 100%; padding: 0.75rem 1rem; border: 0.5px solid #E8E6DF; border-radius: 10px; font-size: 0.95rem; font-family: 'Outfit', sans-serif; color: #111110; background: #fff; outline: none; margin-bottom: 1rem; }
+    .email-modal-input:focus { border-color: #163A28; }
+    .saved-badge { display: inline-flex; align-items: center; gap: 4px; background: #E8F4ED; color: #163A28; font-size: 0.7rem; font-weight: 500; padding: 3px 8px; border-radius: 20px; margin-left: 8px; }
   </style>
 </head>
 <body>
@@ -114,17 +118,30 @@
       </svg>
       <span class="nav-logo">trai<span class="nav-neo">neo</span></span>
     </div>
-    <div class="nav-avatar">T</div>
+    <div class="nav-avatar" id="nav-avatar" onclick="openEmailModal()" title="Guardar plan">T</div>
   </div>
   <div class="greeting">
     <div class="greeting-sub" id="greeting-date">Hoy</div>
-    <div class="greeting-name">Hola! 👋</div>
+    <div class="greeting-name" id="greeting-name">Hola! 👋</div>
   </div>
   <div id="main-content"></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- MODAL EMAIL -->
+<div class="modal-overlay" id="modal-email" onclick="closeModal('modal-email',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Guarda tu plan</div>
+    <div class="modal-sub">Introduce tu email para guardar el plan y recuperarlo cuando vuelvas.</div>
+    <input type="email" class="email-modal-input" id="email-input" placeholder="hola@ejemplo.com">
+    <button class="btn-green" onclick="saveWithEmail()">Guardar y continuar →</button>
+    <button class="btn-cancel" onclick="closeModal('modal-email')">Ahora no</button>
+  </div>
+</div>
+
+<!-- MODAL TEMPS -->
 <div class="modal-overlay" id="modal-time" onclick="closeModal('modal-time',event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -149,6 +166,7 @@
   </div>
 </div>
 
+<!-- MODAL SESSIÓ -->
 <div class="modal-overlay" id="modal-session" onclick="closeModal('modal-session',event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -170,6 +188,8 @@
 
   const params=new URLSearchParams(window.location.search);
   const sportsParam=params.get('sports');
+  const emailParam=params.get('email');
+
   const user=sportsParam?{
     sports:sportsParam.split(','),
     dias:parseInt(params.get('dias'))||3,
@@ -181,7 +201,8 @@
     carrera:decodeURIComponent(params.get('carrera')||''),
     distancia:decodeURIComponent(params.get('distancia')||''),
     desnivel:parseInt(params.get('desnivel'))||0,
-    fecha:decodeURIComponent(params.get('fecha')||'')
+    fecha:decodeURIComponent(params.get('fecha')||''),
+    email:emailParam||''
   }:null;
 
   const allSessionsDB={
@@ -224,8 +245,10 @@
   let selectedNewSession=null;
   let dragSrcIdx=null;
   let currentTimeMin=45;
+  let currentEmail=emailParam||'';
 
-  if(user){ buildPlan(user); }
+  // INIT
+  if(user){ initDashboard(user); }
   else {
     document.getElementById('main-content').innerHTML=`
       <div class="no-plan">
@@ -236,64 +259,106 @@
       </div>`;
   }
 
+  async function initDashboard(user) {
+    // Si tenim email, intenta carregar pla guardat
+    if(currentEmail) {
+      document.getElementById('nav-avatar').textContent=currentEmail[0].toUpperCase();
+      document.getElementById('greeting-name').textContent='Hola, '+currentEmail.split('@')[0]+' 👋';
+      try {
+        const res=await fetch('/api/get-plan?email='+encodeURIComponent(currentEmail));
+        const data=await res.json();
+        if(data.plan&&data.plan.sessions&&data.plan.sessions.length>0){
+          planDays=data.plan.sessions;
+          window._coachResum=data.plan.resum||'';
+          showToast('Plan cargado ✓');
+          renderAll();
+          return;
+        }
+      } catch(e){ console.log('No saved plan'); }
+    }
+    // Genera pla nou amb IA
+    await buildPlan(user);
+  }
+
   async function buildPlan(user) {
-    // Mostra loading
-    document.getElementById('main-content').innerHTML = `
+    document.getElementById('main-content').innerHTML=`
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.25rem;gap:1rem">
         <div style="width:48px;height:48px;border:3px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin 0.8s linear infinite"></div>
         <p style="font-size:0.9rem;color:#888780;text-align:center">Tu coach está generando<br>el plan de esta semana...</p>
       </div>
-      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-    `;
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
 
     try {
-      const response = await fetch('/api/coach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sports: user.sports,
-          dias: user.dias,
-          descanso: user.descanso,
-          nivel: user.nivel,
-          fcmax: user.fcmax,
-          volum: user.volum,
-          objetivo: user.objetivo,
-          carrera: user.carrera,
-          distancia: user.distancia,
-          desnivel: user.desnivel
+      const response=await fetch('/api/coach',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          sports:user.sports,dias:user.dias,descanso:user.descanso,
+          nivel:user.nivel,fcmax:user.fcmax,volum:user.volum,
+          objetivo:user.objetivo,carrera:user.carrera,
+          distancia:user.distancia,desnivel:user.desnivel
         })
       });
-
-      const data = await response.json();
-
-      if(data.setmana) {
-        planDays = data.setmana;
-        if(data.resum) window._coachResum = data.resum;
+      const data=await response.json();
+      if(data.setmana){
+        planDays=data.setmana;
+        if(data.resum) window._coachResum=data.resum;
         renderAll();
-      } else {
-        throw new Error('Format incorrecte');
-      }
-
-    } catch(error) {
-      console.error('Error IA:', error);
-      // Fallback a sessions estàtiques si falla la IA
+        // Guarda automàticament si tenim email
+        if(currentEmail) await savePlanToSupabase();
+        else setTimeout(()=>openEmailModal(),2000); // Proposa guardar després de 2s
+      } else { throw new Error('Format incorrecte'); }
+    } catch(error){
+      console.error('Error IA:',error);
       buildPlanStatic(user);
       renderAll();
     }
   }
 
-  function buildPlanStatic(user) {
-    const sports = user.sports;
-    const dias = user.dias;
-    const descanso = user.descanso;
-    let allS = [];
+  function buildPlanStatic(user){
+    const sports=user.sports,dias=user.dias,descanso=user.descanso;
+    let allS=[];
     sports.forEach(s=>(allSessionsDB[s]||[]).forEach(x=>allS.push({...x,sport:s})));
-    let idx = 0;
-    planDays = dayNames.map(d => {
-      if(d===descanso) return {day:d,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false};
+    let idx=0;
+    planDays=dayNames.map(d=>{
+      if(d===descanso) return{day:d,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false};
       if(idx<dias){const s=allS[idx%allS.length];idx++;return{day:d,rest:false,...s,skipped:false};}
-      return {day:d,rest:true,icon:'💤',title:'Descanso',sub:'',tags:[],why:'',skipped:false};
+      return{day:d,rest:true,icon:'💤',title:'Descanso',sub:'',tags:[],why:'',skipped:false};
     });
+  }
+
+  async function savePlanToSupabase(){
+    if(!currentEmail||planDays.length===0) return;
+    try {
+      await fetch('/api/save-plan',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          email:currentEmail,
+          userData:user,
+          sessions:planDays,
+          resum:window._coachResum||''
+        })
+      });
+      showToast('Plan guardado ✓');
+    } catch(e){ console.log('Could not save:',e); }
+  }
+
+  function openEmailModal(){
+    document.getElementById('modal-email').classList.add('open');
+  }
+
+  async function saveWithEmail(){
+    const email=document.getElementById('email-input').value.trim();
+    if(!email||!email.includes('@')){
+      showToast('Introduce un email válido');
+      return;
+    }
+    currentEmail=email;
+    closeModal('modal-email');
+    await savePlanToSupabase();
+    document.getElementById('nav-avatar').textContent=email[0].toUpperCase();
+    document.getElementById('greeting-name').textContent='Hola, '+email.split('@')[0]+' 👋';
   }
 
   function renderAll(){
@@ -325,6 +390,8 @@
       }
     }
 
+    const savedBadge=currentEmail?`<span class="saved-badge">✓ guardado</span>`:'';
+
     document.getElementById('main-content').innerHTML=`
       ${raceHTML}
       <div class="today">
@@ -337,7 +404,8 @@
         <div class="today-tags">
           ${(todaySession.tags||[]).map(t=>`<span class="today-tag">${t}</span>`).join('')}
         </div>
-        <div class="today-why">"${todaySession.why||'Descansa bien — mañana volvemos fuerte.'}"</div> ${window._coachResum?`<div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.5rem;font-style:normal">${window._coachResum}</div>`:''}
+        <div class="today-why">"${todaySession.why||'Descansa bien — mañana volvemos fuerte.'}"</div>
+        ${window._coachResum?`<div class="coach-resum">${window._coachResum}</div>`:''}
         <div class="today-actions">
           <button class="btn-white" onclick="openTimeModal()">⏱ Cambiar tiempo</button>
           <button class="btn-ghost">▶ Empezar</button>
@@ -345,7 +413,7 @@
       </div>
       <div class="week-section">
         <div class="section-head">
-          <span class="section-title">Esta semana</span>
+          <span class="section-title">Esta semana ${savedBadge}</span>
           <span style="font-size:0.72rem;color:#888780">⠿ arrastra · ✎ cambia</span>
         </div>
         <div class="plan-list" id="plan-list">
@@ -396,12 +464,8 @@
   function dragStart(e,idx){
     dragSrcIdx=idx;
     e.dataTransfer.effectAllowed='move';
-    setTimeout(()=>{
-      const el=document.getElementById('item-'+idx);
-      if(el) el.classList.add('dragging');
-    },0);
+    setTimeout(()=>{const el=document.getElementById('item-'+idx);if(el)el.classList.add('dragging');},0);
   }
-
   function dragOver(e,idx){
     e.preventDefault();
     if(dragSrcIdx===null||dragSrcIdx===idx) return;
@@ -411,38 +475,21 @@
     const el=document.getElementById('item-'+idx);
     if(el) el.classList.add('drag-over');
   }
-
-  function dragLeave(idx){
-    const el=document.getElementById('item-'+idx);
-    if(el) el.classList.remove('drag-over');
-  }
-
-  function dragEnd(){
-    document.querySelectorAll('.plan-item').forEach(el=>{
-      el.classList.remove('dragging');
-      el.classList.remove('drag-over');
-    });
-    dragSrcIdx=null;
-  }
-
+  function dragLeave(idx){const el=document.getElementById('item-'+idx);if(el)el.classList.remove('drag-over');}
+  function dragEnd(){document.querySelectorAll('.plan-item').forEach(el=>{el.classList.remove('dragging');el.classList.remove('drag-over');});dragSrcIdx=null;}
   function drop(e,idx){
     e.preventDefault();
     document.querySelectorAll('.plan-item').forEach(el=>el.classList.remove('drag-over'));
     if(dragSrcIdx===null||dragSrcIdx===idx){dragSrcIdx=null;return;}
-    const src=planDays[dragSrcIdx];
-    const dst=planDays[idx];
+    const src=planDays[dragSrcIdx],dst=planDays[idx];
     if(src.rest){dragSrcIdx=null;return;}
     if(dst.rest){
-      // Arrossega a descans → mou l'entreno i l'origen es fa descans
-      const srcDay=src.day;
-      const dstDay=dst.day;
+      const srcDay=src.day,dstDay=dst.day;
       planDays[idx]={...src,day:dstDay};
       planDays[dragSrcIdx]={day:srcDay,rest:true,icon:'💤',title:'Descanso',sub:'Día movido',tags:[],why:'',skipped:false};
       showToast('Sesión movida a '+dstDay+' ✓');
     } else {
-      // Intercanvi entre dos entrenos
-      const srcDay=src.day;
-      const dstDay=dst.day;
+      const srcDay=src.day,dstDay=dst.day;
       planDays[dragSrcIdx]={...dst,day:srcDay};
       planDays[idx]={...src,day:dstDay};
       showToast('Sesiones intercambiadas ✓');
@@ -452,25 +499,19 @@
   }
 
   function openSessionModal(idx){
-    editingDayIdx=idx;
-    selectedNewSession=null;
+    editingDayIdx=idx;selectedNewSession=null;
     const current=planDays[idx];
     document.getElementById('session-modal-title').textContent='Cambiar · '+current.day;
     document.getElementById('session-modal-sub').textContent='Ahora: '+current.title+'. Elige otro entreno.';
     document.getElementById('confirm-session-btn').disabled=true;
     const sports=user?.sports||['running'];
     let options=[];
-    sports.forEach(s=>(allSessionsDB[s]||[]).forEach(x=>{
-      if(x.title!==current.title) options.push({...x,sport:s});
-    }));
+    sports.forEach(s=>(allSessionsDB[s]||[]).forEach(x=>{if(x.title!==current.title)options.push({...x,sport:s});}));
     options.push({icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',sport:'rest'});
     document.getElementById('session-list').innerHTML=options.map((o,i)=>`
       <div class="session-opt" onclick="selSession(this,${i})">
         <span class="session-opt-icon">${o.icon}</span>
-        <div>
-          <div class="session-opt-title">${o.title}</div>
-          <div class="session-opt-sub">${o.sub||''}</div>
-        </div>
+        <div><div class="session-opt-title">${o.title}</div><div class="session-opt-sub">${o.sub||''}</div></div>
       </div>`).join('');
     window._sessionOptions=options;
     document.getElementById('modal-session').classList.add('open');
@@ -499,8 +540,7 @@
   function toggleRest(idx){
     const day=planDays[idx].day;
     planDays[idx]={day,rest:true,icon:'💤',title:'Descanso',sub:'Día libre añadido',tags:[],why:'',skipped:true};
-    rebalancePlan();
-    renderAll();
+    rebalancePlan();renderAll();
     showToast('Día de descanso. Plan reajustado ✓');
   }
 
@@ -511,8 +551,7 @@
     const used=planDays.filter(d=>!d.rest).map(d=>d.title);
     const pick=allS.find(s=>!used.includes(s.title))||allS[0];
     planDays[idx]={...pick,day:planDays[idx].day,rest:false,skipped:false};
-    renderAll();
-    showToast('Entreno añadido ✓');
+    renderAll();showToast('Entreno añadido ✓');
   }
 
   function rebalancePlan(){
@@ -532,30 +571,21 @@
     }
   }
 
-  function openTimeModal(){ document.getElementById('modal-time').classList.add('open'); }
-
+  function openTimeModal(){document.getElementById('modal-time').classList.add('open');}
   function skipToday(){
     const idx=planDays.findIndex(d=>d.day===todayName);
     if(idx>=0){planDays[idx].skipped=true;planDays[idx].why='Descansa bien — mañana volvemos fuerte.';}
-    closeModal('modal-time');
-    renderAll();
+    closeModal('modal-time');renderAll();
     showToast('Sin problema. Lo redistribuimos 💪');
   }
-
-  function confirmTime(){
-    closeModal('modal-time');
-    showToast('Sesión ajustada a '+currentTimeMin+' min ✓');
-  }
-
+  function confirmTime(){closeModal('modal-time');showToast('Sesión ajustada a '+currentTimeMin+' min ✓');}
   function selectTime(el,min){
     document.querySelectorAll('.time-opt').forEach(o=>o.classList.remove('sel'));
     el.classList.add('sel');
     document.getElementById('sl').value=min;
     updateSlider(min);
   }
-
-  const timeMsgs={10:'10 min es poco pero cuenta. Activación ligera.',20:'20 min en Z2. Mismo beneficio, menos volumen. Perfecto.',30:'30 min sólido. Recuperamos el resto otro día.',45:'El plan original. Perfecto.',60:'Más tiempo. Añadimos calidad al final.',90:'90 min hoy. Reducimos carga mañana.'};
-
+  const timeMsgs={10:'10 min es poco pero cuenta.',20:'20 min en Z2. Mismo beneficio, menos volumen.',30:'30 min sólido. Lo recuperamos otro día.',45:'El plan original. Perfecto.',60:'Más tiempo. Añadimos calidad al final.',90:'90 min hoy. Reducimos carga mañana.'};
   function updateSlider(v){
     currentTimeMin=parseInt(v);
     document.getElementById('slv').textContent=v+' min';
@@ -565,16 +595,10 @@
     document.querySelectorAll('.time-opt').forEach(o=>o.classList.remove('sel'));
     [20,30,45,60].forEach((m,i)=>{if(parseInt(v)===m)document.querySelectorAll('.time-opt')[i].classList.add('sel');});
   }
-
-  function closeModal(id,e){
-    if(!e||e.target===document.getElementById(id))
-      document.getElementById(id).classList.remove('open');
-  }
-
+  function closeModal(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
   function showToast(msg){
     const t=document.getElementById('toast');
-    t.textContent=msg;
-    t.classList.add('show');
+    t.textContent=msg;t.classList.add('show');
     setTimeout(()=>t.classList.remove('show'),2500);
   }
 </script>
