@@ -225,7 +225,7 @@
   let dragSrcIdx=null;
   let currentTimeMin=45;
 
-  if(user){ buildPlan(user); renderAll(); }
+  if(user){ buildPlan(user); }
   else {
     document.getElementById('main-content').innerHTML=`
       <div class="no-plan">
@@ -236,14 +236,60 @@
       </div>`;
   }
 
-  function buildPlan(user){
-    const sports=user.sports;
-    const dias=user.dias;
-    const descanso=user.descanso;
-    let allS=[];
+  async function buildPlan(user) {
+    // Mostra loading
+    document.getElementById('main-content').innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.25rem;gap:1rem">
+        <div style="width:48px;height:48px;border:3px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+        <p style="font-size:0.9rem;color:#888780;text-align:center">Tu coach está generando<br>el plan de esta semana...</p>
+      </div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `;
+
+    try {
+      const response = await fetch('/api/coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sports: user.sports,
+          dias: user.dias,
+          descanso: user.descanso,
+          nivel: user.nivel,
+          fcmax: user.fcmax,
+          volum: user.volum,
+          objetivo: user.objetivo,
+          carrera: user.carrera,
+          distancia: user.distancia,
+          desnivel: user.desnivel
+        })
+      });
+
+      const data = await response.json();
+
+      if(data.setmana) {
+        planDays = data.setmana;
+        if(data.resum) window._coachResum = data.resum;
+        renderAll();
+      } else {
+        throw new Error('Format incorrecte');
+      }
+
+    } catch(error) {
+      console.error('Error IA:', error);
+      // Fallback a sessions estàtiques si falla la IA
+      buildPlanStatic(user);
+      renderAll();
+    }
+  }
+
+  function buildPlanStatic(user) {
+    const sports = user.sports;
+    const dias = user.dias;
+    const descanso = user.descanso;
+    let allS = [];
     sports.forEach(s=>(allSessionsDB[s]||[]).forEach(x=>allS.push({...x,sport:s})));
-    let idx=0;
-    planDays=dayNames.map(d=>{
+    let idx = 0;
+    planDays = dayNames.map(d => {
       if(d===descanso) return {day:d,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false};
       if(idx<dias){const s=allS[idx%allS.length];idx++;return{day:d,rest:false,...s,skipped:false};}
       return {day:d,rest:true,icon:'💤',title:'Descanso',sub:'',tags:[],why:'',skipped:false};
@@ -291,7 +337,7 @@
         <div class="today-tags">
           ${(todaySession.tags||[]).map(t=>`<span class="today-tag">${t}</span>`).join('')}
         </div>
-        <div class="today-why">"${todaySession.why||'Descansa bien — mañana volvemos fuerte.'}"</div>
+        <div class="today-why">"${todaySession.why||'Descansa bien — mañana volvemos fuerte.'}"</div> ${window._coachResum?`<div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.5rem;font-style:normal">${window._coachResum}</div>`:''}
         <div class="today-actions">
           <button class="btn-white" onclick="openTimeModal()">⏱ Cambiar tiempo</button>
           <button class="btn-ghost">▶ Empezar</button>
