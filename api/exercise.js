@@ -6,7 +6,6 @@ export default async function handler(req, res) {
   const { name } = req.query;
   if (!name) return res.status(400).json({ error: 'Name required' });
 
-  // Mapeig castellà → anglès
   const map = {
     'sentadilla': 'squat',
     'dominadas': 'pull up',
@@ -24,6 +23,7 @@ export default async function handler(req, res) {
     'elevación de talones': 'calf raise',
     'bird dog': 'bird dog',
     'dead bug': 'dead bug',
+    'plancha frontal': 'plank',
     'zancadas': 'lunge'
   };
 
@@ -40,12 +40,18 @@ export default async function handler(req, res) {
       }
     );
     const data = await response.json();
+    
+    // Log per debug
+    console.log('ExerciseDB response:', JSON.stringify(data[0]));
+    
     if (data && data.length > 0) {
+      const ex = data[0];
       return res.status(200).json({
-        gif: data[0].gifUrl,
-        name: data[0].name,
-        muscle: data[0].target,
-        equipment: data[0].equipment
+        gif: ex.gifUrl || ex.gif_url || ex.gif || ex.image || null,
+        name: ex.name,
+        muscle: ex.target || ex.muscle,
+        equipment: ex.equipment,
+        debug: Object.keys(ex) // retorna els camps disponibles
       });
     }
     return res.status(404).json({ error: 'Not found' });
