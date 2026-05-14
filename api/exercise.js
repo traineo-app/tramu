@@ -31,28 +31,33 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://exercisedb.p.rapidapi.com/exercises/name/${encodeURIComponent(query)}?limit=1`,
-      {
-        headers: {
-          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-          'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-        }
-      }
+      `https://wger.de/api/v2/exercise/search/?term=${encodeURIComponent(query)}&language=english&format=json`,
+      { headers: { 'Accept': 'application/json' } }
     );
     const data = await response.json();
-    
-    // Log per debug
-    console.log('ExerciseDB response:', JSON.stringify(data[0]));
-    
-    if (data && data.length > 0) {
-      const ex = data[0];
-      return res.status(200).json({
-        gif: ex.gifUrl || ex.gif_url || ex.gif || ex.image || null,
-        name: ex.name,
-        muscle: ex.target || ex.muscle,
-        equipment: ex.equipment,
-        debug: Object.keys(ex) // retorna els camps disponibles
-      });
+
+    if (data.suggestions && data.suggestions.length > 0) {
+      const ex = data.suggestions[0];
+      const exId = ex.data?.id;
+
+      if (exId) {
+        // Busca imatges de l'exercici
+        const imgRes = await fetch(
+          `https://wger.de/api/v2/exerciseimage/?exercise_base=${exId}&format=json`,
+          { headers: { 'Accept': 'application/json' } }
+        );
+        const imgData = await imgRes.json();
+        const img = imgData.results && imgData.results.length > 0
+          ? imgData.results[0].image
+          : null;
+
+        return res.status(200).json({
+          gif: img,
+          name: ex.value,
+          muscle: name,
+          equipment: ''
+        });
+      }
     }
     return res.status(404).json({ error: 'Not found' });
   } catch (error) {
