@@ -611,6 +611,21 @@
     [20,30,45,60].forEach((m,i)=>{if(parseInt(v)===m)document.querySelectorAll('.time-opt')[i].classList.add('sel');});
   }
   function closeModal(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
+  function openSessio(idx){
+    const d=planDays[idx];
+    if(d.rest) return;
+    const p=new URLSearchParams({
+      title:d.title||'',
+      sub:d.sub||'',
+      why:d.why||'',
+      tags:(d.tags||[]).join(','),
+      icon:d.icon||'🏃',
+      fcmax:user?.fcmax||185,
+      nivel:user?.nivel||'Intermedio',
+      duracio:d.duracio_min||45
+    });
+    window.location.href='sessio.html?'+p.toString();
+  }
   function showToast(msg){
     const t=document.getElementById('toast');
     t.textContent=msg;t.classList.add('show');
