@@ -499,7 +499,7 @@ function renderPlanItem(d,i){
       </div>
       ${!d.rest?`
         <div class="plan-item-actions" onclick="event.stopPropagation()">
-          <div class="drag-handle" onclick="event.stopPropagation()">⠿</div>
+          <div class="drag-handle" onclick="event.stopPropagation()" ontouchstart="handleTouchStart(event,${i})">⠿</div>
           <button class="action-btn" onclick="openSessionModal(${i})">✎</button>
           <button class="action-btn" onclick="toggleRest(${i})">💤</button>
         </div>
@@ -645,6 +645,62 @@ function openSessio(idx){
   });
   window.location.href='sessio.html?'+p.toString();
 }
+let touchSrcIdx=null;
+let touchOverIdx=null;
+
+function handleTouchStart(e,idx){
+  if(planDays[idx].rest) return;
+  touchSrcIdx=idx;
+  touchOverIdx=null;
+  const el=document.getElementById('item-'+idx);
+  if(el) el.classList.add('dragging');
+  e.preventDefault();
+}
+
+function handleTouchMove(e){
+  if(touchSrcIdx===null) return;
+  e.preventDefault();
+  const touch=e.touches[0];
+  const srcEl=document.getElementById('item-'+touchSrcIdx);
+  if(srcEl) srcEl.style.visibility='hidden';
+  const under=document.elementFromPoint(touch.clientX,touch.clientY);
+  if(srcEl) srcEl.style.visibility='';
+  document.querySelectorAll('.plan-item').forEach(el=>el.classList.remove('drag-over'));
+  if(under){
+    const item=under.closest('.plan-item');
+    if(item&&item.id){
+      const idx=parseInt(item.id.replace('item-',''));
+      if(!isNaN(idx)&&idx!==touchSrcIdx){
+        item.classList.add('drag-over');
+        touchOverIdx=idx;
+      }
+    }
+  }
+}
+
+function handleTouchEnd(e){
+  if(touchSrcIdx===null) return;
+  document.querySelectorAll('.plan-item').forEach(el=>{
+    el.classList.remove('dragging');
+    el.classList.remove('drag-over');
+  });
+  if(touchOverIdx!==null&&touchOverIdx!==touchSrcIdx){
+    const src=planDays[touchSrcIdx];
+    const dst=planDays[touchOverIdx];
+    if(!src.rest){
+      const desc=dst.rest
+        ?'Mogut "'+src.title+'" del '+src.day+' al '+dst.day+'. '+src.day+' ara és descans.'
+        :'Intercanviat "'+src.title+'" ('+src.day+') amb "'+dst.title+'" ('+dst.day+').';
+      reajustarPla(desc,'Reorganizando la semana...');
+    }
+  }
+  touchSrcIdx=null;
+  touchOverIdx=null;
+}
+
+document.addEventListener('touchmove',function(e){handleTouchMove(e);},{passive:false});
+document.addEventListener('touchend',function(e){handleTouchEnd(e);});
+  
 function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
