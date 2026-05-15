@@ -438,24 +438,40 @@
     window.scrollTo(0,0);
   }
 
-  function setupS3(){
-    const disc=userData.carreraDisciplina;
-    if(disc&&disc!=='otro'){
+function setupS3(){
+  const disc=userData.carreraDisciplina;
+  const discMap={
+    'triatlon':['running','ciclismo','natacion'],
+    'duatlon':['running','ciclismo'],
+    'running':['running'],
+    'trail':['trail'],
+    'ciclismo':['ciclismo'],
+    'natacion':['natacion']
+  };
+  if(disc&&disc!=='otro'){
+    const toSel=discMap[disc]||[disc];
+    document.querySelectorAll('#s3 .grid-opt').forEach(el=>{
+      const sp=el.getAttribute('onclick').match(/'([^']+)'/)[1];
+      if(toSel.includes(sp)){
+        el.classList.add('sel');
+        if(!userData.sports.includes(sp)) userData.sports.push(sp);
+      }
+    });
+    if(disc==='triatlon'){
+      document.getElementById('s3-title').textContent='¿Algún deporte más para complementar?';
+      document.getElementById('s3-sub').textContent='Running, bici y natación ya están incluidos. Añade fuerza u otros si quieres.';
+    } else if(disc==='duatlon'){
+      document.getElementById('s3-title').textContent='¿Algún deporte más para complementar?';
+      document.getElementById('s3-sub').textContent='Running y bici ya están incluidos. Añade complementos si quieres.';
+    } else {
       document.getElementById('s3-title').textContent='¿Practicas algún deporte más para complementar?';
       document.getElementById('s3-sub').textContent='La '+disc+' es tu disciplina principal. Añade complementos si quieres.';
-      // Pre-selecciona la disciplina principal i deshabilita-la
-      document.querySelectorAll('#s3 .grid-opt').forEach(el=>{
-        const sp=el.getAttribute('onclick').match(/'([^']+)'/)[1];
-        if(sp===disc){
-          el.classList.add('sel');
-          if(!userData.sports.includes(disc)) userData.sports.push(disc);
-        }
-      });
-    } else {
-      document.getElementById('s3-title').textContent='¿Qué deportes practicas?';
-      document.getElementById('s3-sub').textContent='Elige los que quieras combinar en tu plan.';
     }
+  } else {
+    document.getElementById('s3-title').textContent='¿Qué deportes practicas?';
+    document.getElementById('s3-sub').textContent='Elige los que quieras combinar en tu plan.';
   }
+}
 
   function selOpt(el,stepId,val){
     el.closest('.options').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
