@@ -17,7 +17,7 @@
     .hero-icon{font-size:2.2rem;margin-bottom:.5rem}
     .hero-title{font-size:1.75rem;font-weight:500;color:#fff;letter-spacing:-.4px;margin-bottom:.5rem}
     .hero-bullets{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
-    .hero-bullet{font-size:.9rem;color:rgba(255,255,255,.7);display:flex;align-items:flex-start;gap:.5rem}
+    .hero-bullet{font-size:.85rem;color:rgba(255,255,255,.7);display:flex;align-items:flex-start;gap:.5rem;line-height:1.5}
     .hero-bullet-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.4);flex-shrink:0;margin-top:.45rem}
     .body{padding:1.25rem}
     .section{margin-bottom:1.5rem}
@@ -64,8 +64,8 @@
     .guided-body{display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;justify-content:center;gap:.75rem;width:100%}
     .guided-type{font-size:.72rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em}
     .guided-num{width:64px;height:64px;border-radius:16px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:600;color:#fff}
-    .guided-name{font-size:1.6rem;font-weight:500;color:#fff;letter-spacing:-.3px;line-height:1.2}
-    .guided-detail{font-size:.95rem;color:rgba(255,255,255,.6);line-height:1.5}
+    .guided-name{font-size:1.5rem;font-weight:500;color:#fff;letter-spacing:-.3px;line-height:1.2}
+    .guided-detail{font-size:.9rem;color:rgba(255,255,255,.6);line-height:1.5}
     .guided-muscle{font-size:.8rem;color:rgba(255,255,255,.35)}
     .guided-timer{font-size:3.5rem;font-weight:300;color:#fff;letter-spacing:-2px;font-variant-numeric:tabular-nums}
     .guided-timer-lbl{font-size:.75rem;color:rgba(255,255,255,.35)}
@@ -119,23 +119,40 @@
 </div>
 
 <script>
-try {
-const params=new URLSearchParams(window.location.search);
-const title=decodeURIComponent(params.get('title')||'Sesión');
-const sub=decodeURIComponent(params.get('sub')||'');
-const why=decodeURIComponent(params.get('why')||'');
-const icon=decodeURIComponent(params.get('icon')||'🏃');
-const fcmax=parseInt(params.get('fcmax'))||185;
-const duracio=parseInt(params.get('duracio'))||45;
-const tags=[];
-try{(params.get('tags')||'').split(',').forEach(t=>{if(t.trim())tags.push(t.trim());});}catch(e){}
+// Helper: escapa text per posar-lo a innerHTML
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-const tl=title.toLowerCase();
-const gymKeywords=['tren inferior','tren superior','full body','calistenia','core y movilidad','lower body','upper body','fuerza a','fuerza b','fuerza c'];
-const isGym=gymKeywords.some(k=>tl.includes(k))||(!tl.includes('rodaje')&&!tl.includes('bici')&&!tl.includes('trail')&&!tl.includes('series')&&!tl.includes('natación')&&!tl.includes('nado')&&!tl.includes('piscina')&&!tl.includes('brick')&&!tl.includes('ruta')&&!tl.includes('rodada')&&(tl.includes('fuerza')||tl.includes('gimnas')||tl.includes('gym')));
-const isCardio=!isGym;
+// Paràmetres de la URL
+var params=new URLSearchParams(window.location.search);
+var title=params.get('title')||'Sesión';
+try{title=decodeURIComponent(title);}catch(e){}
+var sub='';try{sub=decodeURIComponent(params.get('sub')||'');}catch(e){}
+var why='';try{why=decodeURIComponent(params.get('why')||'');}catch(e){}
+var icon='🏃';try{icon=decodeURIComponent(params.get('icon')||'🏃');}catch(e){}
+var fcmax=parseInt(params.get('fcmax'))||185;
+var duracio=parseInt(params.get('duracio'))||45;
+var tags=[];
+try{
+  var rawTags=params.get('tags')||'';
+  rawTags.split(',').forEach(function(t){
+    var trimmed=t.trim();
+    if(trimmed) tags.push(trimmed);
+  });
+}catch(e){}
 
-const zones=[
+var tl=title.toLowerCase();
+
+// Detecta si és gimnàs
+var gymWords=['tren inferior','tren superior','full body','calistenia','core y movilidad','lower body','upper body'];
+var cardioWords=['rodaje','trail','bici','ciclismo','natación','nado','piscina','brick','ruta','rodada','series','running','nadar'];
+var isGym=gymWords.some(function(k){return tl.includes(k);});
+if(!isGym && tl.includes('fuerza') && !cardioWords.some(function(k){return tl.includes(k);})){isGym=true;}
+var isCardio=!isGym;
+
+// Zones FC
+var zones=[
   {label:'Z1',color:'#60B8F0',min:Math.round(fcmax*.50),max:Math.round(fcmax*.60)},
   {label:'Z2',color:'#4EA84A',min:Math.round(fcmax*.60),max:Math.round(fcmax*.70)},
   {label:'Z3',color:'#F0C84A',min:Math.round(fcmax*.70),max:Math.round(fcmax*.80)},
@@ -143,210 +160,164 @@ const zones=[
   {label:'Z5',color:'#E04040',min:Math.round(fcmax*.90),max:fcmax}
 ];
 
-function getMainZone(t){
-  if(t.includes('recupera')||t.includes('z1')) return 0;
-  if(t.includes('z2')||t.includes('aeróbico')||t.includes('fondo')||t.includes('largo')||t.includes('suave')) return 1;
-  if(t.includes('z3')||t.includes('tempo')||t.includes('umbral')) return 2;
-  if(t.includes('series')||t.includes('calidad')||t.includes('z4')||t.includes('cuesta')||t.includes('intervalo')) return 3;
-  if(t.includes('z5')||t.includes('máxima')) return 4;
+function getMainZone(){
+  if(tl.includes('recupera')) return 0;
+  if(tl.includes('z2')||tl.includes('aeróbico')||tl.includes('largo')||tl.includes('suave')) return 1;
+  if(tl.includes('z3')||tl.includes('umbral')||tl.includes('tempo')) return 2;
+  if(tl.includes('series')||tl.includes('z4')||tl.includes('cuesta')||tl.includes('intervalo')) return 3;
+  if(tl.includes('z5')) return 4;
+  if(tl.includes('trail')) return 1;
   return 1;
 }
-const mainZone=getMainZone(tl);
+var mainZone=getMainZone();
 
-const structures={
-  trail:[{title:'Calentamiento',sub:'Trote Z1 en llano',dur:10,color:'#60B8F0'},{title:'Bloque principal',sub:sub||'Por esfuerzo · caminar subidas si FC > Z3',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave',dur:5,color:'#60B8F0'}],
-  rodajez2:[{title:'Calentamiento',sub:'Trote suave Z1',dur:10,color:'#60B8F0'},{title:'Bloque Z2',sub:'Ritmo conversacional · '+Math.round(fcmax*.63)+'-'+Math.round(fcmax*.70)+' bpm',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave + estirar',dur:5,color:'#60B8F0'}],
-  largo:[{title:'Calentamiento',sub:'Z1 muy suave',dur:10,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo cómodo · hablar sin problemas',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Andar + estirar',dur:5,color:'#60B8F0'}],
-  recupera:[{title:'Trote Z1',sub:'Muy suave · nunca forzar',dur:duracio,color:'#60B8F0'}],
-  seriesbici:[{title:'Calentamiento',sub:'15 min cadencia alta Z2',dur:15,color:'#60B8F0'},{title:'Sweetspot',sub:'88-93% FTP · 4 min recuperación',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min Z1',dur:10,color:'#60B8F0'}],
-  bici:[{title:'Calentamiento',sub:'Cadencia alta, potencia baja',dur:10,color:'#60B8F0'},{title:'Z2 en bici',sub:'Cadencia 90+ rpm · '+Math.round(fcmax*.62)+'-'+Math.round(fcmax*.70)+' bpm',dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Reducir potencia',dur:5,color:'#60B8F0'}],
-  ruta:[{title:'Salida suave Z1',sub:'Primeros 20 min tranquilo',dur:20,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo sostenible',dur:duracio-30,color:'#4EA84A'},{title:'Vuelta a casa',sub:'Reducir intensidad',dur:10,color:'#60B8F0'}],
-  series:[{title:'Calentamiento',sub:'15 min trote + strides',dur:15,color:'#60B8F0'},{title:'Series a Z4',sub:'Recuperación entre series',dur:20,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min trote suave',dur:10,color:'#60B8F0'}],
-  cuestas:[{title:'Calentamiento',sub:'15 min Z1-Z2',dur:15,color:'#60B8F0'},{title:'Cuestas a Z4',sub:'Bajar trotando entre series',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min llano suave',dur:10,color:'#60B8F0'}],
-  brick:[{title:'Bici Z2-Z3',sub:'Ritmo medio-alto',dur:Math.round(duracio*.65),color:'#F0C84A'},{title:'Transición',sub:'Cambio rápido',dur:2,color:'#888780'},{title:'Running Z3',sub:'Aguanta con piernas cargadas',dur:Math.round(duracio*.33),color:'#F08C30'}],
-  natacion:[{title:'Calentamiento',sub:'200m suave',dur:10,color:'#60B8F0'},{title:'Drills técnicos',sub:'Catch-up · one arm · rotació',dur:15,color:'#4EA84A'},{title:'Series',sub:'6 × 100m · foco en brazada',dur:20,color:'#F0C84A'},{title:'Vuelta a la calma',sub:'100m suave',dur:5,color:'#60B8F0'}],
-  default:[{title:'Calentamiento',sub:'10 min suave',dur:10,color:'#60B8F0'},{title:'Bloque principal',sub:sub||title,dur:duracio-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'5 min suave',dur:5,color:'#60B8F0'}]
-};
-
-function findStruct(){
-  if(tl.includes('trail')) return structures.trail;
-  if(tl.includes('recupera')) return structures.recupera;
-  if(tl.includes('brick')) return structures.brick;
-  if(tl.includes('cuesta')) return structures.cuestas;
-  if(tl.includes('series')&&(tl.includes('bici')||tl.includes('cicl'))) return structures.seriesbici;
-  if(tl.includes('series')||tl.includes('intervalo')||tl.includes('velocidad')) return structures.series;
-  if(tl.includes('ruta')) return structures.ruta;
-  if(tl.includes('largo')||tl.includes('fondo')) return structures.largo;
-  if(tl.includes('piscina')||tl.includes('natación')||tl.includes('nado')) return structures.natacion;
-  if(tl.includes('bici')||tl.includes('cicl')||tl.includes('rodada')) return structures.bici;
-  if(tl.includes('rodaje')||tl.includes('z2')) return structures.rodajez2;
-  return structures.default;
-}
-
-const gymData={
-  inferior:[{name:'Sentadilla',detail:'4 × 8 reps · 75-80% RM · 2 min descanso',muscle:'Cuádriceps · Glúteos'},{name:'Romanian Deadlift',detail:'3 × 10 reps · controla la bajada 3 seg',muscle:'Isquios · Glúteos'},{name:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},{name:'Hip thrust',detail:'4 × 12 reps · aprieta el glúteo arriba',muscle:'Glúteos'},{name:'Step-up',detail:'3 × 10 reps cada pierna',muscle:'Cuádriceps · Glúteos'},{name:'Elevación de talones',detail:'3 × 15 reps · lento y controlado',muscle:'Gemelos · Sóleo'}],
-  superior:[{name:'Press de banca',detail:'4 × 8-10 reps',muscle:'Pectoral · Tríceps'},{name:'Remo con mancuerna',detail:'3 × 10 reps cada brazo',muscle:'Espalda · Bíceps'},{name:'Press militar',detail:'3 × 8 reps · core activado',muscle:'Hombros · Tríceps'},{name:'Dominadas',detail:'3 × máx o 5 negativas lentas',muscle:'Espalda · Bíceps'},{name:'Curl de bíceps',detail:'3 × 12 reps',muscle:'Bíceps'},{name:'Dips',detail:'3 × máx reps controladas',muscle:'Tríceps · Pectoral'}],
-  fullbody:[{name:'Sentadilla',detail:'3 × 12 reps dinámicas',muscle:'Piernas · Glúteos'},{name:'Flexiones',detail:'3 × 10-15 reps',muscle:'Pectoral · Tríceps'},{name:'Dominadas',detail:'3 × 8 reps o máximo',muscle:'Espalda · Bíceps'},{name:'Plancha',detail:'3 × 45 segundos',muscle:'Core'},{name:'Bird dog',detail:'3 × 10 reps cada lado · lento',muscle:'Core · Lumbares'},{name:'Dead bug',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'}],
-  calistenia:[{name:'Flexiones',detail:'4 × máx reps controladas',muscle:'Pectoral · Tríceps'},{name:'Dominadas',detail:'4 × máx o 5 negativas',muscle:'Espalda · Bíceps'},{name:'Dips',detail:'3 × máx reps',muscle:'Tríceps · Pectoral'},{name:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},{name:'Plancha',detail:'3 × 1 min',muscle:'Core'},{name:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'}],
-  core:[{name:'Plancha frontal',detail:'3 × 45-60 seg',muscle:'Core · Transverso'},{name:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'},{name:'Dead bug',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'},{name:'Hip thrust',detail:'2 × 15 reps · movilidad cadera',muscle:'Cadera · Glúteos'},{name:'Sentadilla búlgara',detail:'2 × 8 reps movilidad',muscle:'Cadera · Flexores'},{name:'Elevación de talones',detail:'2 × 12 reps lento',muscle:'Gemelos · Tobillo'}]
-};
-
-function findGym(){
-  if(tl.includes('inferior')||tl.includes('lower')||tl.includes('pierna')||tl.includes('leg')) return gymData.inferior;
-  if(tl.includes('superior')||tl.includes('upper')||tl.includes('pecho')||tl.includes('espalda')||/fuerza [a-d]$/i.test(tl)) return gymData.superior;
-  if(tl.includes('calistenia')) return gymData.calistenia;
-  if(tl.includes('core')||tl.includes('movilidad')) return gymData.core;
-  if(tl.includes('full body')||tl.includes('funcional')||tl.includes('total')||tl.includes('completo')) return gymData.fullbody;
-  return gymData.fullbody;
-}
-
-const struct=isCardio?findStruct():null;
-const exList=isGym?findGym():null;
-
-const tips={
-  trail:'En trail el Z2 es por esfuerzo, no por ritmo. Caminar las subidas no es rendirse — es ser listo.',
-  rodaje:'Si puedes mantener una conversación sin problemas, vas bien. Si no puedes hablar, baja el ritmo.',
-  largo:'Ve siempre más despacio de lo que crees. Bebe cada 20 minutos aunque no tengas sed.',
-  recupera:'Ve lento de verdad. Este entreno activa la circulación y elimina el lactato.',
-  bici:'Mantén cadencia por encima de 85-90 rpm. Cadencia baja fatiga más las piernas.',
-  series:'La recuperación es tan importante como el esfuerzo. Mejor 6 series buenas que 10 malas.',
-  inferior:'Controla la bajada contando 3 segundos. La rodilla no pasa el pie. Core activado siempre.',
-  superior:'El remo es tan importante como el press. Equilibra empuje y tracción.',
-  fullbody:'Foco en calidad del movimiento. Bird dog y dead bug son los más importantes para corredores.',
-  calistenia:'Las negativas en dominadas son el mejor ejercicio para aprender.',
-  core:'El core no es solo el abdomen. Bird dog y dead bug previenen lesiones de espalda.',
-  brick:'Las primeras transiciones son raras — las piernas pesan el doble. Con el tiempo el cuerpo se adapta.',
-  natacion:'En natación la técnica vale el doble que el esfuerzo.'
-};
-
-function findTip(){
-  for(const[k,v] of Object.entries(tips)){
-    if(tl.includes(k)) return v;
+// Estructures
+function getStruct(){
+  var d=duracio;
+  if(tl.includes('trail')){
+    return [{title:'Calentamiento',sub:'Trote Z1 en llano',dur:10,color:'#60B8F0'},{title:'Bloque principal',sub:sub||'Por esfuerzo · caminar subidas fuertes',dur:d-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave',dur:5,color:'#60B8F0'}];
   }
-  return why||'Cada sesión cuenta. Consistencia > intensidad.';
+  if(tl.includes('recupera')){
+    return [{title:'Trote Z1',sub:'Muy suave · nunca forzar',dur:d,color:'#60B8F0'}];
+  }
+  if(tl.includes('brick')){
+    return [{title:'Bici Z2-Z3',sub:'Ritmo medio-alto',dur:Math.round(d*.65),color:'#F0C84A'},{title:'Transición',sub:'Cambio rápido',dur:2,color:'#888780'},{title:'Running Z3',sub:'Aguanta con piernas cargadas',dur:Math.round(d*.33),color:'#F08C30'}];
+  }
+  if(tl.includes('cuesta')){
+    return [{title:'Calentamiento',sub:'15 min Z1-Z2',dur:15,color:'#60B8F0'},{title:'Cuestas a Z4',sub:'Bajar trotando entre series',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min llano suave',dur:10,color:'#60B8F0'}];
+  }
+  if(tl.includes('series')&&(tl.includes('bici')||tl.includes('cicl'))){
+    return [{title:'Calentamiento',sub:'15 min cadencia alta Z2',dur:15,color:'#60B8F0'},{title:'Sweetspot',sub:'88-93% FTP · recuperación',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min Z1',dur:10,color:'#60B8F0'}];
+  }
+  if(tl.includes('series')||tl.includes('intervalo')||tl.includes('velocidad')){
+    return [{title:'Calentamiento',sub:'15 min trote + strides',dur:15,color:'#60B8F0'},{title:'Series a Z4',sub:'Recuperación entre series',dur:20,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min trote suave',dur:10,color:'#60B8F0'}];
+  }
+  if(tl.includes('largo')||tl.includes('fondo')){
+    return [{title:'Calentamiento',sub:'Z1 muy suave',dur:10,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo cómodo · hablar sin problemas',dur:d-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Andar + estirar',dur:5,color:'#60B8F0'}];
+  }
+  if(tl.includes('ruta')){
+    return [{title:'Salida suave Z1',sub:'Primeros 20 min tranquilo',dur:20,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo sostenible',dur:d-30,color:'#4EA84A'},{title:'Vuelta a casa',sub:'Reducir intensidad',dur:10,color:'#60B8F0'}];
+  }
+  if(tl.includes('piscina')||tl.includes('natación')||tl.includes('nado')){
+    return [{title:'Calentamiento',sub:'200m suave',dur:10,color:'#60B8F0'},{title:'Drills técnicos',sub:'Catch-up · one arm',dur:15,color:'#4EA84A'},{title:'Series',sub:'6 × 100m',dur:20,color:'#F0C84A'},{title:'Vuelta a la calma',sub:'100m suave',dur:5,color:'#60B8F0'}];
+  }
+  if(tl.includes('bici')||tl.includes('cicl')||tl.includes('rodada')){
+    return [{title:'Calentamiento',sub:'Cadencia alta, potencia baja',dur:10,color:'#60B8F0'},{title:'Z2 en bici',sub:'Cadencia 90+ rpm',dur:d-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Reducir potencia',dur:5,color:'#60B8F0'}];
+  }
+  // Default rodaje
+  return [{title:'Calentamiento',sub:'Trote suave Z1',dur:10,color:'#60B8F0'},{title:'Bloque principal',sub:sub||'Ritmo conversacional',dur:d-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave + estirar',dur:5,color:'#60B8F0'}];
 }
 
-// RENDERITZA
-document.getElementById('h-icon').textContent=icon||'🏃';
+function getGym(){
+  if(tl.includes('inferior')||tl.includes('lower')||tl.includes('pierna')||tl.includes('leg')){
+    return [{name:'Sentadilla',detail:'4 × 8 reps · 75-80% RM · 2 min descanso',muscle:'Cuádriceps · Glúteos'},{name:'Romanian Deadlift',detail:'3 × 10 reps · controla la bajada 3 seg',muscle:'Isquios · Glúteos'},{name:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},{name:'Hip thrust',detail:'4 × 12 reps · aprieta el glúteo arriba',muscle:'Glúteos'},{name:'Step-up',detail:'3 × 10 reps cada pierna',muscle:'Cuádriceps · Glúteos'},{name:'Elevación de talones',detail:'3 × 15 reps · lento y controlado',muscle:'Gemelos · Sóleo'}];
+  }
+  if(tl.includes('superior')||tl.includes('upper')||tl.includes('pecho')||tl.includes('espalda')){
+    return [{name:'Press de banca',detail:'4 × 8-10 reps',muscle:'Pectoral · Tríceps'},{name:'Remo con mancuerna',detail:'3 × 10 reps cada brazo',muscle:'Espalda · Bíceps'},{name:'Press militar',detail:'3 × 8 reps · core activado',muscle:'Hombros · Tríceps'},{name:'Dominadas',detail:'3 × máx o 5 negativas lentas',muscle:'Espalda · Bíceps'},{name:'Curl de bíceps',detail:'3 × 12 reps',muscle:'Bíceps'},{name:'Dips',detail:'3 × máx reps controladas',muscle:'Tríceps · Pectoral'}];
+  }
+  if(tl.includes('calistenia')){
+    return [{name:'Flexiones',detail:'4 × máx reps controladas',muscle:'Pectoral · Tríceps'},{name:'Dominadas',detail:'4 × máx o 5 negativas',muscle:'Espalda · Bíceps'},{name:'Dips',detail:'3 × máx reps',muscle:'Tríceps · Pectoral'},{name:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},{name:'Plancha',detail:'3 × 1 min',muscle:'Core'},{name:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'}];
+  }
+  if(tl.includes('core')||tl.includes('movilidad')){
+    return [{name:'Plancha frontal',detail:'3 × 45-60 seg',muscle:'Core · Transverso'},{name:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'},{name:'Dead bug',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'},{name:'Hip thrust',detail:'2 × 15 reps · movilidad cadera',muscle:'Cadera · Glúteos'},{name:'Sentadilla búlgara',detail:'2 × 8 reps movilidad',muscle:'Cadera · Flexores'},{name:'Elevación de talones',detail:'2 × 12 reps lento',muscle:'Gemelos · Tobillo'}];
+  }
+  // Full body per defecte
+  return [{name:'Sentadilla',detail:'3 × 12 reps dinámicas',muscle:'Piernas · Glúteos'},{name:'Flexiones',detail:'3 × 10-15 reps',muscle:'Pectoral · Tríceps'},{name:'Dominadas',detail:'3 × 8 reps o máximo',muscle:'Espalda · Bíceps'},{name:'Plancha',detail:'3 × 45 segundos',muscle:'Core'},{name:'Bird dog',detail:'3 × 10 reps cada lado · lento',muscle:'Core · Lumbares'},{name:'Dead bug',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'}];
+}
+
+var struct=isCardio?getStruct():null;
+var exList=isGym?getGym():null;
+
+// RENDERITZA HERO
+document.getElementById('h-icon').textContent=icon;
 document.getElementById('h-title').textContent=title;
 
-const bulletsData=[
-  sub?`⏱ ${sub}`:'',
-  why?`💬 ${why}`:'',
-  tags.length?`🏷 ${tags.filter(t=>!t.includes('~')).join(' · ')}`:'',
-].filter(Boolean).slice(0,3);
+var bulletsHTML='';
+if(sub){bulletsHTML+='<div class="hero-bullet"><div class="hero-bullet-dot"></div><span>⏱ '+esc(sub)+'</span></div>';}
+if(why){bulletsHTML+='<div class="hero-bullet"><div class="hero-bullet-dot"></div><span>'+esc(why)+'</span></div>';}
+document.getElementById('h-bullets').innerHTML=bulletsHTML;
 
-document.getElementById('h-bullets').innerHTML=bulletsData.map(b=>`
-  <div class="hero-bullet"><div class="hero-bullet-dot"></div><span>${b}</span></div>`).join('');
-
+// ZONES
 if(isCardio){
-  document.getElementById('zones-sec').innerHTML=`
-    <div class="section">
-      <div class="section-title">Zonas de frecuencia cardíaca</div>
-      <div class="zones-row">
-        ${zones.map((z,i)=>`
-          <div class="zone ${i===mainZone?'active':''}" style="background:${z.color}">
-            <div class="zone-label">${z.label}</div>
-            <div class="zone-range">${z.min}-${z.max}</div>
-          </div>`).join('')}
-      </div>
-      <div class="zone-target">Zona objetivo: <strong>${zones[mainZone].label} · ${zones[mainZone].min}-${zones[mainZone].max} bpm</strong></div>
-    </div>`;
+  try{
+    var zonesHTML='<div class="section"><div class="section-title">Zonas de frecuencia cardíaca</div><div class="zones-row">';
+    zones.forEach(function(z,i){
+      zonesHTML+='<div class="zone '+(i===mainZone?'active':'')+'" style="background:'+z.color+'"><div class="zone-label">'+z.label+'</div><div class="zone-range">'+z.min+'-'+z.max+'</div></div>';
+    });
+    zonesHTML+='</div><div class="zone-target">Zona objetivo: <strong>'+zones[mainZone].label+' · '+zones[mainZone].min+'-'+zones[mainZone].max+' bpm</strong></div></div>';
+    document.getElementById('zones-sec').innerHTML=zonesHTML;
+  }catch(e){}
 }
 
+// ESTRUCTURA
 if(struct){
-  document.getElementById('structure-sec').innerHTML=`
-    <div class="section">
-      <div class="section-title">Estructura de la sesión</div>
-      <div class="blocks">
-        ${struct.map(b=>`
-          <div class="block">
-            <div class="block-dot" style="background:${b.color}"></div>
-            <div class="block-info">
-              <div class="block-title">${b.title}</div>
-              <div class="block-sub">${b.sub}</div>
-            </div>
-            <div class="block-time">${b.dur} min</div>
-          </div>`).join('')}
-      </div>
-    </div>`;
+  try{
+    var structHTML='<div class="section"><div class="section-title">Estructura de la sesión</div><div class="blocks">';
+    struct.forEach(function(b){
+      structHTML+='<div class="block"><div class="block-dot" style="background:'+b.color+'"></div><div class="block-info"><div class="block-title">'+esc(b.title)+'</div><div class="block-sub">'+esc(b.sub)+'</div></div><div class="block-time">'+b.dur+' min</div></div>';
+    });
+    structHTML+='</div></div>';
+    document.getElementById('structure-sec').innerHTML=structHTML;
+  }catch(e){}
 }
 
+// EXERCICIS
 if(exList){
-  document.getElementById('exercises-sec').innerHTML=`
-    <div class="section">
-      <div class="section-title">Ejercicios</div>
-      <div class="exercises">
-        ${exList.map((e,i)=>`
-          <div class="exercise">
-            <div class="ex-num">${String(i+1).padStart(2,'0')}</div>
-            <div class="ex-info">
-              <div class="ex-name">${e.name}</div>
-              <div class="ex-detail">${e.detail}</div>
-              <span class="ex-muscle">${e.muscle}</span>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>`;
+  try{
+    var exHTML='<div class="section"><div class="section-title">Ejercicios</div><div class="exercises">';
+    exList.forEach(function(e,i){
+      exHTML+='<div class="exercise"><div class="ex-num">'+String(i+1).padStart(2,'0')+'</div><div class="ex-info"><div class="ex-name">'+esc(e.name)+'</div><div class="ex-detail">'+esc(e.detail)+'</div><span class="ex-muscle">'+esc(e.muscle)+'</span></div></div>';
+    });
+    exHTML+='</div></div>';
+    document.getElementById('exercises-sec').innerHTML=exHTML;
+  }catch(e){}
 }
 
-const tipText=findTip();
-document.getElementById('tip-sec').innerHTML=`
-  <div class="section">
-    <div class="section-title">Consejo del coach</div>
-    <div class="tip"><div class="tip-dot"></div><div class="tip-text">${tipText}</div></div>
-  </div>`;
+// TIP
+try{
+  var tipMap={trail:'En trail el Z2 es por esfuerzo, no por ritmo. Caminar las subidas no es rendirse — es ser listo.',rodaje:'Si puedes mantener una conversación sin problemas, vas bien.',largo:'Ve siempre más despacio de lo que crees. Bebe cada 20 minutos.',recupera:'Ve lento de verdad. Este entreno activa la circulación.',bici:'Mantén cadencia por encima de 85-90 rpm.',series:'La recuperación es tan importante como el esfuerzo. Mejor 6 buenas que 10 malas.',inferior:'Controla la bajada contando 3 segundos. La rodilla no pasa el pie.',superior:'El remo es tan importante como el press. Equilibra empuje y tracción.',calistenia:'Las negativas en dominadas son el mejor ejercicio para aprender.',core:'Bird dog y dead bug previenen lesiones de espalda.',brick:'Las primeras transiciones son raras — las piernas pesan el doble.'};
+  var tipText=why||'Cada sesión cuenta. Consistencia > intensidad.';
+  Object.keys(tipMap).forEach(function(k){if(tl.includes(k)) tipText=tipMap[k];});
+  document.getElementById('tip-sec').innerHTML='<div class="section"><div class="section-title">Consejo del coach</div><div class="tip"><div class="tip-dot"></div><div class="tip-text">'+esc(tipText)+'</div></div></div>';
+}catch(e){}
 
+// TCX
 if(isCardio){
-  document.getElementById('tcx-sec').innerHTML=`
-    <div class="section">
-      <div class="section-title">Exportar al reloj</div>
-      <div class="tcx-card">
-        <div class="tcx-info">
-          <div class="tcx-title">⌚ Enviar a Garmin</div>
-          <div class="tcx-sub">Descarga con zonas y estructura</div>
-        </div>
-        <button class="btn-tcx" onclick="downloadTCX()">Descargar .tcx</button>
-      </div>
-    </div>`;
+  try{
+    document.getElementById('tcx-sec').innerHTML='<div class="section"><div class="section-title">Exportar al reloj</div><div class="tcx-card"><div class="tcx-info"><div class="tcx-title">⌚ Enviar a Garmin</div><div class="tcx-sub">Descarga con zonas y estructura</div></div><button class="btn-tcx" onclick="downloadTCX()">Descargar .tcx</button></div></div>';
+  }catch(e){}
 }
 
 function downloadTCX(){
-  const s=struct||[{title,dur:duracio}];
-  const z=zones[mainZone];
-  const xml=`<?xml version="1.0" encoding="UTF-8"?>
-<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2">
-  <Workouts><Workout Sport="Running"><Name>${title}</Name>
-  ${s.map((b,i)=>`<Step xsi:type="Step_t"><StepId>${i+1}</StepId><Name>${b.title}</Name>
-    <Duration xsi:type="Time_t"><Seconds>${b.dur*60}</Seconds></Duration>
-    <Intensity>Active</Intensity>
-    <Target xsi:type="HeartRate_t"><HeartRateZone xsi:type="CustomHeartRateZone_t">
-      <Low>${z.min}</Low><High>${z.max}</High>
-    </HeartRateZone></Target></Step>`).join('')}
-  </Workout></Workouts>
-</TrainingCenterDatabase>`;
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([xml],{type:'application/xml'}));
-  a.download=title.replace(/\s+/g,'_')+'.tcx';
-  a.click();
+  try{
+    var s=struct||[{title:title,dur:duracio}];
+    var z=zones[mainZone];
+    var xml='<?xml version="1.0" encoding="UTF-8"?><TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"><Workouts><Workout Sport="Running"><Name>'+esc(title)+'</Name>';
+    s.forEach(function(b,i){xml+='<Step xsi:type="Step_t"><StepId>'+(i+1)+'</StepId><Name>'+esc(b.title)+'</Name><Duration xsi:type="Time_t"><Seconds>'+(b.dur*60)+'</Seconds></Duration><Intensity>Active</Intensity><Target xsi:type="HeartRate_t"><HeartRateZone xsi:type="CustomHeartRateZone_t"><Low>'+z.min+'</Low><High>'+z.max+'</High></HeartRateZone></Target></Step>';});
+    xml+='</Workout></Workouts></TrainingCenterDatabase>';
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([xml],{type:'application/xml'}));
+    a.download=title.replace(/\s+/g,'_')+'.tcx';
+    a.click();
+  }catch(e){}
 }
 
 // MODE GUIAT
-let steps=[];
-let cur=0;
-let timer=null;
-let timeLeft=0;
+var steps=[];
+var cur=0;
+var timer=null;
+var timeLeft=0;
 
 function buildSteps(){
   steps=[];
   if(struct){
-    struct.forEach(b=>steps.push({type:'cardio',...b}));
+    struct.forEach(function(b){steps.push(Object.assign({type:'cardio'},b));});
   } else if(exList){
     steps.push({type:'intro',title:'¡A por ello!',sub:'Prepara el espacio · calienta 5 min',dur:5,color:'#60B8F0'});
-    exList.forEach((e,i)=>steps.push({type:'exercise',...e,num:i+1}));
+    exList.forEach(function(e,i){steps.push(Object.assign({type:'exercise',num:i+1},e));});
     steps.push({type:'outro',title:'¡Sesión completada!',sub:'Estira bien y descansa',dur:5,color:'#4A9E6B'});
   } else {
-    steps.push({type:'cardio',title,sub,dur:duracio,color:'#4EA84A'});
+    steps.push({type:'cardio',title:title,sub:sub,dur:duracio,color:'#4EA84A'});
   }
 }
 
@@ -364,40 +335,28 @@ function closeGuided(){
 
 function renderStep(){
   clearInterval(timer);
-  const s=steps[cur];
-  const isLast=cur===steps.length-1;
-  const isFirst=cur===0;
-
-  document.getElementById('g-dots').innerHTML=steps.map((_,i)=>
-    `<div class="gdot ${i<cur?'done':i===cur?'active':''}"></div>`).join('');
-  document.getElementById('g-step-info').textContent=`Paso ${cur+1} de ${steps.length}`;
+  var s=steps[cur];
+  var isLast=cur===steps.length-1;
+  var isFirst=cur===0;
+  var dotsHTML='';
+  steps.forEach(function(_,i){dotsHTML+='<div class="gdot '+(i<cur?'done':i===cur?'active':'')+'"></div>';});
+  document.getElementById('g-dots').innerHTML=dotsHTML;
+  document.getElementById('g-step-info').textContent='Paso '+(cur+1)+' de '+steps.length;
   document.getElementById('g-prev').style.display=isFirst?'none':'block';
   document.getElementById('g-next').textContent=isLast?'¡Completado! 🎉':'Siguiente →';
-
-  let bodyHTML='';
-
+  var bodyHTML='';
   if(s.type==='exercise'){
-    bodyHTML=`
-      <div class="guided-type">Ejercicio ${s.num} de ${exList.length}</div>
-      <div class="guided-num">${String(s.num).padStart(2,'0')}</div>
-      <div class="guided-name">${s.name}</div>
-      <div class="guided-detail">${s.detail}</div>
-      <div class="guided-muscle">${s.muscle}</div>`;
+    bodyHTML='<div class="guided-type">Ejercicio '+s.num+' de '+exList.length+'</div><div class="guided-num">'+String(s.num).padStart(2,'0')+'</div><div class="guided-name">'+esc(s.name)+'</div><div class="guided-detail">'+esc(s.detail)+'</div><div class="guided-muscle">'+esc(s.muscle)+'</div>';
     document.getElementById('g-progress').style.width='0%';
   } else {
     timeLeft=(s.dur||1)*60;
-    const total=timeLeft;
-    bodyHTML=`
-      <div class="guided-type">${s.type==='intro'?'Preparación':s.type==='outro'?'¡Completado!':'Bloque'}</div>
-      <div class="guided-name">${s.title}</div>
-      <div class="guided-detail">${s.sub||''}</div>
-      <div class="guided-timer" id="g-timer">${fmt(timeLeft)}</div>
-      <div class="guided-timer-lbl">minutos restantes</div>`;
+    var total=timeLeft;
+    bodyHTML='<div class="guided-type">'+(s.type==='intro'?'Preparación':s.type==='outro'?'¡Completado!':'Bloque')+'</div><div class="guided-name">'+esc(s.title)+'</div><div class="guided-detail">'+esc(s.sub||'')+'</div><div class="guided-timer" id="g-timer">'+fmt(timeLeft)+'</div><div class="guided-timer-lbl">minutos restantes</div>';
     document.getElementById('g-progress').style.width='0%';
-    setTimeout(()=>{
-      timer=setInterval(()=>{
+    setTimeout(function(){
+      timer=setInterval(function(){
         timeLeft--;
-        const el=document.getElementById('g-timer');
+        var el=document.getElementById('g-timer');
         if(el) el.textContent=fmt(timeLeft);
         document.getElementById('g-progress').style.width=((total-timeLeft)/total*100)+'%';
         if(timeLeft<=0){clearInterval(timer);if(!isLast) nextStep();}
@@ -409,12 +368,7 @@ function renderStep(){
 
 function nextStep(){if(cur<steps.length-1){cur++;renderStep();}else closeGuided();}
 function prevStep(){if(cur>0){cur--;renderStep();}}
-function fmt(s){const m=Math.floor(s/60);const ss=s%60;return m+':'+(ss<10?'0':'')+ss;}
-
-} catch(e) {
-  document.getElementById('h-title').textContent = decodeURIComponent(new URLSearchParams(window.location.search).get('title')||'Sesión');
-  document.getElementById('structure-sec').innerHTML='<div class="section"><div class="tip"><div class="tip-dot"></div><div class="tip-text">'+decodeURIComponent(new URLSearchParams(window.location.search).get('why')||'')+'</div></div></div>';
-}
+function fmt(s){var m=Math.floor(s/60);var ss=s%60;return m+':'+(ss<10?'0':'')+ss;}
 </script>
 </body>
 </html>
