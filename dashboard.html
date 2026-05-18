@@ -36,6 +36,12 @@
     .plan-item.dragging{opacity:.4}
     .plan-item.drag-over{border:1.5px dashed #163A28;background:#EBF5EF;transform:scale(1.01)}
     .plan-item.changed{border:1.5px solid #4A9E6B;background:#F1FAF5;animation:highlight 2s ease-out forwards}
+    .plan-item.completed{opacity:.65;border-color:#4A9E6B;background:#F1FAF5}
+    .plan-item.completed .plan-item-title{text-decoration:line-through;color:#888780}
+    .action-btn.done-btn{background:#4A9E6B;border-color:#4A9E6B;color:#fff}
+    .action-btn.done-btn:hover{background:#3a7d54}
+    .today-done{background:rgba(255,255,255,.08);border-radius:8px;padding:.7rem;text-align:center;color:rgba(255,255,255,.85);font-size:.9rem;font-weight:500;border:1px solid rgba(255,255,255,.15)}
+    .today-done-sub{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:3px;font-weight:400}
     @keyframes highlight{0%{background:#E8F4ED}100%{background:#F1FAF5}}
     .plan-day-badge{width:28px;height:28px;border-radius:8px;background:#F1EFE8;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600;color:#888780;flex-shrink:0}
     .plan-item.today-item .plan-day-badge{background:#163A28;color:#fff}
@@ -281,7 +287,8 @@ function normalizePlan(sessions){
     rest: d.rest||d.descanso===true||d.title==='Descanso'||d.titulo==='Descanso'||false,
     duracio_min: d.duracio_min||d.duracion||d.duration||d.minuts||45,
     canviat: d.canviat||false,
-    skipped: d.skipped||false
+    skipped: d.skipped||false,
+    completed: d.completed||false
   }));
 }
 
@@ -445,10 +452,17 @@ function renderAll(){
         (todaySession.sub?'<div class="today-bullet">📍 '+todaySession.sub+'</div>':'')+
         (todaySession.why?'<div class="today-bullet">💬 '+todaySession.why+'</div>':'')+
       '</div>'+
-      '<div class="today-actions" onclick="event.stopPropagation()">'+
-        '<button class="btn-white" onclick="openTimeModal()">⏱ Cambiar tiempo</button>'+
-        '<button class="btn-ghost" onclick="openSessio('+todayRealIdx+')">▶ Empezar</button>'+
-      '</div>'+
+      (todaySession.completed?
+  '<div class="today-done" onclick="toggleCompleted('+todayRealIdx+')">'+
+    '✓ Sesión completada'+
+    '<div class="today-done-sub">Toca para desmarcar</div>'+
+  '</div>'
+  :
+  '<div class="today-actions" onclick="event.stopPropagation()">'+
+    '<button class="btn-white" onclick="openTimeModal()">⏱ Cambiar tiempo</button>'+
+    '<button class="btn-ghost" onclick="openSessio('+todayRealIdx+')">▶ Empezar</button>'+
+  '</div>'
+)+
     '</div>'+
     '<div onclick="window.location.href=\'plan.html\'+window.location.search" style="margin:0 1.25rem 1rem;background:#fff;border:.5px solid #E8E6DF;border-radius:12px;padding:.9rem 1.25rem;display:flex;align-items:center;gap:.75rem;cursor:pointer">'+
       '<div style="width:36px;height:36px;border-radius:10px;background:#F1FAF5;border:1px solid #163A28;display:flex;align-items:center;justify-content:center;font-size:1rem">📅</div>'+
@@ -481,7 +495,8 @@ function renderAll(){
 function renderPlanItem(d,i){
   const isToday=d.day===todayName;
   const isChanged=d.canviat===true;
-  const cls=isToday?'today-item':d.rest?'rest-item':isChanged?'changed':'';
+  const isCompleted=d.completed===true;
+  const cls=isCompleted?'completed':isToday?'today-item':d.rest?'rest-item':isChanged?'changed':'';
   return '<div class="plan-item '+cls+'" id="item-'+i+'"'+
     ' draggable="'+(!d.rest)+'"'+
     ' ondragstart="dragStart(event,'+i+')"'+
@@ -499,6 +514,7 @@ function renderPlanItem(d,i){
     (!d.rest?
       '<div class="plan-item-actions" onclick="event.stopPropagation()">'+
         '<div class="drag-handle" onclick="event.stopPropagation()" ontouchstart="handleTouchStart(event,'+i+')">⠿</div>'+
+        '<button class="action-btn '+(isCompleted?'done-btn':'')+'" onclick="toggleCompleted('+i+')" title="'+(isCompleted?'Completada':'Marcar como hecha')+'">✓</button>'+
         '<button class="action-btn" onclick="openSessionModal('+i+')">✎</button>'+
         '<button class="action-btn" onclick="toggleRest('+i+')">💤</button>'+
       '</div>'
@@ -710,6 +726,13 @@ function openSessio(idx){
     duracio:d.duracio_min||45
   });
   window.location.href='sessio.html?'+p.toString();
+}
+  async function toggleCompleted(idx){
+  if(planDays[idx].rest) return;
+  planDays[idx].completed=!planDays[idx].completed;
+  renderAll();
+  if(currentEmail) await savePlanToSupabase();
+  showToast(planDays[idx].completed?'¡Sesión completada! ✓':'Sesión marcada como pendiente');
 }
 function showToast(msg){
   const t=document.getElementById('toast');
