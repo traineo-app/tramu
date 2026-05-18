@@ -62,13 +62,13 @@
     .race-sub{font-size:.75rem;color:rgba(255,255,255,.45)}
     .race-days{font-size:1.2rem;font-weight:500;color:#4A9E6B;margin-left:auto;flex-shrink:0}
     .race-days-lbl{font-size:.65rem;color:rgba(255,255,255,.4);text-align:right}
-    .reajust-banner{margin:0 1.25rem 1rem;background:#EBF5EF;border:.5px solid #4A9E6B;border-radius:12px;padding:.75rem 1rem;display:none;align-items:center;gap:.75rem}
+    .reajust-banner{background:#EBF5EF;border:.5px solid #4A9E6B;border-radius:12px;padding:.75rem 1rem;display:none;align-items:center;gap:.75rem;margin-bottom:.75rem}
     .reajust-banner.show{display:flex}
     .reajust-banner.working{background:#FEF6E5;border-color:#F0C84A}
     .reajust-banner.working .reajust-dot{display:none}
     .working-spinner{display:inline-block;width:12px;height:12px;border:2px solid #F0C84A;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle;flex-shrink:0}
     .reajust-dot{width:8px;height:8px;border-radius:50%;background:#163A28;flex-shrink:0}
-    .reajust-text{font-size:.82rem;color:#163A28;line-height:1.4}
+    .reajust-text{font-size:.82rem;color:#163A28;line-height:1.4;display:flex;align-items:center}
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end;justify-content:center}
     .modal-overlay.open{display:flex}
     .modal{background:#F8F7F4;border-radius:20px 20px 0 0;padding:1.5rem 1.25rem 2rem;width:100%;max-width:390px;max-height:80vh;overflow-y:auto}
@@ -106,11 +106,7 @@
     .btn-start{background:#163A28;color:#fff;border:none;border-radius:10px;padding:.75rem 1.5rem;font-size:.9rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer}
     .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#111110;color:#fff;font-size:.85rem;font-weight:500;padding:.65rem 1.25rem;border-radius:20px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
     .toast.show{opacity:1}
-    .loading-overlay{position:fixed;inset:0;background:rgba(248,247,244,.9);z-index:150;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem}
-    .loading-overlay.show{display:flex}
-    .spinner{width:40px;height:40px;border:3px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .loading-text{font-size:.9rem;color:#888780;text-align:center}
     .email-modal-input{width:100%;padding:.75rem 1rem;border:.5px solid #E8E6DF;border-radius:10px;font-size:.95rem;font-family:'Outfit',sans-serif;color:#111110;background:#fff;outline:none;margin-bottom:1rem}
     .email-modal-input:focus{border-color:#163A28}
     .saved-badge{display:inline-flex;align-items:center;gap:4px;background:#E8F4ED;color:#163A28;font-size:.7rem;font-weight:500;padding:3px 8px;border-radius:20px;margin-left:8px}
@@ -135,11 +131,6 @@
     <div class="greeting-name" id="greeting-name">Hola! 👋</div>
   </div>
   <div id="main-content"></div>
-</div>
-
-<div class="loading-overlay" id="loading-overlay">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">El coach está generando tu plan...</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -258,20 +249,26 @@ let selectedNewSession=null;
 let dragSrcIdx=null;
 let currentTimeMin=45;
 let currentEmail=emailParam||'';
-let isReajusting=false;
+let reajustRequestId=0;
+let coachBannerState=null;
+let touchSrcIdx=null;
+let touchOverIdx=null;
+
+function expandSports(sports){
+  var expanded=[];
+  (sports||['running']).forEach(function(s){
+    if(s==='triatlon') expanded.push('running','ciclismo','natacion','triatlon');
+    else if(s==='duatlon') expanded.push('running','ciclismo');
+    else expanded.push(s);
+  });
+  return expanded.filter(function(s,i){return expanded.indexOf(s)===i;});
+}
 
 if(user){ initDashboard(user); }
 else {
-  document.getElementById('main-content').innerHTML=`
-    <div class="no-plan">
-      <div class="no-plan-icon">🏃</div>
-      <div class="no-plan-title">Aún no tienes un plan</div>
-      <div class="no-plan-sub">Cuéntame tus objetivos y crearé tu plan personalizado.</div>
-      <button class="btn-start" onclick="window.location.href='onboarding.html'">Crear mi plan →</button>
-    </div>`;
+  document.getElementById('main-content').innerHTML='<div class="no-plan"><div class="no-plan-icon">🏃</div><div class="no-plan-title">Aún no tienes un plan</div><div class="no-plan-sub">Cuéntame tus objetivos y crearé tu plan personalizado.</div><button class="btn-start" onclick="window.location.href=\'onboarding.html\'">Crear mi plan →</button></div>';
 }
 
-// Normalitza les dades que ve de la IA (pot tenir camps amb noms diferents)
 function normalizePlan(sessions){
   return sessions.map((d,i)=>({
     ...d,
@@ -308,22 +305,12 @@ async function initDashboard(user){
 }
 
 async function buildPlan(user){
-  document.getElementById('main-content').innerHTML=`
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.25rem;gap:1rem">
-      <div style="width:48px;height:48px;border:3px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite"></div>
-      <p style="font-size:.9rem;color:#888780;text-align:center">Tu coach está generando<br>el plan de esta semana...</p>
-    </div>
-    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+  document.getElementById('main-content').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.25rem;gap:1rem"><div style="width:48px;height:48px;border:3px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite"></div><p style="font-size:.9rem;color:#888780;text-align:center">Tu coach está generando<br>el plan de esta semana...</p></div>';
   try {
     const response=await fetch('/api/coach',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        sports:user.sports,dias:user.dias,descanso:user.descanso,
-        nivel:user.nivel,fcmax:user.fcmax,volum:user.volum,
-        objetivo:user.objetivo,carrera:user.carrera,
-        distancia:user.distancia,desnivel:user.desnivel
-      })
+      body:JSON.stringify({sports:user.sports,dias:user.dias,descanso:user.descanso,nivel:user.nivel,fcmax:user.fcmax,volum:user.volum,objetivo:user.objetivo,carrera:user.carrera,distancia:user.distancia,desnivel:user.desnivel})
     });
     const data=await response.json();
     if(data.setmana){
@@ -347,39 +334,30 @@ function buildPlanStatic(user){
   let idx=0;
   planDays=dayNames.map(d=>{
     if(d===descanso) return{day:d,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,duracio_min:0};
-    if(idx<dias){const s=allS[idx%allS.length];idx++;return{...s,day:d,rest:false,skipped:false};}
+    if(idx<dias){const s=allS[idx%allS.length];idx++;return{...s,day:d,rest:false,skipped:false,duracio_min:45};}
     return{day:d,rest:true,icon:'💤',title:'Descanso',sub:'',tags:[],why:'',skipped:false,duracio_min:0};
   });
 }
-
-let reajustRequestId=0;
-
-async function reajustarDiferit(descripcioCanvi,loadingMsg='Coach ajustando...'){
- let coachBannerState=null;
 
 function showCoachBanner(working,message){
   coachBannerState={working:working,message:message};
   renderCoachBanner();
 }
-
 function hideCoachBanner(){
   coachBannerState=null;
   renderCoachBanner();
 }
-
 function renderCoachBanner(){
   const slot=document.getElementById('reajust-banner-slot');
   if(!slot) return;
   if(!coachBannerState){slot.innerHTML='';return;}
   const w=coachBannerState.working;
   const m=coachBannerState.message;
-  slot.innerHTML='<div class="reajust-banner show '+(w?'working':'')+'" style="margin:0 1.25rem 1rem">'+
-    (w?'':'<div class="reajust-dot"></div>')+
-    '<div class="reajust-text">'+(w?'<span class="working-spinner"></span>':'')+m+'</div>'+
-    '</div>';
+  slot.innerHTML='<div class="reajust-banner show '+(w?'working':'')+'">'+(w?'':'<div class="reajust-dot"></div>')+'<div class="reajust-text">'+(w?'<span class="working-spinner"></span>':'')+m+'</div></div>';
 }
 
-async function reajustarDiferit(descripcioCanvi,loadingMsg='Coach reorganizando la semana...'){
+async function reajustarDiferit(descripcioCanvi,loadingMsg){
+  loadingMsg=loadingMsg||'Coach reorganizando la semana...';
   const requestId=++reajustRequestId;
   showCoachBanner(true,loadingMsg);
   try {
@@ -407,14 +385,6 @@ async function reajustarDiferit(descripcioCanvi,loadingMsg='Coach reorganizando 
       setTimeout(function(){if(requestId===reajustRequestId) hideCoachBanner();},3000);
     }
   }
-}
-
-async function reajustarPla(descripcioCanvi,loadingMsg){
-  return reajustarDiferit(descripcioCanvi,loadingMsg);
-}
-
-async function reajustarPla(descripcioCanvi,loadingMsg){
-  return reajustarDiferit(descripcioCanvi,loadingMsg);
 }
 
 async function savePlanToSupabase(){
@@ -456,91 +426,83 @@ function renderAll(){
   if(user?.carrera&&user?.fecha){
     const diff=Math.ceil((new Date(user.fecha)-new Date())/(1000*60*60*24));
     if(diff>0){
-      raceHTML=`<div class="race-card">
-        <div class="race-icon">🏁</div>
-        <div><div class="race-title">${user.carrera}</div><div class="race-sub">${user.distancia}${user.desnivel>0?' · +'+user.desnivel+'m D+':''}</div></div>
-        <div style="text-align:right;margin-left:auto"><div class="race-days">${diff}</div><div class="race-days-lbl">días</div></div>
-      </div>`;
+      raceHTML='<div class="race-card"><div class="race-icon">🏁</div><div><div class="race-title">'+user.carrera+'</div><div class="race-sub">'+user.distancia+(user.desnivel>0?' · +'+user.desnivel+'m D+':'')+'</div></div><div style="text-align:right;margin-left:auto"><div class="race-days">'+diff+'</div><div class="race-days-lbl">días</div></div></div>';
     }
   }
 
-  const savedBadge=currentEmail?`<span class="saved-badge">✓ guardado</span>`:'';
-
-  // Stats de la sessió d'avui
+  const savedBadge=currentEmail?'<span class="saved-badge">✓ guardado</span>':'';
   const durMin=todaySession.duracio_min||45;
   const zona=(todaySession.tags||[]).find(t=>t.startsWith('Z'))||'Z2';
   const focus=(todaySession.tags||[]).filter(t=>!t.startsWith('Z')&&!t.includes('~')).slice(0,1)[0]||'';
-  const subParts=(todaySession.sub||'').split('·').map(s=>s.trim()).filter(Boolean);
 
-  document.getElementById('main-content').innerHTML=`
-    ${raceHTML}
-    <div class="today" onclick="openSessio(${todayRealIdx})">
-      <div class="today-meta">
-        <span class="today-label">Hoy · ${todayName}</span>
-        <span class="today-badge">Semana 1 · Base</span>
-      </div>
-      <div class="today-title">${todaySession.skipped?'Descanso inesperado':todaySession.title}</div>
-      <div class="today-bullets">
-        <div class="today-bullet">⏱ ${durMin} min · ${zona}${focus?' · '+focus:''}</div>
-        ${todaySession.sub?`<div class="today-bullet">📍 ${todaySession.sub}</div>`:''}
-        ${todaySession.why?`<div class="today-bullet">💬 ${todaySession.why}</div>`:''}
-      </div>
-      <div class="today-actions" onclick="event.stopPropagation()">
-        <button class="btn-white" onclick="openTimeModal()">⏱ Cambiar tiempo</button>
-        <button class="btn-ghost" onclick="openSessio(${todayRealIdx})">▶ Empezar</button>
-      </div>
-    </div>
-    <div id="reajust-banner-slot"></div>
-    <div class="week-section">
-      <div class="section-head">
-        <span class="section-title">Esta semana ${savedBadge}</span>
-        <span style="font-size:.72rem;color:#888780">⠿ arrastra · ✎ cambia</span>
-      </div>
-      <div class="plan-list" id="plan-list">
-        ${planDays.map((d,i)=>renderPlanItem(d,i)).join('')}
-      </div>
-    </div>
-    <div class="stats-card">
-      <div class="stats-grid">
-        <div class="stat"><div class="stat-val">${h}h${m>0?' '+m+'m':''}</div><div class="stat-lbl">Carga total</div></div>
-        <div class="stat"><div class="stat-val green">${trainDays.length}</div><div class="stat-lbl">Sesiones</div></div>
-        <div class="stat"><div class="stat-val">${z2min}-${z2max}</div><div class="stat-lbl">Z2 bpm</div></div>
-      </div>
-      <button class="btn-reorganize" onclick="window.location.href='onboarding.html'">↺ Reconfigurar plan</button>
-    </div>`;
+  document.getElementById('main-content').innerHTML=
+    raceHTML+
+    '<div class="today" onclick="openSessio('+todayRealIdx+')">'+
+      '<div class="today-meta"><span class="today-label">Hoy · '+todayName+'</span><span class="today-badge">Semana 1 · Base</span></div>'+
+      '<div class="today-title">'+(todaySession.skipped?'Descanso inesperado':todaySession.title)+'</div>'+
+      '<div class="today-bullets">'+
+        '<div class="today-bullet">⏱ '+durMin+' min · '+zona+(focus?' · '+focus:'')+'</div>'+
+        (todaySession.sub?'<div class="today-bullet">📍 '+todaySession.sub+'</div>':'')+
+        (todaySession.why?'<div class="today-bullet">💬 '+todaySession.why+'</div>':'')+
+      '</div>'+
+      '<div class="today-actions" onclick="event.stopPropagation()">'+
+        '<button class="btn-white" onclick="openTimeModal()">⏱ Cambiar tiempo</button>'+
+        '<button class="btn-ghost" onclick="openSessio('+todayRealIdx+')">▶ Empezar</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="week-section">'+
+      '<div id="reajust-banner-slot"></div>'+
+      '<div class="section-head">'+
+        '<span class="section-title">Esta semana '+savedBadge+'</span>'+
+        '<span style="font-size:.72rem;color:#888780">⠿ arrastra · ✎ cambia</span>'+
+      '</div>'+
+      '<div class="plan-list" id="plan-list">'+
+        planDays.map((d,i)=>renderPlanItem(d,i)).join('')+
+      '</div>'+
+    '</div>'+
+    '<div class="stats-card">'+
+      '<div class="stats-grid">'+
+        '<div class="stat"><div class="stat-val">'+h+'h'+(m>0?' '+m+'m':'')+'</div><div class="stat-lbl">Carga total</div></div>'+
+        '<div class="stat"><div class="stat-val green">'+trainDays.length+'</div><div class="stat-lbl">Sesiones</div></div>'+
+        '<div class="stat"><div class="stat-val">'+z2min+'-'+z2max+'</div><div class="stat-lbl">Z2 bpm</div></div>'+
+      '</div>'+
+      '<button class="btn-reorganize" onclick="window.location.href=\'onboarding.html\'">↺ Reconfigurar plan</button>'+
+    '</div>';
+
+  // Re-render banner if state exists
+  renderCoachBanner();
 }
 
 function renderPlanItem(d,i){
   const isToday=d.day===todayName;
   const isChanged=d.canviat===true;
   const cls=isToday?'today-item':d.rest?'rest-item':isChanged?'changed':'';
-  return `
-    <div class="plan-item ${cls}" id="item-${i}"
-      draggable="${!d.rest}"
-      ondragstart="dragStart(event,${i})"
-      ondragover="dragOver(event,${i})"
-      ondrop="drop(event,${i})"
-      ondragleave="dragLeave(${i})"
-      ondragend="dragEnd()"
-      onclick="openSessio(${i})">
-      <div class="plan-day-badge">${d.day}</div>
-      <span class="plan-item-icon">${d.icon||'🏃'}</span>
-      <div class="plan-item-info">
-        <div class="plan-item-title">${d.title||'Sesión'}</div>
-        ${d.sub?`<div class="plan-item-sub">${d.sub}</div>`:''}
-      </div>
-      ${!d.rest?`
-        <div class="plan-item-actions" onclick="event.stopPropagation()">
-          <div class="drag-handle" onclick="event.stopPropagation()" ontouchstart="handleTouchStart(event,${i})">⠿</div>
-          <button class="action-btn" onclick="openSessionModal(${i})">✎</button>
-          <button class="action-btn" onclick="toggleRest(${i})">💤</button>
-        </div>
-      `:`
-        <div class="plan-item-actions" onclick="event.stopPropagation()">
-          <button class="action-btn" onclick="restoreDay(${i})">+</button>
-        </div>
-      `}
-    </div>`;
+  return '<div class="plan-item '+cls+'" id="item-'+i+'"'+
+    ' draggable="'+(!d.rest)+'"'+
+    ' ondragstart="dragStart(event,'+i+')"'+
+    ' ondragover="dragOver(event,'+i+')"'+
+    ' ondrop="drop(event,'+i+')"'+
+    ' ondragleave="dragLeave('+i+')"'+
+    ' ondragend="dragEnd()"'+
+    ' onclick="openSessio('+i+')">'+
+    '<div class="plan-day-badge">'+d.day+'</div>'+
+    '<span class="plan-item-icon">'+(d.icon||'🏃')+'</span>'+
+    '<div class="plan-item-info">'+
+      '<div class="plan-item-title">'+(d.title||'Sesión')+'</div>'+
+      (d.sub?'<div class="plan-item-sub">'+d.sub+'</div>':'')+
+    '</div>'+
+    (!d.rest?
+      '<div class="plan-item-actions" onclick="event.stopPropagation()">'+
+        '<div class="drag-handle" onclick="event.stopPropagation()" ontouchstart="handleTouchStart(event,'+i+')">⠿</div>'+
+        '<button class="action-btn" onclick="openSessionModal('+i+')">✎</button>'+
+        '<button class="action-btn" onclick="toggleRest('+i+')">💤</button>'+
+      '</div>'
+      :
+      '<div class="plan-item-actions" onclick="event.stopPropagation()">'+
+        '<button class="action-btn" onclick="restoreDay('+i+')">+</button>'+
+      '</div>'
+    )+
+    '</div>';
 }
 
 function dragStart(e,idx){
@@ -564,34 +526,72 @@ async function drop(e,idx){
   e.preventDefault();
   document.querySelectorAll('.plan-item').forEach(el=>el.classList.remove('drag-over'));
   if(dragSrcIdx===null||dragSrcIdx===idx){dragSrcIdx=null;return;}
-  const srcIdx=dragSrcIdx;
-  const src=planDays[srcIdx],dst=planDays[idx];
-  if(src.rest){dragSrcIdx=null;return;}
+  performSwap(dragSrcIdx,idx);
+  dragSrcIdx=null;
+}
+
+function performSwap(srcIdx,dstIdx){
+  const src=planDays[srcIdx],dst=planDays[dstIdx];
+  if(src.rest) return;
   const srcDay=src.day,dstDay=dst.day;
   let desc;
   if(dst.rest){
-    desc=`Mogut "${src.title}" del ${srcDay} al ${dstDay}. ${srcDay} ara és descans.`;
-    planDays[idx]={...src,day:dstDay,canviat:true};
+    desc='Mogut "'+src.title+'" del '+srcDay+' al '+dstDay+'. '+srcDay+' ara és descans.';
+    planDays[dstIdx]={...src,day:dstDay,canviat:true};
     planDays[srcIdx]={day:srcDay,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,duracio_min:0};
   } else {
-    desc=`Intercanviat "${src.title}" (${srcDay}) amb "${dst.title}" (${dstDay}).`;
-    planDays[idx]={...src,day:dstDay,canviat:true};
+    desc='Intercanviat "'+src.title+'" ('+srcDay+') amb "'+dst.title+'" ('+dstDay+').';
+    planDays[dstIdx]={...src,day:dstDay,canviat:true};
     planDays[srcIdx]={...dst,day:srcDay,canviat:true};
   }
-  dragSrcIdx=null;
   renderAll();
   reajustarDiferit(desc,'Coach reorganizando la semana...');
 }
 
-function expandSports(sports){
-  var expanded=[];
-  (sports||['running']).forEach(function(s){
-    if(s==='triatlon') expanded.push('running','ciclismo','natacion','triatlon');
-    else if(s==='duatlon') expanded.push('running','ciclismo');
-    else expanded.push(s);
-  });
-  return expanded.filter(function(s,i){return expanded.indexOf(s)===i;});
+// TOUCH SUPPORT (mòbil)
+function handleTouchStart(e,idx){
+  if(planDays[idx].rest) return;
+  touchSrcIdx=idx;
+  touchOverIdx=null;
+  const el=document.getElementById('item-'+idx);
+  if(el) el.classList.add('dragging');
+  e.preventDefault();
 }
+function handleTouchMove(e){
+  if(touchSrcIdx===null) return;
+  e.preventDefault();
+  const touch=e.touches[0];
+  const srcEl=document.getElementById('item-'+touchSrcIdx);
+  if(srcEl) srcEl.style.visibility='hidden';
+  const under=document.elementFromPoint(touch.clientX,touch.clientY);
+  if(srcEl) srcEl.style.visibility='';
+  document.querySelectorAll('.plan-item').forEach(el=>el.classList.remove('drag-over'));
+  if(under){
+    const item=under.closest('.plan-item');
+    if(item&&item.id){
+      const idx=parseInt(item.id.replace('item-',''));
+      if(!isNaN(idx)&&idx!==touchSrcIdx){
+        item.classList.add('drag-over');
+        touchOverIdx=idx;
+      }
+    }
+  }
+}
+function handleTouchEnd(){
+  if(touchSrcIdx===null) return;
+  document.querySelectorAll('.plan-item').forEach(el=>{
+    el.classList.remove('dragging');
+    el.classList.remove('drag-over');
+  });
+  if(touchOverIdx!==null&&touchOverIdx!==touchSrcIdx){
+    performSwap(touchSrcIdx,touchOverIdx);
+  }
+  touchSrcIdx=null;
+  touchOverIdx=null;
+}
+document.addEventListener('touchmove',function(e){handleTouchMove(e);},{passive:false});
+document.addEventListener('touchend',function(){handleTouchEnd();});
+
 function openSessionModal(idx){
   editingDayIdx=idx;selectedNewSession=null;
   const current=planDays[idx];
@@ -602,11 +602,7 @@ function openSessionModal(idx){
   let options=[];
   sports.forEach(s=>(allSessionsDB[s]||[]).forEach(x=>{if(x.title!==current.title)options.push({...x,sport:s});}));
   options.push({icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',sport:'rest'});
-  document.getElementById('session-list').innerHTML=options.map((o,i)=>`
-    <div class="session-opt" onclick="selSession(this,${i})">
-      <span class="session-opt-icon">${o.icon}</span>
-      <div><div class="session-opt-title">${o.title}</div><div class="session-opt-sub">${o.sub||''}</div></div>
-    </div>`).join('');
+  document.getElementById('session-list').innerHTML=options.map((o,i)=>'<div class="session-opt" onclick="selSession(this,'+i+')"><span class="session-opt-icon">'+o.icon+'</span><div><div class="session-opt-title">'+o.title+'</div><div class="session-opt-sub">'+(o.sub||'')+'</div></div></div>').join('');
   window._sessionOptions=options;
   document.getElementById('modal-session').classList.add('open');
 }
@@ -621,7 +617,7 @@ function selSession(el,idx){
 async function confirmSession(){
   if(editingDayIdx===null||!selectedNewSession) return;
   const current=planDays[editingDayIdx];
-  const desc=`Canviat "${current.title}" del ${current.day} per "${selectedNewSession.title}".`;
+  const desc='Canviat "'+current.title+'" del '+current.day+' per "'+selectedNewSession.title+'".';
   closeModal('modal-session');
   if(selectedNewSession.title==='Descanso'){
     planDays[editingDayIdx]={day:current.day,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,duracio_min:0};
@@ -634,7 +630,7 @@ async function confirmSession(){
 
 async function toggleRest(idx){
   const d=planDays[idx];
-  const desc=`Marcat ${d.day} com a descans (era "${d.title}"). Redistribueix la càrrega.`;
+  const desc='Marcat '+d.day+' com a descans (era "'+d.title+'"). Redistribueix la càrrega.';
   planDays[idx]={day:d.day,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,duracio_min:0};
   renderAll();
   reajustarDiferit(desc,'Coach redistribuyendo la carga...');
@@ -649,30 +645,30 @@ function restoreDay(idx){
   const dayName=planDays[idx].day;
   planDays[idx]={...pick,day:dayName,rest:false,skipped:false,duracio_min:45,canviat:true};
   renderAll();
-  reajustarDiferit(`Afegit "${pick.title}" al ${dayName}.`,'Coach ajustando...');
+  reajustarDiferit('Afegit "'+pick.title+'" al '+dayName+'.','Coach ajustando...');
 }
 
 function openTimeModal(){ document.getElementById('modal-time').classList.add('open'); }
 
 async function skipToday(){
-  const todayIdx=planDays.findIndex(d=>d.day===todayName);
-  if(todayIdx<0){closeModal('modal-time');return;}
-  const s=planDays[todayIdx];
-  const desc=`Usuari NO pot entrenar avui (${todayName}). Era "${s?.title||'sesión'}". Redistribueix la setmana.`;
+  const todayRealIdx=planDays.findIndex(d=>d.day===todayName);
+  if(todayRealIdx<0){closeModal('modal-time');return;}
+  const s=planDays[todayRealIdx];
+  const desc='Usuari NO pot entrenar avui ('+todayName+'). Era "'+(s?.title||'sesión')+'". Redistribueix.';
   closeModal('modal-time');
-  planDays[todayIdx]={day:s.day,rest:true,icon:'💤',title:'Descanso inesperado',sub:'No pude entrenar hoy',tags:[],why:'',skipped:true,duracio_min:0};
+  planDays[todayRealIdx]={day:s.day,rest:true,icon:'💤',title:'Descanso inesperado',sub:'No pude entrenar hoy',tags:[],why:'',skipped:true,duracio_min:0};
   renderAll();
   reajustarDiferit(desc,'Coach reorganizando...');
 }
 
 async function confirmTime(){
-  const todayIdx=planDays.findIndex(d=>d.day===todayName);
-  if(todayIdx<0){closeModal('modal-time');return;}
-  const s=planDays[todayIdx];
+  const todayRealIdx=planDays.findIndex(d=>d.day===todayName);
+  if(todayRealIdx<0){closeModal('modal-time');return;}
+  const s=planDays[todayRealIdx];
   const oldDur=s?.duracio_min||45;
-  const desc=`Sessió d'avui ajustada a ${currentTimeMin} min (eren ${oldDur}). Redistribueix els minuts restants en altres dies si cal.`;
+  const desc='Sessió d\'avui ajustada a '+currentTimeMin+' min (eren '+oldDur+'). Redistribueix els minuts restants.';
   closeModal('modal-time');
-  planDays[todayIdx]={...s,duracio_min:currentTimeMin,canviat:true};
+  planDays[todayRealIdx]={...s,duracio_min:currentTimeMin,canviat:true};
   renderAll();
   reajustarDiferit(desc,'Coach redistribuyendo el tiempo...');
 }
@@ -710,62 +706,6 @@ function openSessio(idx){
   });
   window.location.href='sessio.html?'+p.toString();
 }
-let touchSrcIdx=null;
-let touchOverIdx=null;
-
-function handleTouchStart(e,idx){
-  if(planDays[idx].rest) return;
-  touchSrcIdx=idx;
-  touchOverIdx=null;
-  const el=document.getElementById('item-'+idx);
-  if(el) el.classList.add('dragging');
-  e.preventDefault();
-}
-
-function handleTouchMove(e){
-  if(touchSrcIdx===null) return;
-  e.preventDefault();
-  const touch=e.touches[0];
-  const srcEl=document.getElementById('item-'+touchSrcIdx);
-  if(srcEl) srcEl.style.visibility='hidden';
-  const under=document.elementFromPoint(touch.clientX,touch.clientY);
-  if(srcEl) srcEl.style.visibility='';
-  document.querySelectorAll('.plan-item').forEach(el=>el.classList.remove('drag-over'));
-  if(under){
-    const item=under.closest('.plan-item');
-    if(item&&item.id){
-      const idx=parseInt(item.id.replace('item-',''));
-      if(!isNaN(idx)&&idx!==touchSrcIdx){
-        item.classList.add('drag-over');
-        touchOverIdx=idx;
-      }
-    }
-  }
-}
-
-function handleTouchEnd(e){
-  if(touchSrcIdx===null) return;
-  document.querySelectorAll('.plan-item').forEach(el=>{
-    el.classList.remove('dragging');
-    el.classList.remove('drag-over');
-  });
-  if(touchOverIdx!==null&&touchOverIdx!==touchSrcIdx){
-    const src=planDays[touchSrcIdx];
-    const dst=planDays[touchOverIdx];
-    if(!src.rest){
-      const desc=dst.rest
-        ?'Mogut "'+src.title+'" del '+src.day+' al '+dst.day+'. '+src.day+' ara és descans.'
-        :'Intercanviat "'+src.title+'" ('+src.day+') amb "'+dst.title+'" ('+dst.day+').';
-      reajustarPla(desc,'Reorganizando la semana...');
-    }
-  }
-  touchSrcIdx=null;
-  touchOverIdx=null;
-}
-
-document.addEventListener('touchmove',function(e){handleTouchMove(e);},{passive:false});
-document.addEventListener('touchend',function(e){handleTouchEnd(e);});
-  
 function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
