@@ -134,10 +134,6 @@
     <div class="greeting-sub" id="greeting-date">Hoy</div>
     <div class="greeting-name" id="greeting-name">Hola! 👋</div>
   </div>
-  <div id="reajust-banner" class="reajust-banner">
-    <div class="reajust-dot"></div>
-    <div class="reajust-text" id="reajust-text"></div>
-  </div>
   <div id="main-content"></div>
 </div>
 
@@ -359,10 +355,33 @@ function buildPlanStatic(user){
 let reajustRequestId=0;
 
 async function reajustarDiferit(descripcioCanvi,loadingMsg='Coach ajustando...'){
+ let coachBannerState=null;
+
+function showCoachBanner(working,message){
+  coachBannerState={working:working,message:message};
+  renderCoachBanner();
+}
+
+function hideCoachBanner(){
+  coachBannerState=null;
+  renderCoachBanner();
+}
+
+function renderCoachBanner(){
+  const slot=document.getElementById('reajust-banner-slot');
+  if(!slot) return;
+  if(!coachBannerState){slot.innerHTML='';return;}
+  const w=coachBannerState.working;
+  const m=coachBannerState.message;
+  slot.innerHTML='<div class="reajust-banner show '+(w?'working':'')+'" style="margin:0 1.25rem 1rem">'+
+    (w?'':'<div class="reajust-dot"></div>')+
+    '<div class="reajust-text">'+(w?'<span class="working-spinner"></span>':'')+m+'</div>'+
+    '</div>';
+}
+
+async function reajustarDiferit(descripcioCanvi,loadingMsg='Coach reorganizando la semana...'){
   const requestId=++reajustRequestId;
-  const banner=document.getElementById('reajust-banner');
-  banner.classList.add('show','working');
-  document.getElementById('reajust-text').innerHTML='<span class="working-spinner"></span>'+loadingMsg;
+  showCoachBanner(true,loadingMsg);
   try {
     const response=await fetch('/api/reajust',{
       method:'POST',
@@ -375,21 +394,23 @@ async function reajustarDiferit(descripcioCanvi,loadingMsg='Coach ajustando...')
       planDays=normalizePlan(data.setmana);
       if(data.resum) window._coachResum=data.resum;
       renderAll();
+      showCoachBanner(false,data.missatge||'Plan ajustado ✓');
       if(currentEmail) await savePlanToSupabase();
-      banner.classList.remove('working');
-      document.getElementById('reajust-text').textContent=data.missatge||'Plan ajustado ✓';
-      setTimeout(()=>{if(requestId===reajustRequestId) banner.classList.remove('show');},3500);
+      setTimeout(function(){if(requestId===reajustRequestId) hideCoachBanner();},3500);
     } else {
-      banner.classList.remove('working','show');
+      hideCoachBanner();
     }
   } catch(error){
     console.error('Reajust error:',error);
     if(requestId===reajustRequestId){
-      banner.classList.remove('working');
-      document.getElementById('reajust-text').textContent='Tu cambio se ha guardado. Coach no disponible.';
-      setTimeout(()=>banner.classList.remove('show'),3000);
+      showCoachBanner(false,'Tu cambio se ha guardado. Coach no disponible.');
+      setTimeout(function(){if(requestId===reajustRequestId) hideCoachBanner();},3000);
     }
   }
+}
+
+async function reajustarPla(descripcioCanvi,loadingMsg){
+  return reajustarDiferit(descripcioCanvi,loadingMsg);
 }
 
 async function reajustarPla(descripcioCanvi,loadingMsg){
@@ -469,6 +490,7 @@ function renderAll(){
         <button class="btn-ghost" onclick="openSessio(${todayRealIdx})">▶ Empezar</button>
       </div>
     </div>
+    <div id="reajust-banner-slot"></div>
     <div class="week-section">
       <div class="section-head">
         <span class="section-title">Esta semana ${savedBadge}</span>
