@@ -36,8 +36,32 @@
     .plan-item.dragging{opacity:.4}
     .plan-item.drag-over{border:1.5px dashed #163A28;background:#EBF5EF;transform:scale(1.01)}
     .plan-item.changed{border:1.5px solid #4A9E6B;background:#F1FAF5;animation:highlight 2s ease-out forwards}
-    .plan-item.completed{opacity:.65;border-color:#4A9E6B;background:#F1FAF5}
-    .plan-item.completed .plan-item-title{text-decoration:line-through;color:#888780}
+    .plan-item.completed{opacity:.7;border-color:#4A9E6B;background:#F1FAF5}
+    .plan-item.completed-partial{opacity:.75;border-color:#F0C84A;background:#FEF6E5}
+    .plan-item.completed-skipped{opacity:.55;border-color:#E04040;background:#FFEAEA}
+    .plan-item.completed .plan-item-title,.plan-item.completed-partial .plan-item-title,.plan-item.completed-skipped .plan-item-title{text-decoration:line-through;color:#888780}
+    .completion-options{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+    .completion-opt{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.85rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;text-align:left;transition:all .15s;width:100%}
+    .completion-opt:hover{transform:translateX(2px)}
+    .completion-opt.good:hover{border-color:#4A9E6B;background:#F1FAF5}
+    .completion-opt.partial:hover{border-color:#F0C84A;background:#FEF6E5}
+    .completion-opt.skip:hover{border-color:#E04040;background:#FFEAEA}
+    .completion-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;flex-shrink:0}
+    .completion-opt.good .completion-icon{background:#E8F4ED;color:#4A9E6B}
+    .completion-opt.partial .completion-icon{background:#FEF6E5;color:#B89020}
+    .completion-opt.skip .completion-icon{background:#FFEAEA;color:#E04040}
+    .completion-info{flex:1}
+    .completion-title{font-size:.95rem;font-weight:500;color:#111110}
+    .completion-sub{font-size:.75rem;color:#888780;margin-top:1px}
+    .partial-form{background:#F8F7F4;border-radius:10px;padding:1rem;margin-bottom:1rem}
+    .form-group{margin-bottom:1rem}
+    .form-group:last-child{margin-bottom:0}
+    .form-label{font-size:.7rem;color:#888780;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;display:block;font-weight:600}
+    .sensation-row{display:flex;gap:.4rem}
+    .sensation-btn{flex:1;background:#fff;border:.5px solid #E8E6DF;border-radius:8px;padding:.65rem .25rem;font-size:.75rem;font-family:'Outfit',sans-serif;cursor:pointer;color:#888780;line-height:1.3}
+    .sensation-btn.sel{border:1.5px solid #163A28;background:#F1FAF5;color:#163A28;font-weight:500}
+    .note-input{width:100%;padding:.65rem .75rem;border:.5px solid #E8E6DF;border-radius:8px;font-size:.85rem;font-family:'Outfit',sans-serif;background:#fff;outline:none;resize:none;min-height:60px;color:#111110}
+    .note-input:focus{border-color:#163A28}
     .action-btn.done-btn{background:#4A9E6B;border-color:#4A9E6B;color:#fff}
     .action-btn.done-btn:hover{background:#3a7d54}
     .today-done{background:rgba(255,255,255,.08);border-radius:8px;padding:.7rem;text-align:center;color:rgba(255,255,255,.85);font-size:.9rem;font-weight:500;border:1px solid rgba(255,255,255,.15)}
@@ -186,7 +210,61 @@
     <button class="btn-cancel" onclick="closeModal('modal-session')">Cancelar</button>
   </div>
 </div>
-
+  <div class="modal-overlay" id="modal-complete" onclick="closeModal('modal-complete',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">¿Cómo ha ido?</div>
+    <div class="modal-sub" id="complete-modal-sub">Sesión</div>
+    <div class="completion-options" id="completion-options">
+      <button class="completion-opt good" onclick="markAs('completed')">
+        <div class="completion-icon">✓</div>
+        <div class="completion-info">
+          <div class="completion-title">Completada según el plan</div>
+          <div class="completion-sub">Todo como estaba previsto</div>
+        </div>
+      </button>
+      <button class="completion-opt partial" onclick="showPartialForm()">
+        <div class="completion-icon">⚠</div>
+        <div class="completion-info">
+          <div class="completion-title">Hecha pero diferente</div>
+          <div class="completion-sub">Ajusta lo que has hecho</div>
+        </div>
+      </button>
+      <button class="completion-opt skip" onclick="markAs('skipped')">
+        <div class="completion-icon">✗</div>
+        <div class="completion-info">
+          <div class="completion-title">No la he hecho</div>
+          <div class="completion-sub">El coach lo tendrá en cuenta</div>
+        </div>
+      </button>
+    </div>
+    <div class="partial-form" id="partial-form" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Duración real</label>
+        <div class="slider-wrap" style="margin:0">
+          <div class="slider-row">
+            <input type="range" min="0" max="180" value="45" id="partial-duration" oninput="updatePartialDuration(this.value)">
+            <span class="slider-val" id="partial-duration-val">45 min</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sensaciones</label>
+        <div class="sensation-row">
+          <button class="sensation-btn" onclick="selectSensation(this,'easy')">😎 Fácil</button>
+          <button class="sensation-btn" onclick="selectSensation(this,'normal')">😊 Bien</button>
+          <button class="sensation-btn" onclick="selectSensation(this,'hard')">😓 Duro</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nota (opcional)</label>
+        <textarea class="note-input" id="partial-note" placeholder="¿Algo destacable? Lesiones, sensaciones..."></textarea>
+      </div>
+      <button class="btn-green" onclick="savePartial()" style="margin-top:.5rem">Guardar y completar →</button>
+    </div>
+    <button class="btn-cancel" onclick="closeModal('modal-complete')">Cancelar</button>
+  </div>
+</div>
 <script>
 const dayNames=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
 const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -288,7 +366,8 @@ function normalizePlan(sessions){
     duracio_min: d.duracio_min||d.duracion||d.duration||d.minuts||45,
     canviat: d.canviat||false,
     skipped: d.skipped||false,
-    completed: d.completed||false
+    completed: d.completed||false,
+    completion: d.completion||null
   }));
 }
 
@@ -496,7 +575,14 @@ function renderPlanItem(d,i){
   const isToday=d.day===todayName;
   const isChanged=d.canviat===true;
   const isCompleted=d.completed===true;
-  const cls=isCompleted?'completed':isToday?'today-item':d.rest?'rest-item':isChanged?'changed':'';
+  const compStatus=d.completion?.status||'completed';
+  let completedClass='';
+  if(isCompleted){
+    if(compStatus==='partial') completedClass='completed-partial';
+    else if(compStatus==='skipped') completedClass='completed-skipped';
+    else completedClass='completed';
+}
+const cls=isCompleted?completedClass:isToday?'today-item':d.rest?'rest-item':isChanged?'changed':'';
   return '<div class="plan-item '+cls+'" id="item-'+i+'"'+
     ' draggable="'+(!d.rest)+'"'+
     ' ondragstart="dragStart(event,'+i+')"'+
@@ -727,12 +813,78 @@ function openSessio(idx){
   });
   window.location.href='sessio.html?'+p.toString();
 }
-  async function toggleCompleted(idx){
+let completingIdx=null;
+let selectedSensation=null;
+
+function toggleCompleted(idx){
   if(planDays[idx].rest) return;
-  planDays[idx].completed=!planDays[idx].completed;
+  if(planDays[idx].completed){
+    planDays[idx].completed=false;
+    planDays[idx].completion=null;
+    renderAll();
+    if(currentEmail) savePlanToSupabase();
+    showToast('Sesión marcada como pendiente');
+    return;
+  }
+  completingIdx=idx;
+  selectedSensation=null;
+  const s=planDays[idx];
+  document.getElementById('complete-modal-sub').textContent=s.title+' · '+s.day;
+  document.getElementById('completion-options').style.display='flex';
+  document.getElementById('partial-form').style.display='none';
+  const dur=s.duracio_min||45;
+  document.getElementById('partial-duration').value=dur;
+  document.getElementById('partial-duration-val').textContent=dur+' min';
+  document.getElementById('partial-note').value='';
+  document.querySelectorAll('.sensation-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('modal-complete').classList.add('open');
+}
+
+function markAs(status){
+  if(completingIdx===null) return;
+  const s=planDays[completingIdx];
+  s.completed=true;
+  s.completion={status:status,date:new Date().toISOString()};
+  closeModal('modal-complete');
+  const msg=status==='completed'?'¡Sesión completada! ✓':'Sesión saltada · el coach lo verá';
+  finishCompletion(msg);
+}
+
+function showPartialForm(){
+  document.getElementById('completion-options').style.display='none';
+  document.getElementById('partial-form').style.display='block';
+}
+
+function selectSensation(el,val){
+  document.querySelectorAll('.sensation-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedSensation=val;
+}
+
+function updatePartialDuration(v){
+  document.getElementById('partial-duration-val').textContent=v+' min';
+}
+
+function savePartial(){
+  if(completingIdx===null) return;
+  const s=planDays[completingIdx];
+  s.completed=true;
+  s.completion={
+    status:'partial',
+    actualDuration:parseInt(document.getElementById('partial-duration').value),
+    sensation:selectedSensation,
+    note:document.getElementById('partial-note').value.trim(),
+    date:new Date().toISOString()
+  };
+  closeModal('modal-complete');
+  finishCompletion('Sesión guardada con tus ajustes ✓');
+}
+
+function finishCompletion(msg){
+  completingIdx=null;
   renderAll();
-  if(currentEmail) await savePlanToSupabase();
-  showToast(planDays[idx].completed?'¡Sesión completada! ✓':'Sesión marcada como pendiente');
+  if(currentEmail) savePlanToSupabase();
+  showToast(msg);
 }
 function showToast(msg){
   const t=document.getElementById('toast');
