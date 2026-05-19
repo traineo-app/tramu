@@ -26,9 +26,13 @@ function paceFmt(sec){
 }
 
 // Strava CSV: distància en METRES, dividir per 1000 per km
-function metersToKm(v){
-  const n=num(v);
-  return n!==null?Math.round(n/1000*100)/100:null;
+function toKm(v) {
+  const n = num(v);
+  if (n === null) return null;
+  // Auto-detect: si valor > 100 és metres; si < 100 ja és km
+  // Strava col 6 = km (9.02), col 17 = metres (9027.9)
+  // Papa.parse pot retornar qualsevol de les dues
+  return n > 100 ? Math.round(n / 1000 * 100) / 100 : Math.round(n * 100) / 100;
 }
 
 export default async function handler(req,res){
@@ -70,7 +74,7 @@ export default async function handler(req,res){
     }
 
     // Volum
-    const totalKm6mo=recent6mo.reduce((s,a)=>s+(metersToKm(a[colDist])||0),0);
+    const totalKm6mo=recent6mo.reduce((s,a)=>s+(toKm(a[colDist])||0),0);
     const totalSec6mo=recent6mo.reduce((s,a)=>s+(num(a[colMovTime])||num(a[colTime])||0),0);
     const avgWeeklyKm=Math.round(totalKm6mo/26*10)/10;
     const avgWeeklyHours=Math.round(totalSec6mo/3600/26*10)/10;
@@ -80,7 +84,7 @@ export default async function handler(req,res){
     recent6mo.forEach(a=>{
       const m=SPORT_MAP[a[colType]]||'otros';
       sportCounts[m]=(sportCounts[m]||0)+1;
-      sportVolume[m]=(sportVolume[m]||0)+(metersToKm(a[colDist])||0);
+      sportVolume[m]=(sportVolume[m]||0)+(toKm(a[colDist])||0);
     });
 
     // Running
@@ -90,7 +94,7 @@ export default async function handler(req,res){
     // Best 5K / 10K
     let longestRun=0,bestPace5K=null,bestPace10K=null;
     for(const r of runs6mo){
-      const km=metersToKm(r[colDist]);
+      const km=toKm(r[colDist]);
       const sec=num(r[colMovTime])||num(r[colTime]);
       if(!km||!sec||km<=0) continue;
       if(km>longestRun) longestRun=km;
@@ -106,7 +110,7 @@ export default async function handler(req,res){
     for(const r of runs6mo){
       const avgHR=colHRavg?num(r[colHRavg]):null;
       const maxHR=colHRmax?num(r[colHRmax]):null;
-      const km=metersToKm(r[colDist]);
+      const km=toKm(r[colDist]);
       const sec=num(r[colMovTime])||num(r[colTime]);
       const elev=num(r[colElev])||0;
       // FCmax real: agafa només runs >20min per evitar escalfaments
@@ -175,7 +179,7 @@ export default async function handler(req,res){
 
     let longestRide=0;
     for(const r of rides6mo){
-      const km=metersToKm(r[colDist]);
+      const km=toKm(r[colDist]);
       if(km&&km>longestRide) longestRide=km;
     }
 
@@ -191,7 +195,7 @@ export default async function handler(req,res){
         avgWeeklyKm,
         avgWeeklyHours,
         last4Weeks:{
-          km:Math.round(last4w.reduce((s,a)=>s+(metersToKm(a[colDist])||0),0)*10)/10,
+          km:Math.round(last4w.reduce((s,a)=>s+(toKm(a[colDist])||0),0)*10)/10,
           hours:Math.round(last4wHours*10)/10,
           weeklyAvgHours:Math.round(last4wHours/4*10)/10
         },
