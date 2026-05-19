@@ -276,6 +276,46 @@
     <button class="btn-next" id="btn5" onclick="goNext()">Siguiente →</button>
   </div>
 
+ <!-- S5B: ENFOQUE MUSCULAR (solo gym/calistenia) -->
+<div class="step" id="s5b">
+  <div class="step-label">Tu entreno</div>
+  <div class="step-title">¿Qué quieres trabajar más?</div>
+  <div class="step-sub">Diseñaré tu plan de fuerza con estos grupos como prioridad.</div>
+
+  <div class="field-group">
+    <label class="field-label">Grupos musculares prioritarios (elige los que quieras)</label>
+    <div class="grid-options">
+      <div class="grid-opt" onclick="toggleMuscle(this,'tren_superior')"><div class="check-badge">✓</div><div class="grid-opt-icon">💪</div><div class="grid-opt-title">Tren superior</div></div>
+      <div class="grid-opt" onclick="toggleMuscle(this,'tren_inferior')"><div class="check-badge">✓</div><div class="grid-opt-icon">🦵</div><div class="grid-opt-title">Tren inferior</div></div>
+      <div class="grid-opt" onclick="toggleMuscle(this,'core')"><div class="check-badge">✓</div><div class="grid-opt-icon">🎯</div><div class="grid-opt-title">Core y abdomen</div></div>
+      <div class="grid-opt" onclick="toggleMuscle(this,'espalda')"><div class="check-badge">✓</div><div class="grid-opt-icon">🔙</div><div class="grid-opt-title">Espalda y bíceps</div></div>
+      <div class="grid-opt" onclick="toggleMuscle(this,'gluteos')"><div class="check-badge">✓</div><div class="grid-opt-icon">🍑</div><div class="grid-opt-title">Glúteos</div></div>
+      <div class="grid-opt" onclick="toggleMuscle(this,'equilibrado')"><div class="check-badge">✓</div><div class="grid-opt-icon">⚖️</div><div class="grid-opt-title">Equilibrado</div></div>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label class="field-label">Objetivo</label>
+    <div class="options" style="margin-bottom:.5rem">
+      <div class="opt" onclick="selOpt(this,'s5b','fuerza')"><span class="opt-icon">🏋️</span><div class="opt-info"><div class="opt-title">Fuerza y potencia</div><div class="opt-sub">Levantar más, ser más fuerte</div></div></div>
+      <div class="opt" onclick="selOpt(this,'s5b','hipertrofia')"><span class="opt-icon">💪</span><div class="opt-info"><div class="opt-title">Hipertrofia</div><div class="opt-sub">Ganar volumen y masa muscular</div></div></div>
+      <div class="opt" onclick="selOpt(this,'s5b','tono')"><span class="opt-icon">✨</span><div class="opt-info"><div class="opt-title">Tonificación</div><div class="opt-sub">Definición y estética, perder grasa</div></div></div>
+      <div class="opt" onclick="selOpt(this,'s5b','funcional')"><span class="opt-icon">🤸</span><div class="opt-info"><div class="opt-title">Funcional y movilidad</div><div class="opt-sub">Moverme mejor, prevenir lesiones</div></div></div>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label class="field-label">¿Dónde entrenas?</label>
+    <div class="grid-options" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="grid-opt" onclick="selEquip(this,'gym_completo')"><div class="check-badge">✓</div><div class="grid-opt-icon">🏋️</div><div class="grid-opt-title">Gimnasio</div></div>
+      <div class="grid-opt" onclick="selEquip(this,'mancuernas')"><div class="check-badge">✓</div><div class="grid-opt-icon">🔧</div><div class="grid-opt-title">Casa con pesas</div></div>
+      <div class="grid-opt" onclick="selEquip(this,'cuerpo')"><div class="check-badge">✓</div><div class="grid-opt-icon">🤸</div><div class="grid-opt-title">Solo cuerpo</div></div>
+    </div>
+  </div>
+
+  <button class="btn-next" id="btns5b" disabled onclick="goNext()">Siguiente →</button>
+</div>
+ 
   <!-- S6: CALIBRACIÓN (adaptativa) -->
   <div class="step" id="s6">
     <div class="step-label">Calibración</div>
@@ -351,10 +391,52 @@ const sportSessions={
   triatlon:[{icon:'🥇',title:'Brick',sub:'Transición'}]
 };
 
+// Camps nous a userData
+userData.musculos=[];
+userData.objetivoGym='';
+userData.equipamiento='';
+
+function toggleMuscle(el,muscle){
+  el.classList.toggle('sel');
+  if(el.classList.contains('sel')){if(!userData.musculos.includes(muscle)) userData.musculos.push(muscle);}
+  else userData.musculos=userData.musculos.filter(function(m){return m!==muscle;});
+  checkBtnS5b();
+}
+
+function selEquip(el,equip){
+  document.querySelectorAll('#s5b [onclick^="selEquip"]').forEach(function(o){o.classList.remove('sel');});
+  el.classList.add('sel');
+  userData.equipamiento=equip;
+  checkBtnS5b();
+}
+
+function checkBtnS5b(){
+  document.getElementById('btns5b').disabled=!(userData.objetivoGym&&userData.equipamiento);
+}
+
 function buildStepOrder(){
-  stepOrder=['s1','s2','s3'];
-  if(userData.objetivo==='carrera') stepOrder.push('s4');
-  stepOrder.push('s5','s6','s7','s8');
+  stepOrder=['s1','s2'];
+  const isCarrera=userData.objetivo==='carrera';
+  const sports=userData.sports||[];
+  const hasCardio=sports.some(function(s){return ['running','ciclismo','trail','natacion','triatlon'].includes(s);});
+  const isGymOnly=sports.length>0&&sports.every(function(s){return ['gimnasio','calistenia'].includes(s);});
+
+  if(isCarrera){
+    stepOrder.push('s4'); // carrera info
+    stepOrder.push('s5'); // disciplines
+    stepOrder.push('s3'); // uploads
+    stepOrder.push('s6'); // cardio calibration
+  } else {
+    stepOrder.push('s5'); // disciplines EARLY
+    if(isGymOnly){
+      stepOrder.push('s5b'); // muscle focus, skip cardio entirely
+    } else {
+      stepOrder.push('s3'); // uploads
+      if(hasCardio||sports.length===0) stepOrder.push('s6'); // cardio calibration only if needed
+    }
+  }
+  stepOrder.push('s7');
+  stepOrder.push('s8');
 }
 
 function updateProgress(){
@@ -366,8 +448,15 @@ function updateProgress(){
 }
 
 function goNext(){
-  if(currentStepIdx===1&&!validateStep2()) return; // S2 personal data validation
+  if(currentStepIdx===stepOrder.indexOf('s2')&&!validateStep2()) return;
   const currentId=stepOrder[currentStepIdx];
+
+  // Quan surts de disciplines, recalcula el flow amb els sports triats
+  if(currentId==='s5'){
+    buildStepOrder();
+    currentStepIdx=stepOrder.indexOf('s5');
+  }
+
   document.getElementById(currentId).classList.remove('active');
   currentStepIdx++;
   if(currentStepIdx>=stepOrder.length) currentStepIdx=stepOrder.length-1;
@@ -418,6 +507,7 @@ function selOpt(el,stepId,val){
   el.classList.add('sel');
   const n=stepId.replace('s','');
   if(n==='1'){userData.objetivo=val;buildStepOrder();}
+  if(n==='5b'){userData.objetivoGym=val;checkBtnS5b();}
   document.getElementById('btn'+n).disabled=false;
 }
 
@@ -741,6 +831,9 @@ async function savePlan(){
   if(ftp) url+='&ftp='+ftp;
   if(userData.pdfName) url+='&pdf=1';
   if(userData.stravaName) url+='&strava=1';
+  if(userData.musculos&&userData.musculos.length>0) url+='&musculos='+encodeURIComponent(userData.musculos.join(','));
+  if(userData.objetivoGym) url+='&obj_gym='+encodeURIComponent(userData.objetivoGym);
+  if(userData.equipamiento) url+='&equip='+encodeURIComponent(userData.equipamiento);
   window.location.href=url;
 }
 
