@@ -4,143 +4,118 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>traineo — Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Outfit',sans-serif;background:#F1EFE8;min-height:100vh}
-    .app{max-width:390px;margin:0 auto;min-height:100vh;background:#F8F7F4;padding-bottom:3rem}
-    .nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem}
-    .nav-logo{font-size:1.2rem;font-weight:400;color:#111110;letter-spacing:-.3px}
-    .nav-neo{color:#163A28}
-    .nav-avatar{width:34px;height:34px;border-radius:50%;background:#163A28;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:500;cursor:pointer}
-    .greeting{padding:0 1.25rem 1rem}
-    .greeting-sub{font-size:.75rem;color:#888780;margin-bottom:2px}
-    .greeting-name{font-size:1.3rem;font-weight:500;color:#111110;letter-spacing:-.3px}
-    .today{margin:0 1.25rem 1rem;background:#163A28;border-radius:18px;padding:1.25rem;cursor:pointer}
-    .today-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-    .today-label{font-size:.7rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em}
-    .today-badge{background:rgba(255,255,255,.12);color:#fff;font-size:.7rem;padding:.2rem .6rem;border-radius:20px}
-    .today-title{font-size:1.6rem;font-weight:500;color:#fff;letter-spacing:-.4px;margin-bottom:.75rem}
-    .today-bullets{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
-    .today-bullet{font-size:.82rem;color:rgba(255,255,255,.65);line-height:1.4}
-    .today-actions{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
-    .btn-white{background:#fff;color:#163A28;border:none;border-radius:8px;padding:.7rem;font-size:.85rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.3rem}
-    .btn-ghost{background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:8px;padding:.7rem;font-size:.85rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.3rem}
-    .today-done{background:rgba(255,255,255,.08);border-radius:8px;padding:.7rem;text-align:center;color:rgba(255,255,255,.85);font-size:.9rem;font-weight:500;border:1px solid rgba(255,255,255,.15);cursor:pointer}
-    .today-done-sub{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:3px;font-weight:400}
-    .plan-link{margin:0 1.25rem 1rem;background:#fff;border:.5px solid #E8E6DF;border-radius:12px;padding:.9rem 1.25rem;display:flex;align-items:center;gap:.75rem;cursor:pointer}
-    .plan-link-icon{width:36px;height:36px;border-radius:10px;background:#F1FAF5;border:1px solid #163A28;display:flex;align-items:center;justify-content:center;font-size:1rem}
-    .plan-link-info{flex:1}
-    .plan-link-title{font-size:.9rem;font-weight:500;color:#111110}
-    .plan-link-sub{font-size:.75rem;color:#888780;margin-top:1px}
-    .plan-link-arrow{color:#163A28;font-size:1.1rem;font-weight:500}
+    body{font-family:'Inter',-apple-system,sans-serif;background:#0A0A0A;min-height:100vh;color:#fff}
+    .app{max-width:390px;margin:0 auto;min-height:100vh;background:#0A0A0A;padding-bottom:3rem}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.25rem .75rem}
+    .nav-logo{font-size:1.1rem;font-weight:600;color:#fff;letter-spacing:-.5px}
+    .nav-neo{color:#4A9E6B}
+    .nav-avatar{width:34px;height:34px;border-radius:50%;background:#4A9E6B;color:#0A0A0A;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;cursor:pointer}
+    .greeting{padding:.25rem 1.25rem 1rem}
+    .greeting-sub{font-size:.7rem;color:#666;text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;font-weight:500}
+    .greeting-name{font-size:1.35rem;font-weight:600;color:#fff;letter-spacing:-.4px}
+    .today{margin:0 1.25rem 1rem;background:linear-gradient(180deg,#1a1a1a 0%,#0f0f0f 100%);border-radius:14px;padding:1.25rem;cursor:pointer;position:relative;overflow:hidden;border:.5px solid rgba(255,255,255,.06)}
+    .today::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:#4A9E6B}
+    .today-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .today-label{font-size:.65rem;color:#4A9E6B;text-transform:uppercase;letter-spacing:.16em;font-weight:600}
+    .today-badge{background:rgba(255,255,255,.08);color:#999;font-size:.65rem;padding:4px 10px;border-radius:20px;font-weight:500;letter-spacing:.05em;text-transform:uppercase}
+    .today-title{font-size:1.6rem;font-weight:600;color:#fff;letter-spacing:-.6px;margin-bottom:.25rem;line-height:1.1}
+    .today-zone{font-size:.78rem;color:#999;margin-bottom:1.25rem;font-weight:500}
+    .today-zone strong{color:#fff;font-weight:600}
+    .perf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1.25rem}
+    .perf-stat{background:rgba(255,255,255,.04);border-radius:10px;padding:.7rem .65rem;border:.5px solid rgba(255,255,255,.05)}
+    .perf-val{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:#fff;line-height:.95;letter-spacing:.5px}
+    .perf-unit{font-size:.65rem;color:#999;text-transform:uppercase;letter-spacing:.1em;margin-top:2px;font-weight:600}
+    .today-actions{display:grid;grid-template-columns:1fr 1.6fr;gap:.5rem}
+    .btn-white{background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.08);color:#fff;padding:.75rem;font-size:.78rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border-radius:10px;text-align:center;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:.3rem}
+    .btn-ghost{background:#4A9E6B;border:0;color:#0A0A0A;padding:.75rem;font-size:.78rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border-radius:10px;text-align:center;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:.3rem}
     .week-section{margin:0 1.25rem 1rem}
-    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-    .section-title{font-size:.9rem;font-weight:500;color:#111110}
-    .plan-list{display:flex;flex-direction:column;gap:6px}
-    .plan-item{background:#fff;border:.5px solid #E8E6DF;border-radius:12px;padding:.85rem 1rem;display:flex;align-items:center;gap:.75rem;transition:all .15s;cursor:pointer}
-    .plan-item.today-item{border:1.5px solid #163A28;background:#F1FAF5}
-    .plan-item.rest-item{background:#F1EFE8;border-color:#F1EFE8;cursor:default}
+    .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.85rem}
+    .section-title{font-size:.7rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.16em}
+    .plan-list{display:flex;flex-direction:column;gap:5px}
+    .plan-item{background:#161616;border:.5px solid rgba(255,255,255,.03);border-radius:10px;padding:.7rem .85rem;display:flex;align-items:center;gap:.75rem;transition:all .15s;cursor:pointer}
+    .plan-item.today-item{background:#1a1a1a;border:1px solid #4A9E6B}
+    .plan-item.rest-item{background:#0f0f0f;border-color:rgba(255,255,255,.02);cursor:default}
     .plan-item.dragging{opacity:.4}
-    .plan-item.drag-over{border:1.5px dashed #163A28;background:#EBF5EF;transform:scale(1.01)}
-    .plan-item.changed{border:1.5px solid #4A9E6B;background:#F1FAF5;animation:highlight 2s ease-out forwards}
-    .plan-item.completed{opacity:.7;border-color:#4A9E6B;background:#F1FAF5}
-    .plan-item.completed-partial{opacity:.75;border-color:#F0C84A;background:#FEF6E5}
-    .plan-item.completed-skipped{opacity:.55;border-color:#E04040;background:#FFEAEA}
-    .plan-item.completed .plan-item-title,.plan-item.completed-partial .plan-item-title,.plan-item.completed-skipped .plan-item-title{text-decoration:line-through;color:#888780}
-    @keyframes highlight{0%{background:#E8F4ED}100%{background:#F1FAF5}}
-    .plan-day-badge{width:28px;height:28px;border-radius:8px;background:#F1EFE8;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600;color:#888780;flex-shrink:0}
-    .plan-item.today-item .plan-day-badge{background:#163A28;color:#fff}
+    .plan-item.drag-over{border:1.5px dashed #4A9E6B;background:#1a2a20;transform:scale(1.01)}
+    .plan-item.changed{border:1px solid #4A9E6B;background:#152a1f;animation:highlight 2s ease-out forwards}
+    @keyframes highlight{0%{background:#1d3a2a}100%{background:#152a1f}}
+    .plan-day-badge{font-family:'Bebas Neue',sans-serif;font-size:.85rem;color:#999;background:rgba(255,255,255,.05);width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;letter-spacing:.5px;flex-shrink:0}
+    .plan-item.today-item .plan-day-badge{background:#4A9E6B;color:#0A0A0A}
     .plan-item-icon{font-size:1.1rem;flex-shrink:0}
     .plan-item-info{flex:1;min-width:0}
-    .plan-item-title{font-size:.9rem;font-weight:500;color:#111110;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .plan-item.today-item .plan-item-title{color:#163A28}
-    .plan-item.rest-item .plan-item-title{color:#888780;font-weight:400}
-    .plan-item-sub{font-size:.75rem;color:#888780;margin-top:1px}
+    .plan-item-title{font-size:.85rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.1px}
+    .plan-item.rest-item .plan-item-title{color:#666;font-weight:500}
+    .plan-item-sub{font-size:.7rem;color:#999;margin-top:2px;font-weight:500;font-family:'Bebas Neue';letter-spacing:.5px}
     .plan-item-actions{display:flex;gap:4px;flex-shrink:0}
-    .action-btn{width:30px;height:30px;border-radius:8px;border:.5px solid #E8E6DF;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .15s;color:#888780}
-    .action-btn:hover{background:#F1FAF5;border-color:#163A28}
-    .action-btn.done-btn{background:#4A9E6B;border-color:#4A9E6B;color:#fff}
-    .drag-handle{cursor:grab;color:#C8C6BF;font-size:.9rem;padding:0 2px;flex-shrink:0;user-select:none;line-height:1}
-    .stats-card{margin:0 1.25rem 1rem;background:#fff;border:.5px solid #E8E6DF;border-radius:12px;padding:1rem}
-    .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.75rem}
-    .stat{text-align:center}
-    .stat-val{font-size:1.1rem;font-weight:500;color:#111110}
-    .stat-val.green{color:#163A28}
-    .stat-lbl{font-size:.65rem;color:#888780;margin-top:2px}
-    .btn-reorganize{width:100%;background:#163A28;color:#fff;border:none;border-radius:8px;padding:.65rem;font-size:.85rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer}
-    .race-card{margin:0 1.25rem 1rem;background:#111110;border-radius:14px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+    .action-btn{width:28px;height:28px;border-radius:7px;border:.5px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .15s;color:#999}
+    .action-btn:hover{background:rgba(74,158,107,.15);border-color:#4A9E6B;color:#4A9E6B}
+    .drag-handle{cursor:grab;color:#444;font-size:.9rem;padding:0 2px;flex-shrink:0;user-select:none;line-height:1}
+    .stats-card{margin:0 1.25rem 1rem;background:#161616;border:.5px solid rgba(255,255,255,.04);border-radius:12px;padding:1rem}
+    .stats-label{font-size:.65rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.16em;margin-bottom:.75rem}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;padding-bottom:.85rem;border-bottom:.5px solid rgba(255,255,255,.05);margin-bottom:.85rem}
+    .stat{text-align:left}
+    .stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.85rem;color:#fff;line-height:.95;letter-spacing:.5px}
+    .stat-val.green{color:#4A9E6B}
+    .stat-lbl{font-size:.62rem;color:#666;text-transform:uppercase;letter-spacing:.12em;margin-top:3px;font-weight:600}
+    .btn-reorganize{width:100%;background:rgba(255,255,255,.04);color:#fff;border:.5px solid rgba(255,255,255,.08);border-radius:8px;padding:.7rem;font-size:.78rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
+    .race-card{margin:0 1.25rem 1rem;background:#161616;border:.5px solid rgba(255,255,255,.04);border-radius:14px;padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem}
     .race-icon{font-size:1.5rem;flex-shrink:0}
-    .race-title{font-size:.9rem;font-weight:500;color:#fff;margin-bottom:2px}
-    .race-sub{font-size:.75rem;color:rgba(255,255,255,.45)}
-    .race-days{font-size:1.2rem;font-weight:500;color:#4A9E6B;margin-left:auto;flex-shrink:0}
-    .race-days-lbl{font-size:.65rem;color:rgba(255,255,255,.4);text-align:right}
-    .reajust-banner{background:#EBF5EF;border:.5px solid #4A9E6B;border-radius:12px;padding:.75rem 1rem;display:none;align-items:center;gap:.75rem;margin-bottom:.75rem}
+    .race-title{font-size:.9rem;font-weight:600;color:#fff;margin-bottom:2px;letter-spacing:-.1px}
+    .race-sub{font-size:.7rem;color:#999;font-family:'Bebas Neue';letter-spacing:.5px}
+    .race-days{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#4A9E6B;margin-left:auto;flex-shrink:0;letter-spacing:.5px;line-height:.95}
+    .race-days-lbl{font-size:.62rem;color:#666;text-align:right;text-transform:uppercase;letter-spacing:.12em;margin-top:3px;font-weight:600}
+    .reajust-banner{margin:0 1.25rem 1rem;background:#152a1f;border:.5px solid #4A9E6B;border-radius:12px;padding:.75rem 1rem;display:none;align-items:center;gap:.75rem}
     .reajust-banner.show{display:flex}
-    .reajust-banner.working{background:#FEF6E5;border-color:#F0C84A}
-    .reajust-banner.working .reajust-dot{display:none}
-    .working-spinner{display:inline-block;width:12px;height:12px;border:2px solid #F0C84A;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle;flex-shrink:0}
-    .reajust-dot{width:8px;height:8px;border-radius:50%;background:#163A28;flex-shrink:0}
-    .reajust-text{font-size:.82rem;color:#163A28;line-height:1.4;display:flex;align-items:center}
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end;justify-content:center}
+    .reajust-dot{width:8px;height:8px;border-radius:50%;background:#4A9E6B;flex-shrink:0}
+    .reajust-text{font-size:.78rem;color:#4A9E6B;line-height:1.4;font-weight:500}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
     .modal-overlay.open{display:flex}
-    .modal{background:#F8F7F4;border-radius:20px 20px 0 0;padding:1.5rem 1.25rem 2rem;width:100%;max-width:390px;max-height:85vh;overflow-y:auto}
-    .modal-handle{width:36px;height:4px;border-radius:2px;background:#D3D1C7;margin:0 auto 1.25rem}
-    .modal-title{font-size:1.1rem;font-weight:500;color:#111110;margin-bottom:.25rem;letter-spacing:-.2px}
-    .modal-sub{font-size:.85rem;color:#888780;margin-bottom:1.25rem}
-    .adjust-grid{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem}
-    .adjust-field{background:#F1EFE8;border-radius:10px;padding:.65rem .85rem}
-    .adjust-label{font-size:.7rem;color:#888780;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem;font-weight:600}
-    .adjust-row{display:flex;align-items:center;gap:.75rem}
-    .adjust-row input{flex:1;accent-color:#163A28}
-    .adjust-val{font-size:.95rem;font-weight:500;color:#163A28;min-width:80px;text-align:right}
-    .ai-msg{background:#EBF5EF;border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;display:flex;gap:.5rem;align-items:flex-start}
-    .ai-dot{width:6px;height:6px;border-radius:50%;background:#163A28;margin-top:5px;flex-shrink:0}
-    .ai-text{font-size:.8rem;color:#163A28;line-height:1.5}
-    .btn-green{width:100%;background:#163A28;color:#fff;border:none;border-radius:10px;padding:.9rem;font-size:.95rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;margin-bottom:.5rem}
-    .btn-green:disabled{opacity:.4;cursor:not-allowed}
-    .btn-cancel{width:100%;background:none;border:none;color:#888780;font-size:.85rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:.5rem}
+    .modal{background:#161616;border-radius:20px 20px 0 0;padding:1.5rem 1.25rem 2rem;width:100%;max-width:390px;max-height:85vh;overflow-y:auto;border-top:.5px solid rgba(255,255,255,.06)}
+    .modal-handle{width:36px;height:4px;border-radius:2px;background:#444;margin:0 auto 1.25rem}
+    .modal-title{font-size:1.05rem;font-weight:600;color:#fff;margin-bottom:.25rem;letter-spacing:-.2px}
+    .modal-sub{font-size:.78rem;color:#999;margin-bottom:1.25rem;font-weight:500}
+    .time-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem}
+    .time-opt{border:.5px solid rgba(255,255,255,.08);border-radius:10px;padding:.9rem;text-align:center;cursor:pointer;background:rgba(255,255,255,.03);transition:all .15s}
+    .time-opt.sel{border:1.5px solid #4A9E6B;background:#152a1f}
+    .time-opt-min{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#fff;letter-spacing:.5px;line-height:1}
+    .time-opt.sel .time-opt-min{color:#4A9E6B}
+    .time-opt-label{font-size:.65rem;color:#999;margin-top:4px;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+    .slider-wrap{background:rgba(255,255,255,.03);border:.5px solid rgba(255,255,255,.05);border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem}
+    .slider-label{font-size:.65rem;color:#999;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;font-weight:600}
+    .slider-row{display:flex;align-items:center;gap:.75rem}
+    .slider-row input{flex:1;accent-color:#4A9E6B}
+    .slider-val{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#4A9E6B;min-width:55px;text-align:right;letter-spacing:.5px}
+    .ai-msg{background:#152a1f;border:.5px solid rgba(74,158,107,.3);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;display:flex;gap:.5rem;align-items:flex-start}
+    .ai-dot{width:6px;height:6px;border-radius:50%;background:#4A9E6B;margin-top:5px;flex-shrink:0}
+    .ai-text{font-size:.78rem;color:#cce5d6;line-height:1.5;font-weight:500}
+    .btn-green{width:100%;background:#4A9E6B;color:#0A0A0A;border:none;border-radius:10px;padding:.9rem;font-size:.9rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em}
+    .btn-cancel{width:100%;background:none;border:none;color:#666;font-size:.8rem;font-family:'Inter',sans-serif;cursor:pointer;padding:.5rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
     .session-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
-    .session-opt{border:.5px solid #E8E6DF;border-radius:10px;padding:.8rem 1rem;background:#fff;cursor:pointer;display:flex;align-items:center;gap:.75rem;transition:all .15s}
-    .session-opt:hover{border-color:#163A28;background:#F1FAF5}
-    .session-opt.sel{border:1.5px solid #163A28;background:#F1FAF5}
+    .session-opt{border:.5px solid rgba(255,255,255,.06);border-radius:10px;padding:.8rem 1rem;background:rgba(255,255,255,.03);cursor:pointer;display:flex;align-items:center;gap:.75rem;transition:all .15s}
+    .session-opt:hover{border-color:#4A9E6B;background:#152a1f}
+    .session-opt.sel{border:1.5px solid #4A9E6B;background:#152a1f}
     .session-opt-icon{font-size:1.2rem;flex-shrink:0}
-    .session-opt-title{font-size:.9rem;font-weight:500;color:#111110}
-    .session-opt.sel .session-opt-title{color:#163A28}
-    .session-opt-sub{font-size:.75rem;color:#888780}
-    .edit-options{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
-    .edit-opt{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.9rem 1rem;display:flex;align-items:center;gap:.85rem;cursor:pointer;font-family:'Outfit',sans-serif;text-align:left;transition:all .15s;width:100%}
-    .edit-opt:hover{border-color:#163A28;background:#F1FAF5}
-    .edit-opt-icon{width:42px;height:42px;border-radius:11px;background:#F1FAF5;border:1px solid #163A28;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
-    .edit-opt-info{flex:1}
-    .edit-opt-title{font-size:.95rem;font-weight:500;color:#111110}
-    .edit-opt-sub{font-size:.75rem;color:#888780;margin-top:1px}
-    .edit-opt-arrow{color:#163A28;font-size:1.1rem;font-weight:500}
-    .rpe-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-bottom:.5rem}
-    .rpe-btn{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.65rem .3rem;font-size:1.5rem;font-family:'Outfit',sans-serif;cursor:pointer;text-align:center;line-height:1.1}
-    .rpe-btn div{font-size:.65rem;color:#888780;font-weight:500;margin-top:4px}
-    .rpe-btn.sel{border:1.5px solid #163A28;background:#F1FAF5}
-    .rpe-btn.sel div{color:#163A28}
-    .status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem}
-    .status-btn{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.7rem .25rem;font-size:1.2rem;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;color:#888780;text-align:center;line-height:1.2}
-    .status-btn div{font-size:.7rem;color:#888780;font-weight:500;margin-top:4px}
-    .status-btn.sel{border:1.5px solid #163A28;background:#F1FAF5;color:#163A28}
-    .status-btn.sel div{color:#163A28}
-    .form-group{margin-bottom:1rem}
-    .form-label{font-size:.7rem;color:#888780;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;display:block;font-weight:600}
-    .note-input{width:100%;padding:.65rem .75rem;border:.5px solid #E8E6DF;border-radius:8px;font-size:.85rem;font-family:'Outfit',sans-serif;background:#fff;outline:none;resize:none;min-height:60px;color:#111110}
-    .note-input:focus{border-color:#163A28}
-    .no-plan{margin:2rem 1.25rem;background:#fff;border:.5px solid #E8E6DF;border-radius:16px;padding:1.5rem;text-align:center}
+    .session-opt-title{font-size:.88rem;font-weight:600;color:#fff;letter-spacing:-.1px}
+    .session-opt-sub{font-size:.72rem;color:#999;margin-top:1px;font-weight:500}
+    .no-plan{margin:2rem 1.25rem;background:#161616;border:.5px solid rgba(255,255,255,.06);border-radius:16px;padding:1.5rem;text-align:center}
     .no-plan-icon{font-size:2rem;margin-bottom:.75rem}
-    .no-plan-title{font-size:1rem;font-weight:500;color:#111110;margin-bottom:.5rem}
-    .no-plan-sub{font-size:.85rem;color:#888780;margin-bottom:1rem;line-height:1.5}
-    .btn-start{background:#163A28;color:#fff;border:none;border-radius:10px;padding:.75rem 1.5rem;font-size:.9rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer}
-    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#111110;color:#fff;font-size:.85rem;font-weight:500;padding:.65rem 1.25rem;border-radius:20px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+    .no-plan-title{font-size:1rem;font-weight:600;color:#fff;margin-bottom:.5rem}
+    .no-plan-sub{font-size:.82rem;color:#999;margin-bottom:1rem;line-height:1.5;font-weight:500}
+    .btn-start{background:#4A9E6B;color:#0A0A0A;border:none;border-radius:10px;padding:.75rem 1.5rem;font-size:.85rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;text-transform:uppercase;letter-spacing:.04em}
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#fff;color:#0A0A0A;font-size:.82rem;font-weight:600;padding:.65rem 1.25rem;border-radius:20px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
     .toast.show{opacity:1}
+    .loading-overlay{position:fixed;inset:0;background:rgba(10,10,10,.92);z-index:150;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem;backdrop-filter:blur(8px)}
+    .loading-overlay.show{display:flex}
+    .spinner{width:40px;height:40px;border:3px solid rgba(74,158,107,.15);border-top-color:#4A9E6B;border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .email-modal-input{width:100%;padding:.75rem 1rem;border:.5px solid #E8E6DF;border-radius:10px;font-size:.95rem;font-family:'Outfit',sans-serif;color:#111110;background:#fff;outline:none;margin-bottom:1rem}
-    .email-modal-input:focus{border-color:#163A28}
-    .saved-badge{display:inline-flex;align-items:center;gap:4px;background:#E8F4ED;color:#163A28;font-size:.7rem;font-weight:500;padding:3px 8px;border-radius:20px;margin-left:8px}
+    .loading-text{font-size:.85rem;color:#999;text-align:center;font-weight:500}
+    .email-modal-input{width:100%;padding:.85rem 1rem;border:.5px solid rgba(255,255,255,.08);border-radius:10px;font-size:.9rem;font-family:'Inter',sans-serif;color:#fff;background:rgba(255,255,255,.03);outline:none;margin-bottom:1rem}
+    .email-modal-input::placeholder{color:#666}
+    .email-modal-input:focus{border-color:#4A9E6B;background:rgba(74,158,107,.05)}
+    .saved-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(74,158,107,.15);color:#4A9E6B;font-size:.65rem;font-weight:600;padding:3px 8px;border-radius:20px;margin-left:8px;text-transform:uppercase;letter-spacing:.05em}
   </style>
 </head>
 <body>
@@ -148,10 +123,10 @@
   <div class="nav">
     <div style="display:flex;align-items:center;gap:8px">
       <svg width="28" height="28" viewBox="0 0 56 56" fill="none">
-        <rect width="56" height="56" rx="14" fill="#163A28"/>
-        <rect x="8" y="11" width="32" height="7" rx="2" fill="white" transform="skewX(-12)"/>
-        <rect x="21" y="11" width="9" height="28" rx="2" fill="white" transform="skewX(-12)"/>
-        <circle cx="32" cy="43" r="3.5" fill="white"/>
+        <rect width="56" height="56" rx="14" fill="#4A9E6B"/>
+        <rect x="8" y="11" width="32" height="7" rx="2" fill="#0A0A0A" transform="skewX(-12)"/>
+        <rect x="21" y="11" width="9" height="28" rx="2" fill="#0A0A0A" transform="skewX(-12)"/>
+        <circle cx="32" cy="43" r="3.5" fill="#0A0A0A"/>
       </svg>
       <span class="nav-logo">trai<span class="nav-neo">neo</span></span>
     </div>
@@ -159,9 +134,18 @@
   </div>
   <div class="greeting">
     <div class="greeting-sub" id="greeting-date">Hoy</div>
-    <div class="greeting-name" id="greeting-name">Hola! 👋</div>
+    <div class="greeting-name" id="greeting-name">Hola</div>
+  </div>
+  <div id="reajust-banner" class="reajust-banner">
+    <div class="reajust-dot"></div>
+    <div class="reajust-text" id="reajust-text"></div>
   </div>
   <div id="main-content"></div>
+</div>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">El coach está generando tu plan...</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -180,47 +164,23 @@
 <div class="modal-overlay" id="modal-time" onclick="closeModal('modal-time',event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Ajustar sesión</div>
-    <div class="modal-sub" id="adjust-modal-sub">Mueve cualquier valor · los otros se ajustan</div>
-    <div class="adjust-grid">
-      <div class="adjust-field" id="adj-time-field">
-        <div class="adjust-label">⏱ Tiempo</div>
-        <div class="adjust-row">
-          <input type="range" min="10" max="240" value="45" id="adj-time" oninput="adjustFrom('time')">
-          <span class="adjust-val" id="adj-time-val">45 min</span>
-        </div>
-      </div>
-      <div class="adjust-field" id="adj-km-field">
-        <div class="adjust-label">📏 Distancia</div>
-        <div class="adjust-row">
-          <input type="range" min="1" max="120" step="0.5" value="7" id="adj-km" oninput="adjustFrom('km')">
-          <span class="adjust-val" id="adj-km-val">7 km</span>
-        </div>
-      </div>
-      <div class="adjust-field" id="adj-pace-field">
-        <div class="adjust-label">🏃 Ritmo</div>
-        <div class="adjust-row">
-          <input type="range" min="180" max="600" step="5" value="360" id="adj-pace" oninput="adjustFrom('pace')">
-          <span class="adjust-val" id="adj-pace-val">6:00/km</span>
-        </div>
-      </div>
-      <div class="adjust-field" id="adj-speed-field">
-        <div class="adjust-label">🚴 Velocidad media</div>
-        <div class="adjust-row">
-          <input type="range" min="15" max="45" step="0.5" value="27" id="adj-speed" oninput="adjustFrom('speed')">
-          <span class="adjust-val" id="adj-speed-val">27 km/h</span>
-        </div>
-      </div>
-      <div class="adjust-field" id="adj-elev-field">
-        <div class="adjust-label">⛰ Desnivel +</div>
-        <div class="adjust-row">
-          <input type="range" min="0" max="3000" step="10" value="0" id="adj-elev" oninput="adjustFrom('elev')">
-          <span class="adjust-val" id="adj-elev-val">0 m</span>
-        </div>
+    <div class="modal-title">¿Cuánto tiempo tienes?</div>
+    <div class="modal-sub">Ajusta el tiempo de tu sesión de hoy.</div>
+    <div class="time-grid">
+      <div class="time-opt sel" onclick="selectTime(this,20)"><div class="time-opt-min">20'</div><div class="time-opt-label">Poco tiempo</div></div>
+      <div class="time-opt" onclick="selectTime(this,30)"><div class="time-opt-min">30'</div><div class="time-opt-label">Corto</div></div>
+      <div class="time-opt" onclick="selectTime(this,45)"><div class="time-opt-min">45'</div><div class="time-opt-label">El plan</div></div>
+      <div class="time-opt" onclick="selectTime(this,60)"><div class="time-opt-min">60'</div><div class="time-opt-label">Más tiempo</div></div>
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-label">O elige exacto</div>
+      <div class="slider-row">
+        <input type="range" min="10" max="90" value="20" id="sl" oninput="updateSlider(this.value)">
+        <span class="slider-val" id="slv">20 min</span>
       </div>
     </div>
-    <div class="ai-msg"><div class="ai-dot"></div><div class="ai-text" id="adjust-ai-text">El plan se reajustará para mantener tu progresión semanal.</div></div>
-    <button class="btn-green" onclick="confirmAdjust()">Confirmar ajustes →</button>
+    <div class="ai-msg"><div class="ai-dot"></div><div class="ai-text" id="ai-modal-text">Con 20 min harás una versión reducida. Mismo beneficio, menos volumen.</div></div>
+    <button class="btn-green" id="confirm-time-btn" onclick="confirmTime()">Ajustar a 20 min →</button>
     <button class="btn-cancel" onclick="skipToday()">No puedo entrenar hoy</button>
   </div>
 </div>
@@ -236,86 +196,14 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-edit-options" onclick="closeModal('modal-edit-options',event)">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="edit-options-title">Editar</div>
-    <div class="modal-sub" id="edit-options-sub">¿Qué quieres hacer?</div>
-    <div class="edit-options">
-      <button class="edit-opt" onclick="editFromMenu('adjust')">
-        <div class="edit-opt-icon">⚙</div>
-        <div class="edit-opt-info">
-          <div class="edit-opt-title">Ajustar valores</div>
-          <div class="edit-opt-sub">Tiempo, distancia, ritmo, desnivel</div>
-        </div>
-        <div class="edit-opt-arrow">→</div>
-      </button>
-      <button class="edit-opt" onclick="editFromMenu('change')">
-        <div class="edit-opt-icon">🔄</div>
-        <div class="edit-opt-info">
-          <div class="edit-opt-title">Cambiar actividad</div>
-          <div class="edit-opt-sub">Running, bici, gimnasio, natación...</div>
-        </div>
-        <div class="edit-opt-arrow">→</div>
-      </button>
-      <button class="edit-opt" onclick="editFromMenu('rest')">
-        <div class="edit-opt-icon">💤</div>
-        <div class="edit-opt-info">
-          <div class="edit-opt-title">Marcar como descanso</div>
-          <div class="edit-opt-sub">Día de recuperación</div>
-        </div>
-        <div class="edit-opt-arrow">→</div>
-      </button>
-    </div>
-    <button class="btn-cancel" onclick="closeModal('modal-edit-options')">Cancelar</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-complete" onclick="closeModal('modal-complete',event)">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">¿Cómo ha ido?</div>
-    <div class="modal-sub" id="complete-modal-sub">Sesión</div>
-    <div class="form-group">
-      <label class="form-label">Sensaciones</label>
-      <div class="rpe-grid">
-        <button class="rpe-btn" onclick="selectRPE(this,'easy')">😎<div>Fácil</div></button>
-        <button class="rpe-btn" onclick="selectRPE(this,'good')">😊<div>Bien</div></button>
-        <button class="rpe-btn" onclick="selectRPE(this,'hard')">😓<div>Duro</div></button>
-        <button class="rpe-btn" onclick="selectRPE(this,'very_hard')">😵<div>Al límite</div></button>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">¿La has hecho?</label>
-      <div class="status-grid">
-        <button class="status-btn" onclick="selectStatus(this,'completed')">✓<div>Sí, completa</div></button>
-        <button class="status-btn" onclick="selectStatus(this,'partial')">~<div>A medias</div></button>
-        <button class="status-btn" onclick="selectStatus(this,'skipped')">✗<div>No</div></button>
-      </div>
-    </div>
-    <div class="form-group" id="partial-dur-group" style="display:none">
-      <label class="form-label">Duración real</label>
-      <div class="adjust-row">
-        <input type="range" min="0" max="180" value="45" id="partial-duration" oninput="updatePartialDuration(this.value)">
-        <span class="adjust-val" id="partial-duration-val">45 min</span>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Nota (opcional)</label>
-      <textarea class="note-input" id="partial-note" placeholder="¿Sensaciones, lesiones, energía...?"></textarea>
-    </div>
-    <button class="btn-green" id="save-completion-btn" onclick="saveCompletion()" disabled>Guardar →</button>
-    <button class="btn-cancel" onclick="closeModal('modal-complete')">Cancelar</button>
-  </div>
-</div>
-
 <script>
 const dayNames=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+const dayNamesLong=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
 const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const today=new Date();
 const todayIdx=today.getDay();
 const todayName=dayNames[(todayIdx+6)%7];
-document.getElementById('greeting-date').textContent=todayName+' · '+today.getDate()+' '+months[today.getMonth()];
+document.getElementById('greeting-date').textContent=todayName.toUpperCase()+' · '+today.getDate()+' '+months[today.getMonth()].toUpperCase();
 
 const params=new URLSearchParams(window.location.search);
 const sportsParam=params.get('sports');
@@ -338,36 +226,36 @@ const user=sportsParam?{
 
 const allSessionsDB={
   running:[
-    {icon:'🏃',title:'Rodaje Z2',sub:'45 min · Z2',why:'Construyes base aeróbica.',tags:['Running','Z2'],duracio_min:45},
-    {icon:'🏃',title:'Rodaje largo',sub:'60 min · Z2 suave',why:'El fondo construye resistencia.',tags:['Running','Fondo','Z2'],duracio_min:60},
-    {icon:'🏃',title:'Series de velocidad',sub:'40 min · Z4',why:'Mejoras tu umbral.',tags:['Running','Z4'],duracio_min:40},
-    {icon:'🏃',title:'Rodaje de recuperación',sub:'30 min · Z1',why:'Activas la recuperación.',tags:['Running','Z1'],duracio_min:30}
+    {icon:'🏃',title:'Rodaje Z2',sub:'45 min · Z2',why:'Construyes base aeróbica.',tags:['Running','Z2','~6 km']},
+    {icon:'🏃',title:'Rodaje largo',sub:'60 min · Z2 suave',why:'El fondo construye resistencia.',tags:['Running','Fondo','~8 km']},
+    {icon:'🏃',title:'Series de velocidad',sub:'40 min · Z4',why:'Mejoras tu umbral.',tags:['Running','Calidad']},
+    {icon:'🏃',title:'Rodaje de recuperación',sub:'30 min · Z1',why:'Activas la recuperación.',tags:['Running','Recuperación']}
   ],
   ciclismo:[
-    {icon:'🚴',title:'Rodada Z2',sub:'60 min · Z2',why:'Base aeróbica en bici.',tags:['Ciclismo','Z2'],duracio_min:60},
-    {icon:'🚴',title:'Series en bici',sub:'50 min · Z4',why:'Mejoras tu potencia.',tags:['Ciclismo','Z4'],duracio_min:50},
-    {icon:'🚴',title:'Ruta larga',sub:'90 min · Z2',why:'Construyes resistencia.',tags:['Ciclismo','Z2'],duracio_min:90}
+    {icon:'🚴',title:'Rodada Z2',sub:'60 min · Z2',why:'Base aeróbica en bici.',tags:['Ciclismo','Z2']},
+    {icon:'🚴',title:'Series en bici',sub:'50 min · Potencia',why:'Mejoras tu potencia.',tags:['Ciclismo','Potencia']},
+    {icon:'🚴',title:'Ruta larga',sub:'90 min · Z2',why:'Construyes resistencia.',tags:['Ciclismo','Fondo']}
   ],
   gimnasio:[
-    {icon:'🏋️',title:'Fuerza tren inferior',sub:'50 min · Fuerza',why:'La fuerza de piernas es clave.',tags:['Gimnasio','Piernas'],duracio_min:50},
-    {icon:'🏋️',title:'Fuerza tren superior',sub:'50 min · Fuerza',why:'Mejoras tu postura.',tags:['Gimnasio','Upper'],duracio_min:50},
-    {icon:'🏋️',title:'Full body funcional',sub:'45 min · Core',why:'Core fuerte previene lesiones.',tags:['Gimnasio','Core'],duracio_min:45}
+    {icon:'🏋️',title:'Fuerza tren inferior',sub:'50 min · Fuerza',why:'La fuerza de piernas es clave.',tags:['Gimnasio','Piernas']},
+    {icon:'🏋️',title:'Fuerza tren superior',sub:'50 min · Fuerza',why:'Mejoras tu postura.',tags:['Gimnasio','Upper']},
+    {icon:'🏋️',title:'Full body funcional',sub:'45 min · Core',why:'Core fuerte previene lesiones.',tags:['Gimnasio','Core']}
   ],
   natacion:[
-    {icon:'🏊',title:'Técnica en piscina',sub:'45 min · Técnica',why:'La técnica lo es todo.',tags:['Natación','Técnica'],duracio_min:45},
-    {icon:'🏊',title:'Series en piscina',sub:'50 min · Z3',why:'Mejoras tu resistencia.',tags:['Natación','Z3'],duracio_min:50}
+    {icon:'🏊',title:'Técnica en piscina',sub:'45 min · Técnica',why:'La técnica lo es todo.',tags:['Natación','Técnica']},
+    {icon:'🏊',title:'Series en piscina',sub:'50 min · Resistencia',why:'Mejoras tu resistencia.',tags:['Natación','Series']}
   ],
   calistenia:[
-    {icon:'🤸',title:'Calistenia básica',sub:'40 min · Fuerza',why:'Fuerza funcional real.',tags:['Calistenia'],duracio_min:40},
-    {icon:'🤸',title:'Core y movilidad',sub:'35 min · Core',why:'Core fuerte, menos lesiones.',tags:['Calistenia','Core'],duracio_min:35}
+    {icon:'🤸',title:'Calistenia básica',sub:'40 min · Fuerza',why:'Fuerza funcional real.',tags:['Calistenia']},
+    {icon:'🤸',title:'Core y movilidad',sub:'35 min · Core',why:'Core fuerte, menos lesiones.',tags:['Calistenia','Core']}
   ],
   triatlon:[
-    {icon:'🥇',title:'Brick bici-running',sub:'60 min · Transición',why:'Entrenas el cambio de disciplina.',tags:['Triatlón','Z3'],duracio_min:60},
-    {icon:'🥇',title:'Nado técnico',sub:'40 min · Técnica',why:'Eficiencia en el agua.',tags:['Triatlón','Natación'],duracio_min:40}
+    {icon:'🥇',title:'Brick bici-running',sub:'60 min · Transición',why:'Entrenas el cambio de disciplina.',tags:['Triatlón','Brick']},
+    {icon:'🥇',title:'Nado técnico',sub:'40 min · Técnica',why:'Eficiencia en el agua.',tags:['Triatlón','Natación']}
   ],
   trail:[
-    {icon:'🏔️',title:'Trail Z2',sub:'60 min · Z2',why:'Base aeróbica en montaña.',tags:['Trail','Z2'],duracio_min:60},
-    {icon:'🏔️',title:'Series de cuestas',sub:'50 min · Z4',why:'Fuerza específica para trail.',tags:['Trail','Z4'],duracio_min:50}
+    {icon:'🏔️',title:'Trail Z2',sub:'60 min · Z2',why:'Base aeróbica en montaña.',tags:['Trail','Z2']},
+    {icon:'🏔️',title:'Series de cuestas',sub:'50 min · Fuerza',why:'Fuerza específica para trail.',tags:['Trail','Cuestas']}
   ]
 };
 
@@ -375,112 +263,9 @@ let planDays=[];
 let editingDayIdx=null;
 let selectedNewSession=null;
 let dragSrcIdx=null;
-let touchSrcIdx=null;
-let touchOverIdx=null;
+let currentTimeMin=45;
 let currentEmail=emailParam||'';
-let reajustRequestId=0;
-let coachBannerState=null;
-let completingIdx=null;
-let selectedRPE=null;
-let selectedStatus=null;
-let editMenuIdx=null;
-let adjustingSession=null;
-let adjustingSessionIdx=null;
-let adjustValues={time:45,km:7,pace:360,speed:27,elev:0};
-
-const ELEV_RUN=7;
-const ELEV_BIKE=5;
-
-function expandSports(sports){
-  var expanded=[];
-  (sports||['running']).forEach(function(s){
-    if(s==='triatlon') expanded.push('running','ciclismo','natacion','triatlon');
-    else if(s==='duatlon') expanded.push('running','ciclismo');
-    else expanded.push(s);
-  });
-  return expanded.filter(function(s,i){return expanded.indexOf(s)===i;});
-}
-
-function calculatePaces(u){
-  const levelPaces={'principiante':420,'intermedio':360,'avanzado':300,'élite':255,'avanzat':300,'intermedi':360};
-  const levelSpeeds={'principiante':22,'intermedio':27,'avanzado':32,'élite':36,'avanzat':32,'intermedi':27};
-  const nivel=(u?.nivel||'intermedio').toLowerCase();
-  let runZ2=u?.pacez2||levelPaces[nivel]||360;
-  if(u?.race5k) runZ2=Math.round((u.race5k/5)/0.85);
-  else if(u?.race10k) runZ2=Math.round((u.race10k/10)/0.88);
-  const cycZ2=u?.ftp?Math.round(u.ftp/8.5):(levelSpeeds[nivel]||27);
-  return {
-    running:{z1:runZ2+60,z2:runZ2,z3:Math.round(runZ2*0.90),z4:Math.round(runZ2*0.83),z5:Math.round(runZ2*0.78)},
-    cycling:{z1:cycZ2-4,z2:cycZ2,z3:cycZ2+4,z4:cycZ2+8,z5:cycZ2+12}
-  };
-}
-
-function formatPace(sec){
-  const m=Math.floor(sec/60);
-  const s=sec%60;
-  return m+':'+(s<10?'0':'')+s;
-}
-
-function getZoneFromTags(tags){
-  const t=(tags||[]).find(x=>x.startsWith('Z'));
-  if(!t) return 'z2';
-  return t.toLowerCase().substring(0,2);
-}
-
-function getSportType(d){
-  const t=(d.title||'').toLowerCase();
-  const tags=(d.tags||[]).join(' ').toLowerCase();
-  if(t.includes('trail')||tags.includes('trail')) return 'trail';
-  if(t.includes('bici')||t.includes('cicl')||t.includes('rodada')||t.includes('ruta')||tags.includes('ciclismo')||tags.includes('bici')) return 'cycling';
-  if(t.includes('brick')) return 'cycling';
-  if(t.includes('nado')||t.includes('piscina')||t.includes('natación')||tags.includes('natación')) return 'swim';
-  if(t.includes('fuerza')||t.includes('gimnas')||t.includes('full body')||t.includes('core')||t.includes('calistenia')||tags.includes('gimnasio')) return 'gym';
-  return 'running';
-}
-
-function getSessionMetrics(d,user){
-  const sport=getSportType(d);
-  if(sport==='gym'||sport==='swim') return null;
-  if(d.custom){
-    return {
-      sport:sport,
-      km:d.custom.km||0,
-      pace:d.custom.pace?formatPace(d.custom.pace):null,
-      kmh:d.custom.speed||null,
-      elev:d.custom.elev||0
-    };
-  }
-  const paces=calculatePaces(user);
-  const zone=getZoneFromTags(d.tags);
-  const min=d.duracio_min||45;
-  if(sport==='running'||sport==='trail'){
-    const pace=paces.running[zone]||paces.running.z2;
-    const km=Math.round((min*60/pace)*10)/10;
-    return {km:km,pace:formatPace(pace),sport:sport,elev:0};
-  }
-  if(sport==='cycling'){
-    const kmh=paces.cycling[zone]||paces.cycling.z2;
-    const km=Math.round((min*kmh/60)*10)/10;
-    return {km:km,kmh:kmh,sport:sport,elev:0};
-  }
-  return null;
-}
-  const paces=calculatePaces(user);
-  const zone=getZoneFromTags(d.tags);
-  const min=d.duracio_min||45;
-  const effectiveMin=Math.max(min-10,Math.round(min*0.75));
-  if(sport==='running'||sport==='trail'){
-    const pace=paces.running[zone]||paces.running.z2;
-    const km=Math.round((effectiveMin*60/pace)*10)/10;
-    return {km:km,pace:formatPace(pace),sport:sport,elev:0};
-  }
-  if(sport==='cycling'){
-    const kmh=paces.cycling[zone]||paces.cycling.z2;
-    const km=Math.round((effectiveMin*kmh/60)*10)/10;
-    return {km:km,kmh:kmh,sport:sport,elev:0};
-  }
-  return null;
-}
+let isReajusting=false;
 
 if(user){ initDashboard(user); }
 else {
@@ -499,17 +284,14 @@ function normalizePlan(sessions){
     rest: d.rest||d.descanso===true||d.title==='Descanso'||d.titulo==='Descanso'||false,
     duracio_min: d.duracio_min||d.duracion||d.duration||d.minuts||45,
     canviat: d.canviat||false,
-    skipped: d.skipped||false,
-    completed: d.completed||false,
-    completion: d.completion||null,
-    custom: d.custom||null
+    skipped: d.skipped||false
   }));
 }
 
 async function initDashboard(user){
   if(currentEmail){
     document.getElementById('nav-avatar').textContent=currentEmail[0].toUpperCase();
-    document.getElementById('greeting-name').textContent='Hola, '+currentEmail.split('@')[0]+' 👋';
+    document.getElementById('greeting-name').textContent='Hola, '+currentEmail.split('@')[0];
     try {
       const res=await fetch('/api/get-plan?email='+encodeURIComponent(currentEmail));
       const data=await res.json();
@@ -526,7 +308,7 @@ async function initDashboard(user){
 }
 
 async function buildPlan(user){
-  document.getElementById('main-content').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.25rem;gap:1rem"><div style="width:48px;height:48px;border:3px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite"></div><p style="font-size:.9rem;color:#888780;text-align:center">Tu coach está generando<br>el plan de esta semana...</p></div>';
+  document.getElementById('main-content').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.25rem;gap:1rem"><div style="width:48px;height:48px;border:3px solid rgba(74,158,107,.15);border-top-color:#4A9E6B;border-radius:50%;animation:spin .8s linear infinite"></div><p style="font-size:.85rem;color:#999;text-align:center;font-weight:500">Tu coach está generando<br>el plan de esta semana...</p></div>';
   try {
     const response=await fetch('/api/coach',{
       method:'POST',
@@ -549,45 +331,22 @@ async function buildPlan(user){
 }
 
 function buildPlanStatic(user){
-  const sports=expandSports(user.sports),dias=user.dias,descanso=user.descanso;
+  const sports=user.sports,dias=user.dias,descanso=user.descanso;
   let allS=[];
   sports.forEach(s=>(allSessionsDB[s]||[]).forEach(x=>allS.push({...x})));
   let idx=0;
   planDays=dayNames.map(d=>{
-    if(d===descanso) return{day:d,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,completed:false,duracio_min:0};
-    if(idx<dias){const s=allS[idx%allS.length];idx++;return{...s,day:d,rest:false,skipped:false,completed:false,duracio_min:45};}
-    return{day:d,rest:true,icon:'💤',title:'Descanso',sub:'',tags:[],why:'',skipped:false,completed:false,duracio_min:0};
+    if(d===descanso) return{day:d,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,duracio_min:0};
+    if(idx<dias){const s=allS[idx%allS.length];idx++;return{...s,day:d,rest:false,skipped:false};}
+    return{day:d,rest:true,icon:'💤',title:'Descanso',sub:'',tags:[],why:'',skipped:false,duracio_min:0};
   });
 }
 
-function showCoachBanner(working,message){
-  coachBannerState={working:working,message:message};
-  renderCoachBanner();
-}
-function hideCoachBanner(){
-  coachBannerState=null;
-  renderCoachBanner();
-}
-function renderCoachBanner(){
-  const slot=document.getElementById('reajust-banner-slot');
-  if(!slot) return;
-  if(!coachBannerState){slot.innerHTML='';return;}
-  const w=coachBannerState.working;
-  const m=coachBannerState.message;
-  slot.innerHTML='<div class="reajust-banner show '+(w?'working':'')+'">'+(w?'':'<div class="reajust-dot"></div>')+'<div class="reajust-text">'+(w?'<span class="working-spinner"></span>':'')+m+'</div></div>';
-}
-
-async function reajustarDiferit(descripcioCanvi,loadingMsg){
-  loadingMsg=loadingMsg||'Coach reorganizando la semana...';
-  const requestId=++reajustRequestId;
-  showCoachBanner(true,loadingMsg);
-  
-  // Guarda els dies immutables ABANS de cridar la IA
-  const immutableSnapshot=planDays.map((d,i)=>{
-    if(d.canviat===true||d.completed===true) return {idx:i,day:JSON.parse(JSON.stringify(d))};
-    return null;
-  }).filter(x=>x!==null);
-  
+async function reajustarPla(descripcioCanvi,loadingMsg='El coach está reajustando tu plan...'){
+  if(isReajusting) return;
+  isReajusting=true;
+  document.getElementById('loading-text').innerHTML=loadingMsg;
+  document.getElementById('loading-overlay').classList.add('show');
   try {
     const response=await fetch('/api/reajust',{
       method:'POST',
@@ -595,30 +354,24 @@ async function reajustarDiferit(descripcioCanvi,loadingMsg){
       body:JSON.stringify({planActual:planDays,canvi:descripcioCanvi,userData:user})
     });
     const data=await response.json();
-    if(requestId!==reajustRequestId) return;
     if(data.setmana){
-      let aiPlan=normalizePlan(data.setmana);
-      // FORÇA els dies immutables (encara que la IA els hagi tocat)
-      immutableSnapshot.forEach(function(item){
-        if(item.idx<aiPlan.length){
-          aiPlan[item.idx]=item.day;
-        }
-      });
-      planDays=aiPlan;
+      planDays=normalizePlan(data.setmana);
       if(data.resum) window._coachResum=data.resum;
+      if(data.missatge){
+        document.getElementById('reajust-text').textContent=data.missatge;
+        document.getElementById('reajust-banner').classList.add('show');
+        setTimeout(()=>document.getElementById('reajust-banner').classList.remove('show'),5000);
+      }
       renderAll();
-      showCoachBanner(false,data.missatge||'Plan ajustado ✓');
       if(currentEmail) await savePlanToSupabase();
-      setTimeout(function(){if(requestId===reajustRequestId) hideCoachBanner();},3500);
-    } else {
-      hideCoachBanner();
     }
   } catch(error){
     console.error('Reajust error:',error);
-    if(requestId===reajustRequestId){
-      showCoachBanner(false,'Tu cambio se ha guardado. Coach no disponible.');
-      setTimeout(function(){if(requestId===reajustRequestId) hideCoachBanner();},3000);
-    }
+    showToast('Error reajustando.');
+    renderAll();
+  } finally {
+    isReajusting=false;
+    document.getElementById('loading-overlay').classList.remove('show');
   }
 }
 
@@ -642,8 +395,13 @@ async function saveWithEmail(){
   closeModal('modal-email');
   await savePlanToSupabase();
   document.getElementById('nav-avatar').textContent=email[0].toUpperCase();
-  document.getElementById('greeting-name').textContent='Hola, '+email.split('@')[0]+' 👋';
+  document.getElementById('greeting-name').textContent='Hola, '+email.split('@')[0];
   showToast('Plan guardado ✓');
+}
+
+function getDayLong(d){
+  const idx=dayNames.indexOf(d);
+  return idx>=0?dayNamesLong[idx]:d.toUpperCase();
 }
 
 function renderAll(){
@@ -661,92 +419,57 @@ function renderAll(){
   if(user?.carrera&&user?.fecha){
     const diff=Math.ceil((new Date(user.fecha)-new Date())/(1000*60*60*24));
     if(diff>0){
-      raceHTML='<div class="race-card"><div class="race-icon">🏁</div><div><div class="race-title">'+user.carrera+'</div><div class="race-sub">'+user.distancia+(user.desnivel>0?' · +'+user.desnivel+'m D+':'')+'</div></div><div style="text-align:right;margin-left:auto"><div class="race-days">'+diff+'</div><div class="race-days-lbl">días</div></div></div>';
+      raceHTML='<div class="race-card"><div class="race-icon">🏁</div><div><div class="race-title">'+user.carrera+'</div><div class="race-sub">'+user.distancia.toUpperCase()+(user.desnivel>0?' · +'+user.desnivel+'M D+':'')+'</div></div><div style="text-align:right;margin-left:auto"><div class="race-days">'+diff+'</div><div class="race-days-lbl">Días</div></div></div>';
     }
   }
 
-  const savedBadge=currentEmail?'<span class="saved-badge">✓ guardado</span>':'';
+  const savedBadge=currentEmail?'<span class="saved-badge">✓ Guardado</span>':'';
   const durMin=todaySession.duracio_min||45;
   const zona=(todaySession.tags||[]).find(t=>t.startsWith('Z'))||'Z2';
-  const todayMetrics=todaySession.rest?null:getSessionMetrics(todaySession,user);
-  let todayMetricsText=durMin+' min · '+zona;
-  if(todayMetrics){
-    if(todayMetrics.sport==='running'||todayMetrics.sport==='trail') todayMetricsText=durMin+' min · '+todayMetrics.km+' km · '+todayMetrics.pace+'/km'+(todayMetrics.elev>0?' · +'+todayMetrics.elev+'m':'');
-    else if(todayMetrics.sport==='cycling') todayMetricsText=durMin+' min · '+todayMetrics.km+' km · '+todayMetrics.kmh+' km/h'+(todayMetrics.elev>0?' · +'+todayMetrics.elev+'m':'');
-  }
 
   document.getElementById('main-content').innerHTML=
     raceHTML+
     '<div class="today" onclick="openSessio('+todayRealIdx+')">'+
-      '<div class="today-meta"><span class="today-label">Hoy · '+todayName+'</span><span class="today-badge">Semana 1 · Base</span></div>'+
-      '<div class="today-title">'+(todaySession.skipped?'Descanso inesperado':todaySession.title)+'</div>'+
-      '<div class="today-bullets">'+
-        '<div class="today-bullet">⏱ '+todayMetricsText+'</div>'+
-        (todaySession.why?'<div class="today-bullet">💬 '+todaySession.why+'</div>':'')+
+      '<div class="today-meta">'+
+        '<span class="today-label">● Sesión de hoy</span>'+
+        '<span class="today-badge">Semana 1 · Base</span>'+
       '</div>'+
-      (todaySession.completed?
-        '<div class="today-done" onclick="event.stopPropagation();toggleCompleted('+todayRealIdx+')">✓ Sesión completada<div class="today-done-sub">Toca para desmarcar</div></div>'
-        :
-        '<div class="today-actions" onclick="event.stopPropagation()">'+
-          '<button class="btn-white" onclick="openTimeModal()">✏️ Ajustar</button>'+
-          '<button class="btn-ghost" onclick="openSessio('+todayRealIdx+')">▶ Empezar</button>'+
-        '</div>'
-      )+
-    '</div>'+
-    '<div class="plan-link" onclick="window.location.href=\'plan.html\'+window.location.search">'+
-      '<div class="plan-link-icon">📅</div>'+
-      '<div class="plan-link-info"><div class="plan-link-title">Ver plan completo</div><div class="plan-link-sub">Periodización y semanas</div></div>'+
-      '<div class="plan-link-arrow">→</div>'+
+      '<div class="today-title">'+(todaySession.skipped?'Descanso inesperado':todaySession.title)+'</div>'+
+      '<div class="today-zone">Zona objetivo <strong>'+z2min+'-'+z2max+' bpm</strong> · '+zona+'</div>'+
+      '<div class="perf-grid">'+
+        '<div class="perf-stat"><div class="perf-val">'+durMin+"'"+'</div><div class="perf-unit">Tiempo</div></div>'+
+        '<div class="perf-stat"><div class="perf-val">'+zona+'</div><div class="perf-unit">Zona</div></div>'+
+        '<div class="perf-stat"><div class="perf-val">'+(trainDays.length)+'/'+(user?.dias||3)+'</div><div class="perf-unit">Esta sem.</div></div>'+
+      '</div>'+
+      '<div class="today-actions" onclick="event.stopPropagation()">'+
+        '<button class="btn-white" onclick="openTimeModal()">Ajustar</button>'+
+        '<button class="btn-ghost" onclick="openSessio('+todayRealIdx+')">▶ Empezar entreno</button>'+
+      '</div>'+
     '</div>'+
     '<div class="week-section">'+
-      '<div id="reajust-banner-slot"></div>'+
       '<div class="section-head">'+
         '<span class="section-title">Esta semana '+savedBadge+'</span>'+
-        '<span style="font-size:.72rem;color:#888780">⠿ arrastra · ✎ edita</span>'+
+        '<span style="font-size:.62rem;color:#666;text-transform:uppercase;letter-spacing:.12em;font-weight:600">⠿ arrastra · ✎ cambia</span>'+
       '</div>'+
       '<div class="plan-list" id="plan-list">'+
         planDays.map((d,i)=>renderPlanItem(d,i)).join('')+
       '</div>'+
     '</div>'+
     '<div class="stats-card">'+
+      '<div class="stats-label">Esta semana</div>'+
       '<div class="stats-grid">'+
-        '<div class="stat"><div class="stat-val">'+h+'h'+(m>0?' '+m+'m':'')+'</div><div class="stat-lbl">Carga total</div></div>'+
+        '<div class="stat"><div class="stat-val">'+h+(m>0?':'+(m<10?'0'+m:m):'h')+'</div><div class="stat-lbl">Horas</div></div>'+
         '<div class="stat"><div class="stat-val green">'+trainDays.length+'</div><div class="stat-lbl">Sesiones</div></div>'+
         '<div class="stat"><div class="stat-val">'+z2min+'-'+z2max+'</div><div class="stat-lbl">Z2 bpm</div></div>'+
       '</div>'+
       '<button class="btn-reorganize" onclick="window.location.href=\'onboarding.html\'">↺ Reconfigurar plan</button>'+
     '</div>';
-  renderCoachBanner();
 }
 
 function renderPlanItem(d,i){
   const isToday=d.day===todayName;
   const isChanged=d.canviat===true;
-  const isCompleted=d.completed===true;
-  const compStatus=d.completion?.status||'completed';
-  let cls='';
-  if(isCompleted){
-    if(compStatus==='partial') cls='completed-partial';
-    else if(compStatus==='skipped') cls='completed-skipped';
-    else cls='completed';
-  } else if(isToday) cls='today-item';
-  else if(d.rest) cls='rest-item';
-  else if(isChanged) cls='changed';
-  
-  let subText='';
-  if(d.rest){
-    subText=d.sub||'';
-  } else {
-    const metrics=getSessionMetrics(d,user);
-    if(metrics){
-      const mins=d.duracio_min||45;
-      if(metrics.sport==='running'||metrics.sport==='trail') subText=mins+' min · '+metrics.km+' km · '+metrics.pace+'/km'+(metrics.elev>0?' · +'+metrics.elev+'m':'');
-      else if(metrics.sport==='cycling') subText=mins+' min · '+metrics.km+' km · '+metrics.kmh+'km/h'+(metrics.elev>0?' · +'+metrics.elev+'m':'');
-    } else {
-      subText=d.sub||((d.duracio_min||45)+' min');
-    }
-  }
-  
+  const cls=isToday?'today-item':d.rest?'rest-item':isChanged?'changed':'';
   return '<div class="plan-item '+cls+'" id="item-'+i+'"'+
     ' draggable="'+(!d.rest)+'"'+
     ' ondragstart="dragStart(event,'+i+')"'+
@@ -755,17 +478,17 @@ function renderPlanItem(d,i){
     ' ondragleave="dragLeave('+i+')"'+
     ' ondragend="dragEnd()"'+
     ' onclick="openSessio('+i+')">'+
-    '<div class="plan-day-badge">'+d.day+'</div>'+
+    '<div class="plan-day-badge">'+getDayLong(d.day)+'</div>'+
     '<span class="plan-item-icon">'+(d.icon||'🏃')+'</span>'+
     '<div class="plan-item-info">'+
       '<div class="plan-item-title">'+(d.title||'Sesión')+'</div>'+
-      (subText?'<div class="plan-item-sub">'+subText+'</div>':'')+
+      (d.sub?'<div class="plan-item-sub">'+d.sub.toUpperCase()+'</div>':'')+
     '</div>'+
     (!d.rest?
       '<div class="plan-item-actions" onclick="event.stopPropagation()">'+
-        '<div class="drag-handle" onclick="event.stopPropagation()" ontouchstart="handleTouchStart(event,'+i+')">⠿</div>'+
-        '<button class="action-btn '+(isCompleted?'done-btn':'')+'" onclick="toggleCompleted('+i+')" title="Marcar hecha">✓</button>'+
-        '<button class="action-btn" onclick="openEditMenu('+i+')" title="Editar">✎</button>'+
+        '<div class="drag-handle" onclick="event.stopPropagation()">⠿</div>'+
+        '<button class="action-btn" onclick="openSessionModal('+i+')">✎</button>'+
+        '<button class="action-btn" onclick="toggleRest('+i+')">💤</button>'+
       '</div>'
       :
       '<div class="plan-item-actions" onclick="event.stopPropagation()">'+
@@ -796,60 +519,23 @@ async function drop(e,idx){
   e.preventDefault();
   document.querySelectorAll('.plan-item').forEach(el=>el.classList.remove('drag-over'));
   if(dragSrcIdx===null||dragSrcIdx===idx){dragSrcIdx=null;return;}
-  performSwap(dragSrcIdx,idx);
-  dragSrcIdx=null;
-}
-
-function performSwap(srcIdx,dstIdx){
-  const src=planDays[srcIdx],dst=planDays[dstIdx];
-  if(src.rest) return;
+  const src=planDays[dragSrcIdx],dst=planDays[idx];
+  if(src.rest){dragSrcIdx=null;return;}
   const srcDay=src.day,dstDay=dst.day;
-  let desc;
-  if(dst.rest){
-    desc='Mogut "'+src.title+'" del '+srcDay+' al '+dstDay+'. '+srcDay+' ara és descans.';
-    planDays[dstIdx]={...src,day:dstDay,canviat:true};
-    planDays[srcIdx]={day:srcDay,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,completed:false,duracio_min:0};
-  } else {
-    desc='Intercanviat "'+src.title+'" ('+srcDay+') amb "'+dst.title+'" ('+dstDay+').';
-    planDays[dstIdx]={...src,day:dstDay,canviat:true};
-    planDays[srcIdx]={...dst,day:srcDay,canviat:true};
-  }
-  renderAll();
-  reajustarDiferit(desc,'Coach reorganizando la semana...');
+  let desc=dst.rest?'Mogut "'+src.title+'" del '+srcDay+' al '+dstDay+'. '+srcDay+' ara és descans.':'Intercanviat "'+src.title+'" ('+srcDay+') amb "'+dst.title+'" ('+dstDay+').';
+  dragSrcIdx=null;
+  await reajustarPla(desc,'Reorganizando la semana...');
 }
 
-function handleTouchStart(e,idx){
-  if(planDays[idx].rest) return;
-  touchSrcIdx=idx;touchOverIdx=null;
-  const el=document.getElementById('item-'+idx);
-  if(el) el.classList.add('dragging');
-  e.preventDefault();
+function expandSports(sports){
+  var expanded=[];
+  sports.forEach(function(s){
+    if(s==='triatlon') expanded.push('running','ciclismo','natacion');
+    else if(s==='duatlon') expanded.push('running','ciclismo');
+    else expanded.push(s);
+  });
+  return expanded.filter(function(s,i){return expanded.indexOf(s)===i;});
 }
-function handleTouchMove(e){
-  if(touchSrcIdx===null) return;
-  e.preventDefault();
-  const touch=e.touches[0];
-  const srcEl=document.getElementById('item-'+touchSrcIdx);
-  if(srcEl) srcEl.style.visibility='hidden';
-  const under=document.elementFromPoint(touch.clientX,touch.clientY);
-  if(srcEl) srcEl.style.visibility='';
-  document.querySelectorAll('.plan-item').forEach(el=>el.classList.remove('drag-over'));
-  if(under){
-    const item=under.closest('.plan-item');
-    if(item&&item.id){
-      const idx=parseInt(item.id.replace('item-',''));
-      if(!isNaN(idx)&&idx!==touchSrcIdx){item.classList.add('drag-over');touchOverIdx=idx;}
-    }
-  }
-}
-function handleTouchEnd(){
-  if(touchSrcIdx===null) return;
-  document.querySelectorAll('.plan-item').forEach(el=>{el.classList.remove('dragging');el.classList.remove('drag-over');});
-  if(touchOverIdx!==null&&touchOverIdx!==touchSrcIdx) performSwap(touchSrcIdx,touchOverIdx);
-  touchSrcIdx=null;touchOverIdx=null;
-}
-document.addEventListener('touchmove',function(e){handleTouchMove(e);},{passive:false});
-document.addEventListener('touchend',function(){handleTouchEnd();});
 
 function openSessionModal(idx){
   editingDayIdx=idx;selectedNewSession=null;
@@ -860,7 +546,7 @@ function openSessionModal(idx){
   const sports=expandSports(user?.sports||['running']);
   let options=[];
   sports.forEach(s=>(allSessionsDB[s]||[]).forEach(x=>{if(x.title!==current.title)options.push({...x,sport:s});}));
-  options.push({icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',duracio_min:0,sport:'rest'});
+  options.push({icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',sport:'rest'});
   document.getElementById('session-list').innerHTML=options.map((o,i)=>'<div class="session-opt" onclick="selSession(this,'+i+')"><span class="session-opt-icon">'+o.icon+'</span><div><div class="session-opt-title">'+o.title+'</div><div class="session-opt-sub">'+(o.sub||'')+'</div></div></div>').join('');
   window._sessionOptions=options;
   document.getElementById('modal-session').classList.add('open');
@@ -876,294 +562,56 @@ function selSession(el,idx){
 async function confirmSession(){
   if(editingDayIdx===null||!selectedNewSession) return;
   const current=planDays[editingDayIdx];
-  const desc='Canviat "'+current.title+'" del '+current.day+' per "'+selectedNewSession.title+'".';
   closeModal('modal-session');
-  if(selectedNewSession.title==='Descanso'){
-    planDays[editingDayIdx]={day:current.day,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,completed:false,duracio_min:0};
-  } else {
-    planDays[editingDayIdx]={...selectedNewSession,day:current.day,rest:false,skipped:false,completed:false,duracio_min:selectedNewSession.duracio_min||45,canviat:true};
-  }
-  renderAll();
-  reajustarDiferit(desc,'Coach ajustando el plan...');
+  await reajustarPla('Canviat "'+current.title+'" del '+current.day+' per "'+selectedNewSession.title+'".','Ajustando el plan...');
 }
 
 async function toggleRest(idx){
   const d=planDays[idx];
-  const desc='Marcat '+d.day+' com a descans (era "'+d.title+'"). Redistribueix la càrrega.';
-  planDays[idx]={day:d.day,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,completed:false,duracio_min:0};
-  renderAll();
-  reajustarDiferit(desc,'Coach redistribuyendo la carga...');
+  await reajustarPla('Marcat '+d.day+' com a descans (era "'+d.title+'"). Redistribueix la càrrega.','Redistribuyendo la carga...');
 }
 
 function restoreDay(idx){
-  const sports=expandSports(user?.sports||['running']);
+  const sports=user?.sports||['running'];
   let allS=[];
   sports.forEach(s=>(allSessionsDB[s]||[]).forEach(x=>allS.push({...x})));
   const used=planDays.filter(d=>!d.rest).map(d=>d.title);
   const pick=allS.find(s=>!used.includes(s.title))||allS[0];
-  const dayName=planDays[idx].day;
-  planDays[idx]={...pick,day:dayName,rest:false,skipped:false,completed:false,duracio_min:45,canviat:true};
-  renderAll();
-  reajustarDiferit('Afegit "'+pick.title+'" al '+dayName+'.','Coach ajustando...');
+  planDays[idx]={...pick,day:planDays[idx].day,rest:false,skipped:false};
+  reajustarPla('Afegit "'+pick.title+'" al '+planDays[idx].day+'.','Ajustando...');
 }
 
-// EDIT MENU
-function openEditMenu(idx){
-  if(idx<0||idx>=planDays.length) return;
-  if(planDays[idx].rest) return;
-  editMenuIdx=idx;
-  const s=planDays[idx];
-  document.getElementById('edit-options-title').textContent='Editar · '+s.day;
-  document.getElementById('edit-options-sub').textContent=s.title+'. ¿Qué quieres hacer?';
-  document.getElementById('modal-edit-options').classList.add('open');
-}
-
-function editFromMenu(action){
-  if(editMenuIdx===null) return;
-  const idx=editMenuIdx;
-  closeModal('modal-edit-options');
-  editMenuIdx=null;
-  setTimeout(function(){
-    if(action==='adjust') openAdjustModal(idx);
-    else if(action==='change') openSessionModal(idx);
-    else if(action==='rest') toggleRest(idx);
-  },200);
-}
-
-// ADJUST MODAL
-function openTimeModal(){
-  const todayRealIdx=planDays.findIndex(d=>d.day===todayName);
-  if(todayRealIdx<0) return;
-  openAdjustModal(todayRealIdx);
-}
-
-function openAdjustModal(idx){
-  if(idx<0||idx>=planDays.length) return;
-  if(planDays[idx].rest) return;
-  adjustingSessionIdx=idx;
-  adjustingSession=planDays[idx];
-  
-  const sport=getSportType(adjustingSession);
-  const paces=calculatePaces(user);
-  const zone=getZoneFromTags(adjustingSession.tags);
-  const time=adjustingSession.duracio_min||45;
-  const isToday=adjustingSession.day===todayName;
-  
-  const showFields={time:true,km:false,pace:false,speed:false,elev:false};
-  let defaultPace=360,defaultSpeed=27,defaultElev=0,sub='Cambia el tiempo';
-  
-  if(sport==='running'){
-    showFields.km=true;showFields.pace=true;
-    defaultPace=paces.running[zone]||paces.running.z2;
-    sub='Mueve cualquier valor · todo se ajusta';
-  } else if(sport==='trail'){
-    showFields.km=true;showFields.pace=true;showFields.elev=true;
-    defaultPace=paces.running[zone]||paces.running.z2;
-    defaultElev=adjustingSession.custom?.elev||300;
-    sub='Tiempo, km, ritmo y desnivel · todo se ajusta';
-  } else if(sport==='cycling'){
-    showFields.km=true;showFields.speed=true;showFields.elev=true;
-    defaultSpeed=paces.cycling[zone]||paces.cycling.z2;
-    defaultElev=adjustingSession.custom?.elev||100;
-    sub='Tiempo, km, velocidad y desnivel · todo se ajusta';
-  }
-  
-  document.querySelector('#modal-time .modal-title').textContent='Ajustar · '+adjustingSession.day+(isToday?' (hoy)':'');
-  document.getElementById('adj-km-field').style.display=showFields.km?'block':'none';
-  document.getElementById('adj-pace-field').style.display=showFields.pace?'block':'none';
-  document.getElementById('adj-speed-field').style.display=showFields.speed?'block':'none';
-  document.getElementById('adj-elev-field').style.display=showFields.elev?'block':'none';
-  document.getElementById('adjust-modal-sub').textContent=sub;
-  
-  adjustValues.time=time;
-  adjustValues.pace=adjustingSession.custom?.pace||defaultPace;
-  adjustValues.speed=adjustingSession.custom?.speed||defaultSpeed;
-  adjustValues.elev=adjustingSession.custom?.elev||defaultElev;
-  
-  if(sport==='running'||sport==='trail') adjustValues.km=Math.max(0.5,Math.round((time*60/adjustValues.pace)*10)/10);
-  else if(sport==='cycling') adjustValues.km=Math.max(0.5,Math.round((time*adjustValues.speed/60)*10)/10);
-  else adjustValues.km=0;
-  
-  updateAdjustDOM(sport,showFields);
-  document.getElementById('modal-time').classList.add('open');
-}
-
-function updateAdjustDOM(sport,showFields){
-  document.getElementById('adj-time').value=adjustValues.time;
-  document.getElementById('adj-time-val').textContent=adjustValues.time+' min';
-  if(showFields.km){
-    document.getElementById('adj-km').value=adjustValues.km;
-    document.getElementById('adj-km-val').textContent=adjustValues.km+' km';
-  }
-  if(showFields.pace){
-    document.getElementById('adj-pace').value=adjustValues.pace;
-    document.getElementById('adj-pace-val').textContent=formatPace(adjustValues.pace)+'/km';
-  }
-  if(showFields.speed){
-    document.getElementById('adj-speed').value=adjustValues.speed;
-    document.getElementById('adj-speed-val').textContent=adjustValues.speed+' km/h';
-  }
-  if(showFields.elev){
-    document.getElementById('adj-elev').value=adjustValues.elev;
-    document.getElementById('adj-elev-val').textContent=adjustValues.elev+' m';
-  }
-}
-
-function adjustFrom(source){
-  if(!adjustingSession) return;
-  const sport=getSportType(adjustingSession);
-  
-  if(source==='time'){
-    adjustValues.time=parseInt(document.getElementById('adj-time').value);
-    if(sport==='running'||sport==='trail') adjustValues.km=Math.max(0.5,Math.round((adjustValues.time*60/adjustValues.pace)*10)/10);
-    else if(sport==='cycling') adjustValues.km=Math.max(0.5,Math.round((adjustValues.time*adjustValues.speed/60)*10)/10);
-  } else if(source==='km'){
-    adjustValues.km=parseFloat(document.getElementById('adj-km').value);
-    if(sport==='running'||sport==='trail') adjustValues.time=Math.round(adjustValues.km*adjustValues.pace/60);
-    else if(sport==='cycling') adjustValues.time=Math.round(adjustValues.km*60/adjustValues.speed);
-  } else if(source==='pace'){
-    adjustValues.pace=parseInt(document.getElementById('adj-pace').value);
-    adjustValues.time=Math.round(adjustValues.km*adjustValues.pace/60);
-  } else if(source==='speed'){
-    adjustValues.speed=parseFloat(document.getElementById('adj-speed').value);
-    adjustValues.time=Math.round(adjustValues.km*60/adjustValues.speed);
-  } else if(source==='elev'){
-    adjustValues.elev=parseInt(document.getElementById('adj-elev').value);
-    // El desnivel és informatiu, no afecta el temps
-  }
-  
-  const showFields={time:true,km:sport==='running'||sport==='trail'||sport==='cycling',pace:sport==='running'||sport==='trail',speed:sport==='cycling',elev:sport==='trail'||sport==='cycling'};
-  updateAdjustDOM(sport,showFields);
-  
-  const orig=adjustingSession?.duracio_min||45;
-  let msg='El plan se reajustará para mantener tu progresión semanal.';
-  if(adjustValues.time<orig*0.7) msg='Sesión más corta. El coach añadirá minutos en otros días.';
-  else if(adjustValues.time>orig*1.3) msg='Sesión más larga. El coach reducirá la carga en otros días.';
-  document.getElementById('adjust-ai-text').textContent=msg;
-}
-  
-  const showFields={time:true,km:sport==='running'||sport==='trail'||sport==='cycling',pace:sport==='running'||sport==='trail',speed:sport==='cycling',elev:sport==='trail'||sport==='cycling'};
-  updateAdjustDOM(sport,showFields);
-  
-  const orig=adjustingSession?.duracio_min||45;
-  let msg='El plan se reajustará para mantener tu progresión semanal.';
-  if(adjustValues.time<orig*0.7) msg='Sesión más corta. El coach añadirá minutos en otros días.';
-  else if(adjustValues.time>orig*1.3) msg='Sesión más larga. El coach reducirá la carga en otros días.';
-  document.getElementById('adjust-ai-text').textContent=msg;
-}
-
-async function confirmAdjust(){
-  if(adjustingSessionIdx===null) return;
-  const idx=adjustingSessionIdx;
-  const s=planDays[idx];
-  const sport=getSportType(s);
-  const orig=s.duracio_min||45;
-  
-  let desc='Sesión ('+s.day+') ajustada: '+adjustValues.time+' min';
-  if(sport==='running') desc+=', '+adjustValues.km+' km a ritmo '+formatPace(adjustValues.pace)+'/km';
-  else if(sport==='trail') desc+=', '+adjustValues.km+' km a ritmo '+formatPace(adjustValues.pace)+'/km, '+adjustValues.elev+'m D+';
-  else if(sport==='cycling') desc+=', '+adjustValues.km+' km a '+adjustValues.speed+' km/h, '+adjustValues.elev+'m D+';
-  desc+=' (era '+orig+' min). Redistribuye la carga si hace falta.';
-  
-  closeModal('modal-time');
-  
-  planDays[idx]={...s,duracio_min:adjustValues.time,canviat:true,custom:{km:adjustValues.km,pace:adjustValues.pace,speed:adjustValues.speed,elev:adjustValues.elev,sport:sport}};
-  renderAll();
-  reajustarDiferit(desc,'Coach reajustando la semana...');
-}
+function openTimeModal(){ document.getElementById('modal-time').classList.add('open'); }
 
 async function skipToday(){
-  const todayRealIdx=planDays.findIndex(d=>d.day===todayName);
-  if(todayRealIdx<0){closeModal('modal-time');return;}
-  const s=planDays[todayRealIdx];
-  const desc='Usuari NO pot entrenar avui ('+todayName+'). Era "'+(s?.title||'sesión')+'". Redistribueix.';
+  const s=planDays.find(d=>d.day===todayName);
   closeModal('modal-time');
-  planDays[todayRealIdx]={day:s.day,rest:true,icon:'💤',title:'Descanso inesperado',sub:'No pude entrenar hoy',tags:[],why:'',skipped:true,completed:false,duracio_min:0};
-  renderAll();
-  reajustarDiferit(desc,'Coach reorganizando...');
+  await reajustarPla('Usuari NO pot entrenar avui ('+todayName+'). Era "'+(s?.title||'sesión')+'". Redistribueix.','Sin problema, reorganizando...');
 }
 
-// COMPLETION (2 questions + nota)
-function toggleCompleted(idx){
-  if(planDays[idx].rest) return;
-  if(planDays[idx].completed){
-    planDays[idx].completed=false;
-    planDays[idx].completion=null;
-    renderAll();
-    if(currentEmail) savePlanToSupabase();
-    showToast('Sesión marcada como pendiente');
-    return;
-  }
-  completingIdx=idx;
-  selectedRPE=null;
-  selectedStatus=null;
-  const s=planDays[idx];
-  document.getElementById('complete-modal-sub').textContent=s.title+' · '+s.day;
-  document.querySelectorAll('.rpe-btn').forEach(b=>b.classList.remove('sel'));
-  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('partial-dur-group').style.display='none';
-  document.getElementById('partial-note').value='';
-  document.getElementById('partial-duration').value=s.duracio_min||45;
-  document.getElementById('partial-duration-val').textContent=(s.duracio_min||45)+' min';
-  document.getElementById('save-completion-btn').disabled=true;
-  document.getElementById('modal-complete').classList.add('open');
+async function confirmTime(){
+  const s=planDays.find(d=>d.day===todayName);
+  closeModal('modal-time');
+  await reajustarPla('Sessió d\'avui ajustada a '+currentTimeMin+' min (eren '+(s?.duracio_min||45)+'). Redistribueix els minuts restants.','Redistribuyendo el tiempo...');
 }
 
-function selectRPE(el,val){
-  document.querySelectorAll('.rpe-btn').forEach(b=>b.classList.remove('sel'));
+function selectTime(el,min){
+  document.querySelectorAll('.time-opt').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
-  selectedRPE=val;
-  checkCanSaveCompletion();
+  document.getElementById('sl').value=min;
+  updateSlider(min);
 }
 
-function selectStatus(el,val){
-  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel');
-  selectedStatus=val;
-  document.getElementById('partial-dur-group').style.display=val==='partial'?'block':'none';
-  checkCanSaveCompletion();
-}
+const timeMsgs={10:'10 min es poco pero cuenta.',20:'20 min en Z2. Mismo beneficio, menos volumen.',30:'30 min sólido.',45:'El plan original.',60:'Más tiempo. Añadimos calidad.',90:'90 min. Reducimos mañana.'};
 
-function checkCanSaveCompletion(){
-  document.getElementById('save-completion-btn').disabled=!(selectedRPE&&selectedStatus);
-}
-
-function updatePartialDuration(v){
-  document.getElementById('partial-duration-val').textContent=v+' min';
-}
-
-function saveCompletion(){
-  if(completingIdx===null||!selectedRPE||!selectedStatus) return;
-  const s=planDays[completingIdx];
-  const note=document.getElementById('partial-note').value.trim();
-  const actualDur=selectedStatus==='partial'?parseInt(document.getElementById('partial-duration').value):(s.duracio_min||45);
-  
-  s.completed=true;
-  s.completion={
-    status:selectedStatus,
-    rpe:selectedRPE,
-    actualDuration:actualDur,
-    plannedDuration:s.duracio_min||45,
-    note:note,
-    date:new Date().toISOString()
-  };
-  closeModal('modal-complete');
-  completingIdx=null;
-  renderAll();
-  if(currentEmail) savePlanToSupabase();
-  
-  const needsReadjust=selectedRPE==='very_hard'||selectedRPE==='easy'||selectedStatus==='partial'||selectedStatus==='skipped';
-  
-  if(needsReadjust){
-    const rpeLabel={easy:'fue fácil',good:'fue bien',hard:'fue dura',very_hard:'fue al límite'}[selectedRPE];
-    const statusLabel={completed:'completada',partial:'parcial ('+actualDur+' min en lugar de '+(s.duracio_min||45)+')',skipped:'no la ha hecho'}[selectedStatus];
-    let desc='El atleta ha completado "'+s.title+'" del '+s.day+'. Estado: '+statusLabel+'. Sensación: '+rpeLabel+'.';
-    if(note) desc+=' Nota: "'+note+'".';
-    desc+=' Adapta los próximos días: si fue muy duro o parcial, suaviza; si fue fácil, puede absorber más carga.';
-    reajustarDiferit(desc,'Coach adaptando los próximos días...');
-  } else {
-    showToast('¡Sesión completada! ✓');
-  }
+function updateSlider(v){
+  currentTimeMin=parseInt(v);
+  document.getElementById('slv').textContent=v+' min';
+  document.getElementById('confirm-time-btn').textContent='Ajustar a '+v+' min →';
+  const k=Math.round(v/10)*10;
+  document.getElementById('ai-modal-text').textContent=timeMsgs[k]||timeMsgs[20];
+  document.querySelectorAll('.time-opt').forEach(o=>o.classList.remove('sel'));
+  [20,30,45,60].forEach((m,i)=>{if(parseInt(v)===m)document.querySelectorAll('.time-opt')[i].classList.add('sel');});
 }
 
 function closeModal(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
