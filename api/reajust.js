@@ -9,6 +9,12 @@ export default async function handler(req, res) {
   const z2min = Math.round(fc * 0.60);
   const z2max = Math.round(fc * 0.70);
 
+  // CÀLCUL EXPLÍCIT del delta de càrrega
+  const targetMinutes = (userData?.volum || 4) * 60;
+  const currentMinutes = planActual.reduce((sum, d) => sum + (d.rest ? 0 : (d.duracio_min || 0)), 0);
+  const delta = targetMinutes - currentMinutes;
+  const needsRedistribution = Math.abs(delta) >= 15;
+
   const planSimple = planActual.map(d => ({
     dia: d.day,
     title: d.title,
@@ -20,51 +26,52 @@ export default async function handler(req, res) {
     completed: d.completed || false
   }));
 
-  const systemPrompt = `Eres un coach experto. Reajustas planes adaptando el entorno SIN tocar los días que el atleta ha modificado.
+  const systemPrompt = `Eres un coach experto en periodización. Tu trabajo principal cuando el atleta hace un cambio es REDISTRIBUIR la diferencia de carga al resto de la semana.
 
-REGLA #1 INVIOLABLE:
-Los días con "canviat":true son INMUTABLES. Tu trabajo NO es "afinarlos" ni "mejorarlos". Tu trabajo es RESPETARLOS.
-
-Para los días con "canviat":true:
-- Devuelve title EXACTAMENTE igual
-- Devuelve "duracio_min" EXACTAMENTE igual al "min" que recibes
-- Devuelve "custom" EXACTAMENTE igual (con sus km, pace, speed, elev)
-- Devuelve tags EXACTAMENTE iguales
+REGLA #1 — DÍAS DEL ATLETA SON INMUTABLES:
+Días con "canviat":true:
+- Devuelve title, duracio_min (=min recibido), custom, tags EXACTAMENTE iguales
 - Solo puedes ajustar "why" para explicar por qué encaja
+- NO los toques bajo ningún concepto
 
-Para los días con "completed":true: igual de inmutables.
+Días con "completed":true: igual de inmutables.
 
-REGLAS SECUNDARIAS (solo para días NO modificados ni completados):
+REGLA #2 — REDISTRIBUCIÓN OBLIGATORIA cuando hay déficit/superávit:
+Si te paso un "delta" distinto de cero:
+- delta > 0 → FALTAN minutos → AÑADE minutos repartidos en 1-3 días NO modificados ni completados
+- delta < 0 → SOBRAN minutos → REDUCE minutos en 1-3 días NO modificados ni completados
+- Prefiere ajustar días de la misma disciplina (running con running, bici con bici)
+- Evita cargar más un día si el siguiente es duro
+- Los días que TÚ ajustes: marca "canviat":true Y en "why" pon "Compensa el cambio del [día del atleta]"
+
+REGLA #3 — COHERENCIA:
 - 80% Z2, 20% calidad
-- Evita dos días duros seguidos si hay forma de reorganizar otros días
-- Si el atleta ha hecho un día más corto/largo, redistribuye los minutos en los días NO tocados
-- Nunca redistribuyas carga a un día con "canviat":true
+- Nunca dos días alta intensidad seguidos si puedes reorganizar
+- Nunca toques días con "completed":true ni con "canviat":true
 
-OUTPUT:
-- Responde SIEMPRE en castellano
-- "why" máx 1 frase corta
-- Mantén "canviat":true Y "custom" intactos para los días que el atleta tocó`;
+OUTPUT castellano, JSON válido.`;
 
-  const userMessage = `Plan actual (con cambios del atleta YA aplicados):
+  const userMessage = `Plan actual (con cambio del atleta YA aplicado):
 ${JSON.stringify(planSimple)}
 
 Cambio del atleta: ${canvi}
 
-REGLA INVIOLABLE: Los días con "canviat":true ya están como el atleta los quiere. Devuélvelos EXACTAMENTE iguales:
-- mismo title
-- mismo min → duracio_min
-- mismo objeto custom
-- mismos tags
-NO afines sus números bajo ningún concepto.
+CÁLCULO DE CARGA:
+- Volumen objetivo semanal: ${targetMinutes} min (${userData?.volum || 4} horas)
+- Volumen actual (después del cambio): ${currentMinutes} min
+- Delta: ${delta > 0 ? '+' : ''}${delta} min
+${needsRedistribution ? `\n⚠ REDISTRIBUCIÓN OBLIGATORIA: ${delta > 0 ? `Añade ${Math.abs(delta)} min` : `Reduce ${Math.abs(delta)} min`} repartidos en días NO modificados.` : '\n✓ Volumen dentro del rango, sin redistribución necesaria.'}
 
-Datos: FC max ${fc}, Z2 ${z2min}-${z2max}, ${userData?.dias || 3} días, ${(userData?.sports || ['running']).join('+')}, nivel ${userData?.nivel || 'intermedio'}
+REGLA INVIOLABLE: Días con "canviat":true mantienen EXACTAMENTE: mismo title, mismo min → duracio_min, mismo custom, mismos tags. NO afines.
 
-SOLO JSON válido:
+Datos atleta: FC max ${fc}, Z2 ${z2min}-${z2max}, ${userData?.dias || 3} días/sem, ${(userData?.sports || ['running']).join('+')}, nivel ${userData?.nivel || 'intermedio'}
+
+Devuelve SOLO JSON válido:
 {
   "setmana": [
     {"dia":"Lu","rest":false,"icon":"🏃","title":"...","sub":"...","why":"...","tags":[...],"duracio_min":45,"canviat":false,"custom":null}
   ],
-  "missatge": "Frase corta máx 12 palabras",
+  "missatge": "Frase corta sobre la redistribución (máx 14 palabras)",
   "resum": "Resumen breve"
 }`;
 
@@ -78,7 +85,7 @@ SOLO JSON válido:
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1500,
+        max_tokens: 1800,
         system: systemPrompt,
         messages: [{ role: 'user', content: userMessage }]
       })
