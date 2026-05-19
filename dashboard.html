@@ -107,6 +107,14 @@
     .session-opt-title{font-size:.9rem;font-weight:500;color:#111110}
     .session-opt.sel .session-opt-title{color:#163A28}
     .session-opt-sub{font-size:.75rem;color:#888780}
+    .edit-options{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+    .edit-opt{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.9rem 1rem;display:flex;align-items:center;gap:.85rem;cursor:pointer;font-family:'Outfit',sans-serif;text-align:left;transition:all .15s;width:100%}
+    .edit-opt:hover{border-color:#163A28;background:#F1FAF5}
+    .edit-opt-icon{width:42px;height:42px;border-radius:11px;background:#F1FAF5;border:1px solid #163A28;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+    .edit-opt-info{flex:1}
+    .edit-opt-title{font-size:.95rem;font-weight:500;color:#111110}
+    .edit-opt-sub{font-size:.75rem;color:#888780;margin-top:1px}
+    .edit-opt-arrow{color:#163A28;font-size:1.1rem;font-weight:500}
     .completion-options{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
     .completion-opt{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.85rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;text-align:left;transition:all .15s;width:100%}
     .completion-opt.good:hover{border-color:#4A9E6B;background:#F1FAF5}
@@ -234,57 +242,38 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-complete" onclick="closeModal('modal-complete',event)">
+<div class="modal-overlay" id="modal-edit-options" onclick="closeModal('modal-edit-options',event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">¿Cómo ha ido?</div>
-    <div class="modal-sub" id="complete-modal-sub">Sesión</div>
-    <div class="completion-options" id="completion-options">
-      <button class="completion-opt good" onclick="markAs('completed')">
-        <div class="completion-icon">✓</div>
-        <div class="completion-info">
-          <div class="completion-title">Completada según el plan</div>
-          <div class="completion-sub">Todo como estaba previsto</div>
+    <div class="modal-title" id="edit-options-title">Editar</div>
+    <div class="modal-sub" id="edit-options-sub">¿Qué quieres hacer?</div>
+    <div class="edit-options">
+      <button class="edit-opt" onclick="editFromMenu('adjust')">
+        <div class="edit-opt-icon">⚙</div>
+        <div class="edit-opt-info">
+          <div class="edit-opt-title">Ajustar valores</div>
+          <div class="edit-opt-sub">Tiempo, distancia, ritmo, desnivel</div>
         </div>
+        <div class="edit-opt-arrow">→</div>
       </button>
-      <button class="completion-opt partial" onclick="showPartialForm()">
-        <div class="completion-icon">⚠</div>
-        <div class="completion-info">
-          <div class="completion-title">Hecha pero diferente</div>
-          <div class="completion-sub">Ajusta lo que has hecho</div>
+      <button class="edit-opt" onclick="editFromMenu('change')">
+        <div class="edit-opt-icon">🔄</div>
+        <div class="edit-opt-info">
+          <div class="edit-opt-title">Cambiar actividad</div>
+          <div class="edit-opt-sub">Running, bici, gimnasio, natación...</div>
         </div>
+        <div class="edit-opt-arrow">→</div>
       </button>
-      <button class="completion-opt skip" onclick="markAs('skipped')">
-        <div class="completion-icon">✗</div>
-        <div class="completion-info">
-          <div class="completion-title">No la he hecho</div>
-          <div class="completion-sub">El coach lo tendrá en cuenta</div>
+      <button class="edit-opt" onclick="editFromMenu('rest')">
+        <div class="edit-opt-icon">💤</div>
+        <div class="edit-opt-info">
+          <div class="edit-opt-title">Marcar como descanso</div>
+          <div class="edit-opt-sub">Día de recuperación</div>
         </div>
+        <div class="edit-opt-arrow">→</div>
       </button>
     </div>
-    <div class="partial-form" id="partial-form" style="display:none">
-      <div class="form-group">
-        <label class="form-label">Duración real</label>
-        <div class="adjust-row">
-          <input type="range" min="0" max="180" value="45" id="partial-duration" oninput="updatePartialDuration(this.value)">
-          <span class="adjust-val" id="partial-duration-val">45 min</span>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Sensaciones</label>
-        <div class="sensation-row">
-          <button class="sensation-btn" onclick="selectSensation(this,'easy')">😎 Fácil</button>
-          <button class="sensation-btn" onclick="selectSensation(this,'normal')">😊 Bien</button>
-          <button class="sensation-btn" onclick="selectSensation(this,'hard')">😓 Duro</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Nota (opcional)</label>
-        <textarea class="note-input" id="partial-note" placeholder="¿Algo destacable? Lesiones, sensaciones..."></textarea>
-      </div>
-      <button class="btn-green" onclick="savePartial()" style="margin-top:.5rem">Guardar y completar →</button>
-    </div>
-    <button class="btn-cancel" onclick="closeModal('modal-complete')">Cancelar</button>
+    <button class="btn-cancel" onclick="closeModal('modal-edit-options')">Cancelar</button>
   </div>
 </div>
 
@@ -717,9 +706,8 @@ function renderPlanItem(d,i){
     (!d.rest?
       '<div class="plan-item-actions" onclick="event.stopPropagation()">'+
         '<div class="drag-handle" onclick="event.stopPropagation()" ontouchstart="handleTouchStart(event,'+i+')">⠿</div>'+
-        '<button class="action-btn '+(isCompleted?'done-btn':'')+'" onclick="toggleCompleted('+i+')">✓</button>'+
-        '<button class="action-btn" onclick="openSessionModal('+i+')">✎</button>'+
-        '<button class="action-btn" onclick="toggleRest('+i+')">💤</button>'+
+        '<button class="action-btn '+(isCompleted?'done-btn':'')+'" onclick="toggleCompleted('+i+')" title="Marcar hecha">✓</button>'+
+        '<button class="action-btn" onclick="openEditMenu('+i+')" title="Editar">✎</button>'+
       '</div>'
       :
       '<div class="plan-item-actions" onclick="event.stopPropagation()">'+
@@ -866,24 +854,55 @@ function restoreDay(idx){
 }
 
 // ADJUST MODAL
+let editMenuIdx=null;
+
 function openTimeModal(){
   const todayRealIdx=planDays.findIndex(d=>d.day===todayName);
   if(todayRealIdx<0) return;
-  adjustingSessionIdx=todayRealIdx;
-  adjustingSession=planDays[todayRealIdx];
+  openAdjustModal(todayRealIdx);
+}
+
+function openEditMenu(idx){
+  if(idx<0||idx>=planDays.length) return;
+  if(planDays[idx].rest) return;
+  editMenuIdx=idx;
+  const s=planDays[idx];
+  document.getElementById('edit-options-title').textContent='Editar · '+s.day;
+  document.getElementById('edit-options-sub').textContent=s.title+'. ¿Qué quieres hacer?';
+  document.getElementById('modal-edit-options').classList.add('open');
+}
+
+function editFromMenu(action){
+  if(editMenuIdx===null) return;
+  const idx=editMenuIdx;
+  closeModal('modal-edit-options');
+  editMenuIdx=null;
+  setTimeout(function(){
+    if(action==='adjust') openAdjustModal(idx);
+    else if(action==='change') openSessionModal(idx);
+    else if(action==='rest') toggleRest(idx);
+  },200);
+}
+
+function openAdjustModal(idx){
+  if(idx<0||idx>=planDays.length) return;
+  if(planDays[idx].rest) return;
+  adjustingSessionIdx=idx;
+  adjustingSession=planDays[idx];
   
   const sport=getSportType(adjustingSession);
   const paces=calculatePaces(user);
   const zone=getZoneFromTags(adjustingSession.tags);
   const time=adjustingSession.duracio_min||45;
+  const isToday=adjustingSession.day===todayName;
   
   const showFields={time:true,km:false,pace:false,speed:false,elev:false};
-  let defaultPace=360,defaultSpeed=27,defaultElev=0,sub='Cambia el tiempo de la sesión';
+  let defaultPace=360,defaultSpeed=27,defaultElev=0,sub='Cambia el tiempo';
   
   if(sport==='running'){
     showFields.km=true;showFields.pace=true;
     defaultPace=paces.running[zone]||paces.running.z2;
-    sub='Mueve tiempo, distancia o ritmo · todo se ajusta';
+    sub='Mueve cualquier valor · todo se ajusta';
   } else if(sport==='trail'){
     showFields.km=true;showFields.pace=true;showFields.elev=true;
     defaultPace=paces.running[zone]||paces.running.z2;
@@ -896,6 +915,7 @@ function openTimeModal(){
     sub='Tiempo, km, velocidad y desnivel · todo se ajusta';
   }
   
+  document.querySelector('#modal-time .modal-title').textContent='Ajustar · '+adjustingSession.day+(isToday?' (hoy)':'');
   document.getElementById('adj-km-field').style.display=showFields.km?'block':'none';
   document.getElementById('adj-pace-field').style.display=showFields.pace?'block':'none';
   document.getElementById('adj-speed-field').style.display=showFields.speed?'block':'none';
