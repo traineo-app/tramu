@@ -432,7 +432,7 @@ function goNext(){
   updateProgress();
   if(nextId==='s9') generatePreview();
   if(nextId==='s3') setupS3();
-  if(nextId==='s6') prefillFCFromAge();
+  if(nextId==='s6') prefillFC();
   window.scrollTo(0,0);
 }
 
@@ -464,7 +464,17 @@ function setupS3(){
   }
 }
 
-function prefillFCFromAge(){
+function prefillFC(){
+  // Prioridad 1: prueba de esfuerzo
+  if(userData.stressTestData&&userData.stressTestData.fcmax){
+    const fc=userData.stressTestData.fcmax;
+    userData.fcmax=fc;
+    document.getElementById('fc-slider').value=fc;
+    document.getElementById('fc-sub').textContent='Detectado de tu prueba de esfuerzo: '+fc+' bpm.';
+    updateFC(fc);
+    return;
+  }
+  // Prioridad 2: 220 − edad
   if(userData.edat&&userData.edat>10&&userData.edat<90){
     const estimated=Math.max(150,Math.min(210,220-userData.edat));
     userData.fcmax=estimated;
@@ -568,7 +578,7 @@ function selRest(el){
 
 function checkBtn7(){document.getElementById('btn7').disabled=!(userData.dias&&userData.descanso);}
 
-function handleStressTestUpload(input){
+async function handleStressTestUpload(input){
   const file=input.files[0];
   if(!file) return;
   if(file.type!=='application/pdf'&&!file.name.toLowerCase().endsWith('.pdf')){
@@ -577,22 +587,78 @@ function handleStressTestUpload(input){
     return;
   }
   if(file.size>10*1024*1024){
-    alert('PDF demasiado grande (máx 10MB). Si pesa más, comprímelo o haz una foto de las páginas clave.');
+    alert('PDF demasiado grande (máx 10MB)');
     input.value='';
     return;
   }
-  const reader=new FileReader();
-  reader.onload=function(e){
-    userData.pdfBase64=e.target.result;
+  
+  document.getElementById('stress-test-info').innerHTML='⏳ Analizando tu prueba de esfuerzo con IA...';
+  document.getElementById('stress-test-card').classList.add('uploaded');
+  
+  try {
+    const pdfBase64=await new Promise(function(res,rej){
+      const r=new FileReader();
+      r.onload=function(){res(r.result);};
+      r.onerror=rej;
+      r.readAsDataURL(file);
+    });
+    
+    const apiRes=await fetch('/api/parse-stress-test',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pdfBase64:pdfBase64})
+    });
+    
+    if(!apiRes.ok){
+      const err=await apiRes.json();
+      alert('Error: '+(err.error||'No se pudo procesar el PDF'));
+      removeStressTest();
+      return;
+    }
+    
+    const result=await apiRes.json();
+    const d=result.data;
+    
     userData.pdfName=file.name;
-    document.getElementById('stress-test-info').innerHTML='✓ '+file.name+' · '+Math.round(file.size/1024)+' KB · Procesaremos los datos al generar el plan';
-    document.getElementById('stress-test-card').classList.add('uploaded');
-    try {sessionStorage.setItem('traineo_stress_test',e.target.result);sessionStorage.setItem('traineo_stress_test_name',file.name);}
-    catch(err){console.log('SessionStorage full, keeping in memory only');}
-  };
-  reader.readAsDataURL(file);
+    userData.stressTestData=d;
+    if(d.fcmax) userData.fcmax=d.fcmax;
+    
+    let preview='✓ <strong>'+file.name+'</strong>';
+    const detected=[];
+    if(d.fcmax) detected.push('FCmax <strong>'+d.fcmax+'</strong> bpm');
+    if(d.fcrep) detected.push('FCrep '+d.fcrep+' bpm');
+    if(d.vo2max) detected.push('VO2max '+d.vo2max);
+    if(d.ritme_z2){
+      const m=Math.floor(d.ritme_z2/60),s=d.ritme_z2%60;
+      detected.push('Z2 <strong>'+m+':'+(s<10?'0'+s:s)+'/km</strong>');
+    }
+    if(d.umbral_anaerobic) detected.push('Umbral '+d.umbral_anaerobic+' bpm');
+    if(d.ftp) detected.push('FTP <strong>'+d.ftp+'W</strong>');
+    if(detected.length>0){
+      preview+='<br><span style="display:block;margin-top:6px;color:#163A28;font-weight:500;line-height:1.5">'+detected.join(' · ')+'</span>';
+    }
+    if(d.observacions){
+      preview+='<br><span style="display:block;margin-top:4px;font-size:.72rem;color:#5F5E5A;font-weight:500;font-style:italic">'+d.observacions+'</span>';
+    }
+    document.getElementById('stress-test-info').innerHTML=preview;
+    
+    try{sessionStorage.setItem('traineo_stress_test_data',JSON.stringify(d));}catch(e){}
+  } catch(e){
+    console.error('PDF processing error:',e);
+    alert('Error procesando el PDF: '+e.message);
+    removeStressTest();
+  }
 }
 
+function removeStressTest(){
+  userData.pdfName='';
+  userData.stressTestData=null;
+  const input=document.getElementById('stress-test-input');
+  if(input) input.value='';
+  const info=document.getElementById('stress-test-info');
+  if(info) info.innerHTML='';
+  document.getElementById('stress-test-card').classList.remove('uploaded');
+}
 async function handleStravaUpload(input){
   const file=input.files[0];
   if(!file) return;
@@ -734,37 +800,56 @@ async function savePlan(){
   const nom=document.getElementById('carrera-nombre')?.value||userData.carreraNombre||'';
   const sports=userData.sports.length>0?userData.sports.join(','):'running';
   
-  // Guardem dades addicionals a sessionStorage perquè el dashboard les pugui usar
   try {
     sessionStorage.setItem('traineo_userdata',JSON.stringify({
-      edat:userData.edat,
-      alcada:userData.alcada,
-      pes:userData.pes,
-      fcrep:userData.fcrep,
-      genere:userData.genere,
-      pdfName:userData.pdfName,
-      stravaName:userData.stravaName
+      edat:userData.edat,alcada:userData.alcada,pes:userData.pes,fcrep:userData.fcrep,genere:userData.genere,
+      pdfName:userData.pdfName,stravaName:userData.stravaName,
+      stressTestData:userData.stressTestData,stravaStats:userData.stravaStats
     }));
-  } catch(e){console.log('Cannot save to sessionStorage');}
+  } catch(e){console.log('Cannot save full data to sessionStorage');}
   
-  const url='dashboard.html?sports='+sports+
+  // Valores derivados de prueba de esfuerzo y Strava (los que la dashboard usa para calcularPaces)
+  const st=userData.stressTestData||{};
+  const sv=userData.stravaStats||{};
+  
+  // Z2 pace: prefiere PDF (medición directa). Fallback a Strava no aplica (no tiene Z2 explícito).
+  const pacez2=st.ritme_z2||null;
+  // FCmax: PDF gana sobre slider
+  const fcmaxFinal=st.fcmax||userData.fcmax||185;
+  // FCrep: PDF o usuario
+  const fcrepFinal=st.fcrep||userData.fcrep||null;
+  // race5k/10k: Strava (real reciente) > PDF (test). Pasados como tiempo TOTAL en segundos
+  const race5kSec=sv.running?.best5K_sec?(sv.running.best5K_sec*5):(st.ritme_5k?(st.ritme_5k*5):null);
+  const race10kSec=sv.running?.best10K_sec?(sv.running.best10K_sec*10):(st.ritme_10k?(st.ritme_10k*10):null);
+  // FTP: solo PDF
+  const ftp=st.ftp||null;
+  // Volumen real semanal de Strava (sobreescribe estimación)
+  const volumReal=sv.last4Weeks?.weeklyAvgHours||userData.volum||4;
+  
+  let url='dashboard.html?sports='+sports+
     '&dias='+(userData.dias||3)+
     '&descanso='+encodeURIComponent(userData.descanso||'Ninguno')+
     '&nivel='+encodeURIComponent(userData.nivel||'Intermedio')+
-    '&fcmax='+(userData.fcmax||185)+
-    '&volum='+(userData.volum||4)+
+    '&fcmax='+fcmaxFinal+
+    '&volum='+volumReal+
     '&objetivo='+encodeURIComponent(userData.objetivo||'')+
     '&carrera='+encodeURIComponent(nom||userData.carreraDisciplina||'')+
     '&distancia='+encodeURIComponent(userData.carreraDistancia||'')+
     '&desnivel='+(userData.carreraDesnivel||0)+
-    '&fecha='+encodeURIComponent(fecha)+
-    (userData.edat?'&edat='+userData.edat:'')+
-    (userData.alcada?'&alcada='+userData.alcada:'')+
-    (userData.pes?'&pes='+userData.pes:'')+
-    (userData.fcrep?'&fcrep='+userData.fcrep:'')+
-    (userData.genere?'&genere='+encodeURIComponent(userData.genere):'')+
-    (userData.pdfName?'&pdf=1':'')+
-    (stravaFile?'&strava=1':'');
+    '&fecha='+encodeURIComponent(fecha);
+  
+  if(userData.edat) url+='&edat='+userData.edat;
+  if(userData.alcada) url+='&alcada='+userData.alcada;
+  if(userData.pes) url+='&pes='+userData.pes;
+  if(fcrepFinal) url+='&fcrep='+fcrepFinal;
+  if(userData.genere) url+='&genere='+encodeURIComponent(userData.genere);
+  if(pacez2) url+='&pacez2='+pacez2;
+  if(race5kSec) url+='&race5k='+race5kSec;
+  if(race10kSec) url+='&race10k='+race10kSec;
+  if(ftp) url+='&ftp='+ftp;
+  if(userData.pdfName) url+='&pdf=1';
+  if(userData.stravaName) url+='&strava=1';
+  
   window.location.href=url;
 }
 
