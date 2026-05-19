@@ -333,13 +333,24 @@ const user=sportsParam?{
   descanso:decodeURIComponent(params.get('descanso')||'Ninguno'),
   nivel:decodeURIComponent(params.get('nivel')||'Intermedio'),
   fcmax:parseInt(params.get('fcmax'))||185,
-  volum:parseInt(params.get('volum'))||4,
+  volum:parseFloat(params.get('volum'))||4,
   objetivo:decodeURIComponent(params.get('objetivo')||''),
   carrera:decodeURIComponent(params.get('carrera')||''),
   distancia:decodeURIComponent(params.get('distancia')||''),
   desnivel:parseInt(params.get('desnivel'))||0,
   fecha:decodeURIComponent(params.get('fecha')||''),
-  email:emailParam||''
+  email:emailParam||'',
+  edat:parseInt(params.get('edat'))||null,
+  alcada:parseInt(params.get('alcada'))||null,
+  pes:parseFloat(params.get('pes'))||null,
+  fcrep:parseInt(params.get('fcrep'))||null,
+  genere:decodeURIComponent(params.get('genere')||''),
+  pacez2:parseInt(params.get('pacez2'))||null,
+  race5k:parseInt(params.get('race5k'))||null,
+  race10k:parseInt(params.get('race10k'))||null,
+  ftp:parseInt(params.get('ftp'))||null,
+  hasPDF:params.get('pdf')==='1',
+  hasStrava:params.get('strava')==='1'
 }:null;
 
 const allSessionsDB={
