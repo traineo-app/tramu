@@ -9,43 +9,54 @@ export default async function handler(req, res) {
   const z2min = Math.round(fc * 0.60);
   const z2max = Math.round(fc * 0.70);
 
-  // Versió simplificada del pla per estalviar tokens
   const planSimple = planActual.map(d => ({
     dia: d.day,
     title: d.title,
     rest: d.rest || false,
     min: d.duracio_min || 45,
-    tags: d.tags || []
+    tags: d.tags || [],
+    canviat: d.canviat || false,
+    custom: d.custom || null,
+    completed: d.completed || false
   }));
 
-  const systemPrompt = `Eres un coach experto. Reajustas planes de entrenamiento de forma rápida y precisa.
+  const systemPrompt = `Eres un coach experto. Reajustas planes de entrenamiento.
 
-REGLAS:
-- Nunca fuerza piernas el día antes de rodaje largo
-- Nunca dos días alta intensidad seguidos
+REGLA CRÍTICA NÚMERO 1 — INVIOLABLE:
+El usuario ha hecho un cambio explícito y consciente en su plan. Tu trabajo NO es revertir su cambio, sino ADAPTAR el resto de la semana alrededor de él.
+- Los días marcados con "canviat":true SON LEY. NO los cambies, NO los muevas, NO los modifiques bajo ningún concepto.
+- Los días marcados con "completed":true ya están hechos. NO los toques.
+- Si el cambio del usuario rompe alguna regla teórica (ej. dos días duros seguidos), TÚ adaptas el resto de días para minimizar el daño, NO deshaces el cambio.
+
+REGLAS SECUNDARIAS (aplicar solo a días NO modificados):
+- Evita dos días alta intensidad seguidos si puedes reorganizar OTROS días
 - 80% Z2, 20% calidad
-- Si reduces tiempo un día, redistribuye a otros
-- Si marcas descanso, la carga va al día con menos volumen
-- Responde SIEMPRE en castellano
-- Sé conciso en "why" (máx 1 frase corta)`;
+- Si reduces tiempo un día, redistribuye a otros (no a los días con "canviat":true)
+- Si marcas descanso, redistribuye la carga (no a los días con "canviat":true)
 
-  const userMessage = `Plan actual:
+OUTPUT:
+- Responde SIEMPRE en castellano
+- Sé conciso en "why" (máx 1 frase corta)
+- Mantén "canviat":true en los días que el usuario modificó
+- Marca "canviat":true solo en días que TÚ has reorganizado como reacción al cambio del usuario`;
+
+  const userMessage = `Plan actual (con cambios del atleta ya aplicados):
 ${JSON.stringify(planSimple)}
 
-Cambio del atleta: ${canvi}
+Cambio que ha hecho el atleta: ${canvi}
+
+IMPORTANTE: Este cambio YA ESTÁ aplicado en el plan que te paso. Tu trabajo es preservarlo y adaptar el resto.
 
 Datos: FC max ${fc}, Z2 ${z2min}-${z2max}, ${userData?.dias || 3} días, ${(userData?.sports || ['running']).join('+')}, nivel ${userData?.nivel || 'intermedio'}
 
-Reajusta el plan. Responde SOLO con JSON válido sin texto adicional:
+Devuelve el plan adaptado. PRESERVA los días con "canviat":true. Responde SOLO con JSON válido:
 {
   "setmana": [
     {"dia":"Lu","rest":false,"icon":"🏃","title":"...","sub":"45 min · Z2","why":"...","tags":["Running","Z2"],"duracio_min":45,"canviat":false}
   ],
-  "missatge": "Frase corta sobre el reajuste",
+  "missatge": "Frase corta sobre el reajuste (máx 12 palabras)",
   "resum": "Resumen breve"
-}
-
-Marca "canviat":true solo en días modificados.`;
+}`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
