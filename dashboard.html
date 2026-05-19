@@ -58,7 +58,7 @@
     .plan-item.rest-item .plan-item-title{color:#888780;font-weight:400}
     .plan-item-sub{font-size:.75rem;color:#888780;margin-top:1px}
     .plan-item-actions{display:flex;gap:4px;flex-shrink:0}
-    .action-btn{width:28px;height:28px;border-radius:7px;border:.5px solid #E8E6DF;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .15s;color:#888780}
+    .action-btn{width:30px;height:30px;border-radius:8px;border:.5px solid #E8E6DF;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .15s;color:#888780}
     .action-btn:hover{background:#F1FAF5;border-color:#163A28}
     .action-btn.done-btn{background:#4A9E6B;border-color:#4A9E6B;color:#fff}
     .drag-handle{cursor:grab;color:#C8C6BF;font-size:.9rem;padding:0 2px;flex-shrink:0;user-select:none;line-height:1}
@@ -98,6 +98,7 @@
     .ai-dot{width:6px;height:6px;border-radius:50%;background:#163A28;margin-top:5px;flex-shrink:0}
     .ai-text{font-size:.8rem;color:#163A28;line-height:1.5}
     .btn-green{width:100%;background:#163A28;color:#fff;border:none;border-radius:10px;padding:.9rem;font-size:.95rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;margin-bottom:.5rem}
+    .btn-green:disabled{opacity:.4;cursor:not-allowed}
     .btn-cancel{width:100%;background:none;border:none;color:#888780;font-size:.85rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:.5rem}
     .session-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
     .session-opt{border:.5px solid #E8E6DF;border-radius:10px;padding:.8rem 1rem;background:#fff;cursor:pointer;display:flex;align-items:center;gap:.75rem;transition:all .15s}
@@ -115,25 +116,18 @@
     .edit-opt-title{font-size:.95rem;font-weight:500;color:#111110}
     .edit-opt-sub{font-size:.75rem;color:#888780;margin-top:1px}
     .edit-opt-arrow{color:#163A28;font-size:1.1rem;font-weight:500}
-    .completion-options{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
-    .completion-opt{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.85rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;text-align:left;transition:all .15s;width:100%}
-    .completion-opt.good:hover{border-color:#4A9E6B;background:#F1FAF5}
-    .completion-opt.partial:hover{border-color:#F0C84A;background:#FEF6E5}
-    .completion-opt.skip:hover{border-color:#E04040;background:#FFEAEA}
-    .completion-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;flex-shrink:0}
-    .completion-opt.good .completion-icon{background:#E8F4ED;color:#4A9E6B}
-    .completion-opt.partial .completion-icon{background:#FEF6E5;color:#B89020}
-    .completion-opt.skip .completion-icon{background:#FFEAEA;color:#E04040}
-    .completion-info{flex:1}
-    .completion-title{font-size:.95rem;font-weight:500;color:#111110}
-    .completion-sub{font-size:.75rem;color:#888780;margin-top:1px}
-    .partial-form{background:#F8F7F4;border-radius:10px;padding:1rem;margin-bottom:1rem}
+    .rpe-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-bottom:.5rem}
+    .rpe-btn{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.65rem .3rem;font-size:1.5rem;font-family:'Outfit',sans-serif;cursor:pointer;text-align:center;line-height:1.1}
+    .rpe-btn div{font-size:.65rem;color:#888780;font-weight:500;margin-top:4px}
+    .rpe-btn.sel{border:1.5px solid #163A28;background:#F1FAF5}
+    .rpe-btn.sel div{color:#163A28}
+    .status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem}
+    .status-btn{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.7rem .25rem;font-size:1.2rem;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;color:#888780;text-align:center;line-height:1.2}
+    .status-btn div{font-size:.7rem;color:#888780;font-weight:500;margin-top:4px}
+    .status-btn.sel{border:1.5px solid #163A28;background:#F1FAF5;color:#163A28}
+    .status-btn.sel div{color:#163A28}
     .form-group{margin-bottom:1rem}
-    .form-group:last-child{margin-bottom:0}
     .form-label{font-size:.7rem;color:#888780;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;display:block;font-weight:600}
-    .sensation-row{display:flex;gap:.4rem}
-    .sensation-btn{flex:1;background:#fff;border:.5px solid #E8E6DF;border-radius:8px;padding:.65rem .25rem;font-size:.75rem;font-family:'Outfit',sans-serif;cursor:pointer;color:#888780;line-height:1.3}
-    .sensation-btn.sel{border:1.5px solid #163A28;background:#F1FAF5;color:#163A28;font-weight:500}
     .note-input{width:100%;padding:.65rem .75rem;border:.5px solid #E8E6DF;border-radius:8px;font-size:.85rem;font-family:'Outfit',sans-serif;background:#fff;outline:none;resize:none;min-height:60px;color:#111110}
     .note-input:focus{border-color:#163A28}
     .no-plan{margin:2rem 1.25rem;background:#fff;border:.5px solid #E8E6DF;border-radius:16px;padding:1.5rem;text-align:center}
@@ -277,6 +271,44 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-complete" onclick="closeModal('modal-complete',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">¿Cómo ha ido?</div>
+    <div class="modal-sub" id="complete-modal-sub">Sesión</div>
+    <div class="form-group">
+      <label class="form-label">Sensaciones</label>
+      <div class="rpe-grid">
+        <button class="rpe-btn" onclick="selectRPE(this,'easy')">😎<div>Fácil</div></button>
+        <button class="rpe-btn" onclick="selectRPE(this,'good')">😊<div>Bien</div></button>
+        <button class="rpe-btn" onclick="selectRPE(this,'hard')">😓<div>Duro</div></button>
+        <button class="rpe-btn" onclick="selectRPE(this,'very_hard')">😵<div>Al límite</div></button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">¿La has hecho?</label>
+      <div class="status-grid">
+        <button class="status-btn" onclick="selectStatus(this,'completed')">✓<div>Sí, completa</div></button>
+        <button class="status-btn" onclick="selectStatus(this,'partial')">~<div>A medias</div></button>
+        <button class="status-btn" onclick="selectStatus(this,'skipped')">✗<div>No</div></button>
+      </div>
+    </div>
+    <div class="form-group" id="partial-dur-group" style="display:none">
+      <label class="form-label">Duración real</label>
+      <div class="adjust-row">
+        <input type="range" min="0" max="180" value="45" id="partial-duration" oninput="updatePartialDuration(this.value)">
+        <span class="adjust-val" id="partial-duration-val">45 min</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nota (opcional)</label>
+      <textarea class="note-input" id="partial-note" placeholder="¿Sensaciones, lesiones, energía...?"></textarea>
+    </div>
+    <button class="btn-green" id="save-completion-btn" onclick="saveCompletion()" disabled>Guardar →</button>
+    <button class="btn-cancel" onclick="closeModal('modal-complete')">Cancelar</button>
+  </div>
+</div>
+
 <script>
 const dayNames=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
 const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -349,7 +381,9 @@ let currentEmail=emailParam||'';
 let reajustRequestId=0;
 let coachBannerState=null;
 let completingIdx=null;
-let selectedSensation=null;
+let selectedRPE=null;
+let selectedStatus=null;
+let editMenuIdx=null;
 let adjustingSession=null;
 let adjustingSessionIdx=null;
 let adjustValues={time:45,km:7,pace:360,speed:27,elev:0};
@@ -603,17 +637,13 @@ function renderAll(){
   }
 
   const savedBadge=currentEmail?'<span class="saved-badge">✓ guardado</span>':'';
-
   const durMin=todaySession.duracio_min||45;
   const zona=(todaySession.tags||[]).find(t=>t.startsWith('Z'))||'Z2';
   const todayMetrics=todaySession.rest?null:getSessionMetrics(todaySession,user);
   let todayMetricsText=durMin+' min · '+zona;
   if(todayMetrics){
-    if(todayMetrics.sport==='running'||todayMetrics.sport==='trail'){
-      todayMetricsText=durMin+' min · '+todayMetrics.km+' km · '+todayMetrics.pace+'/km'+(todayMetrics.elev>0?' · +'+todayMetrics.elev+'m':'');
-    } else if(todayMetrics.sport==='cycling'){
-      todayMetricsText=durMin+' min · '+todayMetrics.km+' km · '+todayMetrics.kmh+' km/h'+(todayMetrics.elev>0?' · +'+todayMetrics.elev+'m':'');
-    }
+    if(todayMetrics.sport==='running'||todayMetrics.sport==='trail') todayMetricsText=durMin+' min · '+todayMetrics.km+' km · '+todayMetrics.pace+'/km'+(todayMetrics.elev>0?' · +'+todayMetrics.elev+'m':'');
+    else if(todayMetrics.sport==='cycling') todayMetricsText=durMin+' min · '+todayMetrics.km+' km · '+todayMetrics.kmh+' km/h'+(todayMetrics.elev>0?' · +'+todayMetrics.elev+'m':'');
   }
 
   document.getElementById('main-content').innerHTML=
@@ -643,7 +673,7 @@ function renderAll(){
       '<div id="reajust-banner-slot"></div>'+
       '<div class="section-head">'+
         '<span class="section-title">Esta semana '+savedBadge+'</span>'+
-        '<span style="font-size:.72rem;color:#888780">⠿ arrastra · ✎ cambia</span>'+
+        '<span style="font-size:.72rem;color:#888780">⠿ arrastra · ✎ edita</span>'+
       '</div>'+
       '<div class="plan-list" id="plan-list">'+
         planDays.map((d,i)=>renderPlanItem(d,i)).join('')+
@@ -657,7 +687,6 @@ function renderAll(){
       '</div>'+
       '<button class="btn-reorganize" onclick="window.location.href=\'onboarding.html\'">↺ Reconfigurar plan</button>'+
     '</div>';
-  
   renderCoachBanner();
 }
 
@@ -762,8 +791,7 @@ function performSwap(srcIdx,dstIdx){
 
 function handleTouchStart(e,idx){
   if(planDays[idx].rest) return;
-  touchSrcIdx=idx;
-  touchOverIdx=null;
+  touchSrcIdx=idx;touchOverIdx=null;
   const el=document.getElementById('item-'+idx);
   if(el) el.classList.add('dragging');
   e.preventDefault();
@@ -781,10 +809,7 @@ function handleTouchMove(e){
     const item=under.closest('.plan-item');
     if(item&&item.id){
       const idx=parseInt(item.id.replace('item-',''));
-      if(!isNaN(idx)&&idx!==touchSrcIdx){
-        item.classList.add('drag-over');
-        touchOverIdx=idx;
-      }
+      if(!isNaN(idx)&&idx!==touchSrcIdx){item.classList.add('drag-over');touchOverIdx=idx;}
     }
   }
 }
@@ -853,15 +878,7 @@ function restoreDay(idx){
   reajustarDiferit('Afegit "'+pick.title+'" al '+dayName+'.','Coach ajustando...');
 }
 
-// ADJUST MODAL
-let editMenuIdx=null;
-
-function openTimeModal(){
-  const todayRealIdx=planDays.findIndex(d=>d.day===todayName);
-  if(todayRealIdx<0) return;
-  openAdjustModal(todayRealIdx);
-}
-
+// EDIT MENU
 function openEditMenu(idx){
   if(idx<0||idx>=planDays.length) return;
   if(planDays[idx].rest) return;
@@ -882,6 +899,13 @@ function editFromMenu(action){
     else if(action==='change') openSessionModal(idx);
     else if(action==='rest') toggleRest(idx);
   },200);
+}
+
+// ADJUST MODAL
+function openTimeModal(){
+  const todayRealIdx=planDays.findIndex(d=>d.day===todayName);
+  if(todayRealIdx<0) return;
+  openAdjustModal(todayRealIdx);
 }
 
 function openAdjustModal(idx){
@@ -931,13 +955,9 @@ function openAdjustModal(idx){
   const elevExtra=adjustValues.elev*elevFactor;
   const flatTimeSec=Math.max(60,(time*60)-elevExtra);
   
-  if(sport==='running'||sport==='trail'){
-    adjustValues.km=Math.max(0.5,Math.round((flatTimeSec/adjustValues.pace)*10)/10);
-  } else if(sport==='cycling'){
-    adjustValues.km=Math.max(0.5,Math.round((flatTimeSec*adjustValues.speed/3600)*10)/10);
-  } else {
-    adjustValues.km=0;
-  }
+  if(sport==='running'||sport==='trail') adjustValues.km=Math.max(0.5,Math.round((flatTimeSec/adjustValues.pace)*10)/10);
+  else if(sport==='cycling') adjustValues.km=Math.max(0.5,Math.round((flatTimeSec*adjustValues.speed/3600)*10)/10);
+  else adjustValues.km=0;
   
   updateAdjustDOM(sport,showFields);
   document.getElementById('modal-time').classList.add('open');
@@ -995,13 +1015,7 @@ function adjustFrom(source){
     else if(sport==='cycling') adjustValues.time=Math.round((adjustValues.km*3600/adjustValues.speed+elevExtra)/60);
   }
   
-  const showFields={
-    time:true,
-    km:sport==='running'||sport==='trail'||sport==='cycling',
-    pace:sport==='running'||sport==='trail',
-    speed:sport==='cycling',
-    elev:sport==='trail'||sport==='cycling'
-  };
+  const showFields={time:true,km:sport==='running'||sport==='trail'||sport==='cycling',pace:sport==='running'||sport==='trail',speed:sport==='cycling',elev:sport==='trail'||sport==='cycling'};
   updateAdjustDOM(sport,showFields);
   
   const orig=adjustingSession?.duracio_min||45;
@@ -1018,7 +1032,7 @@ async function confirmAdjust(){
   const sport=getSportType(s);
   const orig=s.duracio_min||45;
   
-  let desc='Sesión de hoy ('+todayName+') ajustada: '+adjustValues.time+' min';
+  let desc='Sesión ('+s.day+') ajustada: '+adjustValues.time+' min';
   if(sport==='running') desc+=', '+adjustValues.km+' km a ritmo '+formatPace(adjustValues.pace)+'/km';
   else if(sport==='trail') desc+=', '+adjustValues.km+' km a ritmo '+formatPace(adjustValues.pace)+'/km, '+adjustValues.elev+'m D+';
   else if(sport==='cycling') desc+=', '+adjustValues.km+' km a '+adjustValues.speed+' km/h, '+adjustValues.elev+'m D+';
@@ -1026,12 +1040,7 @@ async function confirmAdjust(){
   
   closeModal('modal-time');
   
-  planDays[idx]={
-    ...s,
-    duracio_min:adjustValues.time,
-    canviat:true,
-    custom:{km:adjustValues.km,pace:adjustValues.pace,speed:adjustValues.speed,elev:adjustValues.elev,sport:sport}
-  };
+  planDays[idx]={...s,duracio_min:adjustValues.time,canviat:true,custom:{km:adjustValues.km,pace:adjustValues.pace,speed:adjustValues.speed,elev:adjustValues.elev,sport:sport}};
   renderAll();
   reajustarDiferit(desc,'Coach reajustando la semana...');
 }
@@ -1047,7 +1056,7 @@ async function skipToday(){
   reajustarDiferit(desc,'Coach reorganizando...');
 }
 
-// COMPLETION
+// COMPLETION (2 questions + nota)
 function toggleCompleted(idx){
   if(planDays[idx].rest) return;
   if(planDays[idx].completed){
@@ -1059,64 +1068,75 @@ function toggleCompleted(idx){
     return;
   }
   completingIdx=idx;
-  selectedSensation=null;
+  selectedRPE=null;
+  selectedStatus=null;
   const s=planDays[idx];
   document.getElementById('complete-modal-sub').textContent=s.title+' · '+s.day;
-  document.getElementById('completion-options').style.display='flex';
-  document.getElementById('partial-form').style.display='none';
-  const dur=s.duracio_min||45;
-  document.getElementById('partial-duration').value=dur;
-  document.getElementById('partial-duration-val').textContent=dur+' min';
+  document.querySelectorAll('.rpe-btn').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('partial-dur-group').style.display='none';
   document.getElementById('partial-note').value='';
-  document.querySelectorAll('.sensation-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('partial-duration').value=s.duracio_min||45;
+  document.getElementById('partial-duration-val').textContent=(s.duracio_min||45)+' min';
+  document.getElementById('save-completion-btn').disabled=true;
   document.getElementById('modal-complete').classList.add('open');
 }
 
-function markAs(status){
-  if(completingIdx===null) return;
-  const s=planDays[completingIdx];
-  s.completed=true;
-  s.completion={status:status,date:new Date().toISOString()};
-  closeModal('modal-complete');
-  const msg=status==='completed'?'¡Sesión completada! ✓':'Sesión saltada · el coach lo verá';
-  finishCompletion(msg);
-}
-
-function showPartialForm(){
-  document.getElementById('completion-options').style.display='none';
-  document.getElementById('partial-form').style.display='block';
-}
-
-function selectSensation(el,val){
-  document.querySelectorAll('.sensation-btn').forEach(b=>b.classList.remove('sel'));
+function selectRPE(el,val){
+  document.querySelectorAll('.rpe-btn').forEach(b=>b.classList.remove('sel'));
   el.classList.add('sel');
-  selectedSensation=val;
+  selectedRPE=val;
+  checkCanSaveCompletion();
+}
+
+function selectStatus(el,val){
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedStatus=val;
+  document.getElementById('partial-dur-group').style.display=val==='partial'?'block':'none';
+  checkCanSaveCompletion();
+}
+
+function checkCanSaveCompletion(){
+  document.getElementById('save-completion-btn').disabled=!(selectedRPE&&selectedStatus);
 }
 
 function updatePartialDuration(v){
   document.getElementById('partial-duration-val').textContent=v+' min';
 }
 
-function savePartial(){
-  if(completingIdx===null) return;
+function saveCompletion(){
+  if(completingIdx===null||!selectedRPE||!selectedStatus) return;
   const s=planDays[completingIdx];
+  const note=document.getElementById('partial-note').value.trim();
+  const actualDur=selectedStatus==='partial'?parseInt(document.getElementById('partial-duration').value):(s.duracio_min||45);
+  
   s.completed=true;
   s.completion={
-    status:'partial',
-    actualDuration:parseInt(document.getElementById('partial-duration').value),
-    sensation:selectedSensation,
-    note:document.getElementById('partial-note').value.trim(),
+    status:selectedStatus,
+    rpe:selectedRPE,
+    actualDuration:actualDur,
+    plannedDuration:s.duracio_min||45,
+    note:note,
     date:new Date().toISOString()
   };
   closeModal('modal-complete');
-  finishCompletion('Sesión guardada con tus ajustes ✓');
-}
-
-function finishCompletion(msg){
   completingIdx=null;
   renderAll();
   if(currentEmail) savePlanToSupabase();
-  showToast(msg);
+  
+  const needsReadjust=selectedRPE==='very_hard'||selectedRPE==='easy'||selectedStatus==='partial'||selectedStatus==='skipped';
+  
+  if(needsReadjust){
+    const rpeLabel={easy:'fue fácil',good:'fue bien',hard:'fue dura',very_hard:'fue al límite'}[selectedRPE];
+    const statusLabel={completed:'completada',partial:'parcial ('+actualDur+' min en lugar de '+(s.duracio_min||45)+')',skipped:'no la ha hecho'}[selectedStatus];
+    let desc='El atleta ha completado "'+s.title+'" del '+s.day+'. Estado: '+statusLabel+'. Sensación: '+rpeLabel+'.';
+    if(note) desc+=' Nota: "'+note+'".';
+    desc+=' Adapta los próximos días: si fue muy duro o parcial, suaviza; si fue fácil, puede absorber más carga.';
+    reajustarDiferit(desc,'Coach adaptando los próximos días...');
+  } else {
+    showToast('¡Sesión completada! ✓');
+  }
 }
 
 function closeModal(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
