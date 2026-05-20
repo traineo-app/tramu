@@ -23,39 +23,33 @@ function buildUserData(profile) {
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
-
   const email = req.query.email;
   if (!email) return res.status(400).json({ error: 'Email requerit' });
 
   try {
-    // 1. Profile per email
     const { data: profile, error: pErr } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', email)
-      .maybeSingle();
+      .from('profiles').select('*').eq('email', email).maybeSingle();
     if (pErr) throw pErr;
-    if (!profile) return res.status(200).json({ profile: null, plan: null });
+    if (!profile) return res.status(200).json({ profile: null, plan: null, weeks: [] });
 
-    // 2. Últim pla del profile
-    const { data: plans, error: plErr } = await supabase
+    const { data: weeks, error: wErr } = await supabase
       .from('plans')
       .select('*')
       .eq('profile_id', profile.id)
-      .order('setmana', { ascending: false })
-      .limit(1);
-    if (plErr) throw plErr;
+      .order('setmana', { ascending: false });
+    if (wErr) throw wErr;
 
-    const plan = plans && plans.length > 0 ? plans[0] : null;
+    const latest = weeks && weeks.length > 0 ? weeks[0] : null;
 
     return res.status(200).json({
-      profile: profile,  // raw — el que index.html espera
-      plan: {
+      profile: profile,
+      plan: {  // retrocompat amb index.html
         userData: buildUserData(profile),
-        sessions: plan?.sessions || null,
-        resum: plan?.resum || '',
-        setmana: plan?.setmana || null
-      }
+        sessions: latest?.sessions || null,
+        resum: latest?.resum || '',
+        setmana: latest?.setmana || null
+      },
+      weeks: weeks || []  // nou: totes les setmanes per al dashboard
     });
   } catch (e) {
     console.error('get-plan error:', e);
