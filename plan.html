@@ -111,15 +111,16 @@ async function loadPlan(){
       body:JSON.stringify(body)
     });
     const data=await res.json();
+    if(data.error){
+      throw new Error(data.error+(data.detail?' — '+data.detail:''));
+    }
     if(data.weeks){
       planData=data;
       renderPlan();
-    } else {
-      throw new Error('Sin datos');
     }
   } catch(e){
-    console.error(e);
-    document.getElementById('content').innerHTML='<div class="loading"><p class="loading-text">No se ha podido generar el plan. Inténtalo de nuevo.</p></div>';
+  console.error(e);
+  document.getElementById('content').innerHTML='<div class="loading"><p class="loading-text">Error: '+(e.message||'desconocido')+'</p></div>';
   }
 }
 
