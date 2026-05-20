@@ -419,9 +419,16 @@ function calculatePaces(u){
   const levelPaces={'principiante':420,'intermedio':360,'avanzado':300,'élite':255,'avanzat':300,'intermedi':360};
   const levelSpeeds={'principiante':22,'intermedio':27,'avanzado':32,'élite':36,'avanzat':32,'intermedi':27};
   const nivel=(u?.nivel||'intermedio').toLowerCase();
-  let runZ2=u?.pacez2||levelPaces[nivel]||360;
-  if(u?.race5k) runZ2=Math.round((u.race5k/5)/0.85);
-  else if(u?.race10k) runZ2=Math.round((u.race10k/10)/0.88);
+  let runZ2;
+    if (u?.pacez2) {
+      runZ2 = u.pacez2;                                        // calibrat a onboarding (autoritatiu)
+    } else if (u?.race5k) {
+      runZ2 = Math.round((u.race5k/5)/0.85);                  // fallback derivat 5K
+    } else if (u?.race10k) {
+      runZ2 = Math.round((u.race10k/10)/0.88);                // fallback derivat 10K
+    } else {
+      runZ2 = levelPaces[nivel] || 360;                       // últim recurs: per nivell
+    }
   const cycZ2=u?.ftp?Math.round(u.ftp/8.5):(levelSpeeds[nivel]||27);
   return {
     running:{z1:runZ2+60,z2:runZ2,z3:Math.round(runZ2*0.90),z4:Math.round(runZ2*0.83),z5:Math.round(runZ2*0.78)},
