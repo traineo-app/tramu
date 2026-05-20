@@ -94,7 +94,7 @@ const user={
 };
 
 const hasRace=user.carrera&&user.fecha;
-let configWeeks=8;
+let configWeeks=hasRace?8:4;
 let planData=null;
 
 async function loadPlan(){
@@ -136,7 +136,7 @@ function renderPlan(){
     const diff=Math.ceil((new Date(user.fecha)-new Date())/(1000*60*60*24));
     topCard='<div class="race-card"><div class="race-icon">🏁</div><div><div class="race-title">'+user.carrera+'</div><div class="race-sub">'+user.distancia+' · '+weeks.length+' semanas</div></div><div style="text-align:right;margin-left:auto"><div class="race-days">'+diff+'</div><div class="race-days-lbl">días</div></div></div>';
   } else {
-    topCard='<div class="config-card"><div class="config-label">Duración del plan</div><div class="config-row"><input type="range" min="4" max="16" value="'+configWeeks+'" id="weeks-slider" oninput="updateWeeks(this.value)"><span class="config-val" id="weeks-val">'+configWeeks+' sem</span></div></div>';
+    topCard='<div class="config-card"><div class="config-label">Duración del plan · ciclo rolling</div><div class="config-row"><input type="range" min="4" max="8" step="4" value="'+configWeeks+'" id="weeks-slider" oninput="updateWeeks(this.value)"><span class="config-val" id="weeks-val">'+configWeeks+' sem</span></div></div>';
   }
 
   // GRAPH
@@ -182,11 +182,15 @@ function renderPlan(){
 
   // WEEKS GROUPED BY PHASE
   const phases={};
-  weeks.forEach((w,i)=>{
-    const phaseKey=w.phase.split(' ')[0];
-    if(!phases[phaseKey]) phases[phaseKey]=[];
-    phases[phaseKey].push({...w,idx:i});
-  });
+const isRolling=planData.objetivo&&planData.objetivo!=='carrera';
+weeks.forEach((w,i)=>{
+  // Per carrera: "Base 1" → "Base". Per rolling: "Ciclo 1 · Semana X/4" → "Ciclo 1"
+  const phaseKey=isRolling
+    ? (w.phase.split('·')[0]||'Ciclo').trim()
+    : w.phase.split(' ')[0];
+  if(!phases[phaseKey]) phases[phaseKey]=[];
+  phases[phaseKey].push({...w,idx:i});
+});
 
   let weeksHTML='<div class="weeks-section"><div class="section-title">Semanas</div>';
   Object.entries(phases).forEach(([phaseName,phaseWeeks])=>{
