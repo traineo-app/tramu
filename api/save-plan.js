@@ -1,124 +1,68 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const {
+    email,
+    userData,
+    currentWeek,    // {weekStartDate, weekNumber, phase, sessions, resum, cycleInfo}
+    nextWeek,       // mateixa estructura, o null si encara no s'ha generat
+    pastWeeks,      // array d'objectes setmana arxivada (opcional, default mantenir el què hi havia)
+    // retrocompat: si el frontend antic envia sessions/resum sense currentWeek
+    sessions,
+    resum
+  } = req.body;
+
+  if (!email) return res.status(400).json({ error: 'Email requerit' });
+
+  // Backwards compat: si arriba sessions sense currentWeek, construïm currentWeek d'ell
+  const effectiveCurrentWeek = currentWeek || (sessions ? {
+    weekStartDate: getMondayISO(new Date()),
+    weekNumber: 1,
+    phase: 'Setmana 1',
+    sessions: sessions,
+    resum: resum || ''
+  } : null);
+
+  const upsertData = {
+    email,
+    user_data: userData,
+    updated_at: new Date().toISOString()
+  };
+  if (effectiveCurrentWeek) {
+    upsertData.current_week = effectiveCurrentWeek;
+    upsertData.week_start_date = effectiveCurrentWeek.weekStartDate;
+    // També mantenim el camp 'sessions' antic per retrocompat
+    upsertData.sessions = effectiveCurrentWeek.sessions;
+    upsertData.resum = effectiveCurrentWeek.resum;
   }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    return res.status(500).json({ error: 'Missing env vars' });
-  }
-
-  const { email, userData, sessions, resum } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ error: 'Email required' });
-  }
+  if (nextWeek !== undefined) upsertData.next_week = nextWeek;
+  if (pastWeeks !== undefined) upsertData.past_weeks = pastWeeks;
 
   try {
-    // Primer comprova si el perfil ja existeix
-    const checkRes = await fetch(
-      `${supabaseUrl}/rest/v1/profiles?email=eq.${encodeURIComponent(email)}&select=id`,
-      {
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`
-        }
-      }
-    );
-    const existing = await checkRes.json();
-    let profileId = null;
-
-    if (existing && existing.length > 0) {
-      // Perfil ja existeix — actualitza'l
-      profileId = existing[0].id;
-      await fetch(
-        `${supabaseUrl}/rest/v1/profiles?id=eq.${profileId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`
-          },
-          body: JSON.stringify({
-            sports: userData?.sports || [],
-            dias: userData?.dias || 3,
-            descanso: userData?.descanso || 'Ninguno',
-            nivel: userData?.nivel || 'Intermedio',
-            fcmax: userData?.fcmax || 185,
-            volum: userData?.volum || 4,
-            objetivo: userData?.objetivo || '',
-            carrera: userData?.carrera || '',
-            distancia: userData?.distancia || '',
-            desnivel: userData?.desnivel || 0,
-            carrera_fecha: userData?.fecha || ''
-          })
-        }
-      );
-    } else {
-      // Perfil nou — crea'l
-      const insertRes = await fetch(
-        `${supabaseUrl}/rest/v1/profiles`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`,
-            'Prefer': 'return=representation'
-          },
-          body: JSON.stringify({
-            email: email,
-            sports: userData?.sports || [],
-            dias: userData?.dias || 3,
-            descanso: userData?.descanso || 'Ninguno',
-            nivel: userData?.nivel || 'Intermedio',
-            fcmax: userData?.fcmax || 185,
-            volum: userData?.volum || 4,
-            objetivo: userData?.objetivo || '',
-            carrera: userData?.carrera || '',
-            distancia: userData?.distancia || '',
-            desnivel: userData?.desnivel || 0,
-            carrera_fecha: userData?.fecha || ''
-          })
-        }
-      );
-      const inserted = await insertRes.json();
-      profileId = Array.isArray(inserted) ? inserted[0]?.id : inserted?.id;
-    }
-
-    if (!profileId) {
-      return res.status(500).json({ error: 'Could not get profile ID' });
-    }
-
-    // Guarda el pla
-    const planRes = await fetch(
-      `${supabaseUrl}/rest/v1/plans`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({
-          profile_id: profileId,
-          sessions: sessions,
-          resum: resum || '',
-          setmana: new Date().toISOString().split('T')[0]
-        })
-      }
-    );
-
-    const plan = await planRes.json();
-    const planId = Array.isArray(plan) ? plan[0]?.id : plan?.id;
-
-    return res.status(200).json({ success: true, profileId, planId });
-
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+    const { data, error } = await supabase
+      .from('plans')
+      .upsert(upsertData, { onConflict: 'email' })
+      .select();
+    if (error) throw error;
+    return res.status(200).json({ ok: true, plan: data?.[0] || null });
+  } catch (e) {
+    console.error('save-plan error:', e);
+    return res.status(500).json({ error: e.message });
   }
+}
+
+function getMondayISO(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;  // Diumenge → -6, sinó 1-day
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().split('T')[0];
 }
