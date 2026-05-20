@@ -5,6 +5,22 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+function buildUserData(profile) {
+  return {
+    sports: profile.sports || [],
+    dias: profile.dias,
+    descanso: profile.descanso,
+    nivel: profile.nivel,
+    fcmax: profile.fcmax,
+    volum: profile.volum,
+    objetivo: profile.objetivo,
+    carrera: profile.carrera,
+    distancia: profile.distancia,
+    desnivel: profile.desnivel,
+    fecha: profile.carrera_fecha
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -12,24 +28,37 @@ export default async function handler(req, res) {
   if (!email) return res.status(400).json({ error: 'Email requerit' });
 
   try {
-    const { data, error } = await supabase
-      .from('plans')
+    // 1. Buscar profile per email
+    const { data: profile, error: pErr } = await supabase
+      .from('profiles')
       .select('*')
       .eq('email', email)
       .maybeSingle();
-    if (error) throw error;
-    if (!data) return res.status(200).json({ plan: null });
+    if (pErr) throw pErr;
+    if (!profile) return res.status(200).json({ plan: null });
 
+    // 2. Últim pla per setmana DESC
+    const { data: plans, error: plErr } = await supabase
+      .from('plans')
+      .select('*')
+      .eq('profile_id', profile.id)
+      .order('setmana', { ascending: false })
+      .limit(1);
+    if (plErr) throw plErr;
+
+    if (!plans || plans.length === 0) {
+      return res.status(200).json({
+        plan: { userData: buildUserData(profile), sessions: null, resum: '' }
+      });
+    }
+
+    const plan = plans[0];
     return res.status(200).json({
       plan: {
-        userData: data.user_data,
-        currentWeek: data.current_week,
-        nextWeek: data.next_week,
-        pastWeeks: data.past_weeks || [],
-        weekStartDate: data.week_start_date,
-        // retrocompat
-        sessions: data.sessions,
-        resum: data.resum
+        userData: buildUserData(profile),
+        sessions: plan.sessions,
+        resum: plan.resum,
+        setmana: plan.setmana
       }
     });
   } catch (e) {
