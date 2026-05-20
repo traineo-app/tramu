@@ -98,7 +98,7 @@ Genera ${weeks} semanas. Para cada semana retorna: weekNum, phase (respeta la no
 }`;
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-haiku-4-5",
       max_tokens: 4096,
       system: [
         { type: "text", text: BASE_INSTRUCTIONS },
