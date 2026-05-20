@@ -1,152 +1,148 @@
-import fs from 'fs';
-import path from 'path';
+// api/plan-completo.js — pla plurisemanal amb metodologia del soci
+import Anthropic from "@anthropic-ai/sdk";
+import fs from "fs";
+import path from "path";
 
-// Cold start: llegeix la metodologia un cop, reutilitzable a totes les invocacions del lambda
-let METHODOLOGY = '';
-try {
-  METHODOLOGY = fs.readFileSync(path.join(process.cwd(), 'coach-methodology.md'), 'utf-8');
-  console.log('coach-methodology.md cargada:', METHODOLOGY.length, 'chars');
-} catch (e) {
-  console.warn('coach-methodology.md NO encontrada en', process.cwd(), '- usando fallback');
-}
+const anthropic = new Anthropic();
+
+const METHODOLOGY = fs.readFileSync(
+  path.join(process.cwd(), "coach-methodology.md"),
+  "utf8"
+);
+
+const BASE_INSTRUCTIONS = `Eres el coach IA de traineo generando un PLAN PLURISEMANAL (vista de bloc, 4-16 setmanes).
+
+La teva metodologia completa està al CERVELL DEL COACH que segueix. Segueix-la sempre.
+
+DIFERÈNCIA AMB EL PLA SETMANAL:
+- Aquí NO generes sessions individuals dia per dia.
+- Generes una vista de bloc: per cada setmana → fase, hores totals, càrrega 100-700, focus en una frase, i 3-4 títols principals de sessions.
+- L'objectiu és que l'atleta vegi la progressió i lògica del bloc complet.
+
+REGLES GENERALS:
+- Respostes en CASTELLÀ (la interfície està en castellà)
+- Aplica la filosofia 80/20 i els principis de càrrega/recuperació del cervell
+- Respecta la nomenclatura de fase segons l'objectiu
+- Volum total setmanal coherent amb el volum base de l'atleta
+- Retorna JSON estricte sense markdown ni preàmbul`;
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-  const { userData, raceDate, raceName, totalWeeks } = req.body;
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const objetivo = raceDate ? 'carrera' : (userData?.objetivo || 'forma');
+  try {
+    const { userData, raceDate, raceName, totalWeeks } = req.body;
+    const objetivo = raceDate ? "carrera" : (userData?.objetivo || "forma");
 
-  let weeks;
-  if (objetivo === 'carrera' && raceDate) {
-    const diff = Math.ceil((new Date(raceDate) - new Date()) / (1000 * 60 * 60 * 24 * 7));
-    weeks = Math.max(4, Math.min(diff, 16));
-  } else {
-    weeks = totalWeeks || 4;
-  }
+    let weeks;
+    if (objetivo === "carrera" && raceDate) {
+      const diff = Math.ceil((new Date(raceDate) - new Date()) / (1000 * 60 * 60 * 24 * 7));
+      weeks = Math.max(4, Math.min(diff, 16));
+    } else {
+      weeks = totalWeeks || 4;
+    }
 
-  const objectiveGuidance = {
-    carrera: `OBJETIVO ACTUAL: CARRERA (${raceName || 'objetivo competitivo'} el ${raceDate})
-- Aplica la periodización descrita en tu metodología: Base → Construcción → Específico → Taper → Carrera
-- Progresión hasta -2 semanas, taper últimas 1-2 semanas (~60% volumen máx)
-- Distribución de intensidad según fase y según los principios de tu metodología`,
+    // Task framing per objectiu — DELEGA a la metodologia, no la duplica
+    const objectiveTask = {
+      carrera: `OBJETIVO: CARRERA hacia ${raceName || "objetivo competitivo"} el ${raceDate}.
+Aplica la periodización descrita en BLOC 9 #56 de tu metodología (Off-season → Base → Build → Peak → Taper → Carrera).
+Nomenclatura de fase: usa "Base 1", "Construcción 2", "Específico", "Taper", "Carrera".
+Calcula fase según las semanas hasta la prueba (las pautas internas del cervell ya las describen).`,
 
-    forma: `OBJETIVO ACTUAL: PONERSE EN FORMA (mejora general, SIN carrera)
-- Como no hay pico objetivo, usa ciclo rolling 3+1 (3 sem progresión + 1 descarga)
-- NOMBRE de fases obligatorio: "Ciclo 1 · Semana X/${weeks}" (NUNCA "Base 1" / "Construcción")
-- Aplica los principios de intensidad y distribución de tu metodología
-- Progresión: S1 base, S2 +5%, S3 +5-8%, S4 descarga -30%`,
+      forma: `OBJETIVO: PONERSE EN FORMA (mejora general, SIN carrera).
+Como no hay pico objetivo, usa CICLO ROLLING 3+1 según BLOC 9 #57 de tu metodología (3 sem progresión + 1 descarga).
+Nomenclatura OBLIGATORIA: "Ciclo 1 · Semana X/${weeks}" (NUNCA "Base 1" ni "Construcción").
+Distribución según metodología: 75-85% Z2, intensidad moderada bien dosificada, fuerza 2x/sem.`,
 
-    peso: `OBJETIVO ACTUAL: PERDER PESO Y GANAR ENERGÍA (SIN carrera)
-- Ciclo rolling 3+1
-- NOMBRE de fases obligatorio: "Ciclo 1 · Semana X/${weeks}"
-- Más volumen aeróbico, menos intensidad máxima
-- Mayor peso a Z2, incluir trabajo de fuerza para preservar masa muscular
-- Progresión suave: S1 base, S2 +5%, S3 +5%, S4 descarga -25%`,
+      peso: `OBJETIVO: PERDER PESO Y GANAR ENERGÍA (SIN carrera).
+Aplica TODA la metodología del BLOC 11 #73 (atleta con sobrepeso): construir capacidad ANTES que quemar calorías.
+Prioriza VOLUMEN aeróbico Z2 + FUERZA 2-3x/sem + NEAT alto. Evita HIIT y picos de intensidad.
+Si el perfil sugiere baja tolerancia al impacto, prioriza modalidades de bajo impacto (bici, caminar, elíptica, nado).
+Nomenclatura OBLIGATORIA: "Ciclo 1 · Semana X/${weeks}". Ciclo rolling 3+1.`,
 
-    vuelta: `OBJETIVO ACTUAL: VOLVER DESPUÉS DE UNA PAUSA (SIN carrera)
-- Ciclo rolling 3+1 con progresión MUY conservadora
-- NOMBRE de fases obligatorio: "Ciclo 1 · Semana X/${weeks}"
-- Primeras 2 semanas casi exclusivamente Z1-Z2
-- Prioridad: NO LESIONARSE, construir consistencia
-- Progresión: S1 muy suave, S2 +3-5%, S3 +5%, S4 descarga -20%`
-  };
+      vuelta: `OBJETIVO: VOLVER DESPUÉS DE UNA PAUSA (SIN carrera).
+Aplica TODA la metodología del BLOC 11 #69 (retorno tras lesión/pausa): progresión MUY conservadora.
+Primeras 2 semanas casi exclusivamente Z1-Z2. Prioridad absoluta: NO recaer, construir tolerancia tisular.
+Nomenclatura OBLIGATORIA: "Ciclo 1 · Semana X/${weeks}". Ciclo rolling 3+1 con techos bajos.`
+    };
 
-  // System com a array: bloc 1 cacheable (metodologia), bloc 2 dinàmic (objectiu)
-  const systemBlocks = [];
-  if (METHODOLOGY) {
-    systemBlocks.push({
-      type: 'text',
-      text: `METODOLOGÍA DEL COACH (autoridad principal — sigue estos principios SIEMPRE):\n\n${METHODOLOGY}`,
-      cache_control: { type: 'ephemeral' }
-    });
-  }
-  systemBlocks.push({
-    type: 'text',
-    text: `Eres un coach experto en periodización siguiendo la metodología anterior.
+    const ejemploFase = objetivo === "carrera" ? "Base 1" : `Ciclo 1 · Semana 1/${weeks}`;
+    const volumBase = userData?.volum || 4;
 
-${objectiveGuidance[objetivo] || objectiveGuidance.forma}
+    const userMessage = `${objectiveTask[objetivo] || objectiveTask.forma}
 
-REGLAS DE SALIDA:
-- Carga (load) 100-700 combinando volumen e intensidad
-- Responde SIEMPRE en castellano
-- Respeta estrictamente la nomenclatura de fases del objetivo
-- Devuelve SOLO JSON válido sin preámbulo ni markdown`
-  });
+# DATOS DEL ATLETA
 
-  const ejemploFase = objetivo === 'carrera' ? 'Base 1' : `Ciclo 1 · Semana 1/${weeks}`;
-
-  const userMessage = `Genera plan de ${weeks} semanas para este atleta:
-- Disciplinas: ${(userData?.sports || ['running']).join('+')}
-- Nivel: ${userData?.nivel || 'intermedio'}
+- Disciplinas: ${(userData?.sports || ["running"]).join("+")}
+- Nivel: ${userData?.nivel || "intermedio"}
 - Días disponibles/semana: ${userData?.dias || 3}
-- Volumen base: ${userData?.volum || 4} h/semana
-${objetivo === 'carrera'
-    ? `- CARRERA: ${raceName} el ${raceDate} (distancia ${userData?.distancia || ''})`
-    : `- Objetivo del atleta: ${objetivo}`}
+- Volumen base: ${volumBase} h/semana
+- Edad: ${userData?.edat || "no informada"}
+${userData?.fcmax ? `- FCmax: ${userData.fcmax} bpm` : ""}
+${objetivo === "carrera"
+        ? `- CARRERA: ${raceName} el ${raceDate} (distancia ${userData?.distancia || ""}${userData?.desnivel ? ", +" + userData.desnivel + "m D+" : ""})`
+        : ""}
 
-Para cada semana retorna: número, fase, horas totales, carga 100-700, foco en una frase, y los 3-4 títulos principales de sesiones.
+# TAREA
 
-Responde SOLO con JSON válido (sin markdown, sin texto extra):
+Genera ${weeks} semanas. Para cada semana retorna: weekNum, phase (respeta la nomenclatura del objetivo), totalHours (coherente con ${volumBase}h base, varía según la fase), load (100-700), focus (una frase clara), sessions (3-4 títulos descriptivos en castellano).
+
+**FORMATO OBLIGATORIO** — Devuelve SOLO un objeto JSON válido (sin markdown, sin \`\`\`json, sin preámbulo):
+
 {
   "totalWeeks": ${weeks},
   "objetivo": "${objetivo}",
   "weeks": [
     {"weekNum":1,"phase":"${ejemploFase}","totalHours":4.5,"load":320,"focus":"...","sessions":["...","...","..."]}
   ],
-  "resumen":"Resumen general del plan en 2 frases"
+  "resumen": "Resumen general del bloc en 2 frases"
 }`;
 
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        system: systemBlocks,
-        messages: [{ role: 'user', content: userMessage }]
-      })
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 4096,
+      system: [
+        { type: "text", text: BASE_INSTRUCTIONS },
+        { type: "text", text: METHODOLOGY, cache_control: { type: "ephemeral" } }
+      ],
+      messages: [{ role: "user", content: userMessage }]
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Anthropic API error', response.status, errText);
-      return res.status(500).json({ error: 'AI error ' + response.status, detail: errText.slice(0, 500) });
-    }
+    let reply = response.content.filter(b => b.type === "text").map(b => b.text).join("\n");
+    reply = reply.trim().replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
 
-    const data = await response.json();
-    if (!data.content?.[0]?.text) {
-      console.error('Respuesta inesperada:', JSON.stringify(data).slice(0, 500));
-      return res.status(500).json({ error: 'Respuesta inesperada del modelo' });
-    }
-
-    const text = data.content[0].text;
-    // Parsing robust: clean → fallback regex
-    let result;
+    let data;
     try {
-      result = JSON.parse(text.replace(/```json|```/g, '').trim());
+      data = JSON.parse(reply);
     } catch (e1) {
-      const match = text.match(/\{[\s\S]*\}/);
+      const match = reply.match(/\{[\s\S]*\}/);
       if (!match) {
-        console.error('Sin JSON en respuesta. Inicio:', text.slice(0, 300));
-        return res.status(500).json({ error: 'El modelo no devolvió JSON', preview: text.slice(0, 200) });
+        console.error("No JSON in response:", reply.substring(0, 500));
+        return res.status(500).json({ error: "Sin JSON en respuesta", preview: reply.substring(0, 200) });
       }
-      try { result = JSON.parse(match[0]); }
+      try { data = JSON.parse(match[0]); }
       catch (e2) {
-        console.error('JSON inválido tras regex:', e2.message, 'Texto:', text.slice(0, 300));
-        return res.status(500).json({ error: 'JSON inválido del modelo' });
+        console.error("JSON inválido tras regex:", e2.message, "Texto:", reply.substring(0, 500));
+        return res.status(500).json({ error: "JSON inválido del modelo" });
       }
     }
 
-    return res.status(200).json(result);
+    if (!data.weeks || !Array.isArray(data.weeks)) {
+      console.error("Sin weeks:", JSON.stringify(data).substring(0, 300));
+      return res.status(500).json({ error: "Respuesta sin estructura weeks" });
+    }
+
+    return res.status(200).json({
+      ...data,
+      usage: response.usage
+    });
+
   } catch (error) {
-    console.error('Plan completo crash:', error);
-    return res.status(500).json({ error: error.message });
+    console.error("Plan completo error:", error);
+    return res.status(500).json({ error: error.message || "Error en plan-completo" });
   }
 }
+
+// IMPORTANT: timeout per processar 42K tokens metodologia + generar fins a 16 setmanes
+export const config = {
+  maxDuration: 60
+};
