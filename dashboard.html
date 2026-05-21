@@ -600,7 +600,12 @@ async function initDashboard(user){
 }
 
 async function buildPlan(user){
-  document.getElementById('main-content').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.25rem;gap:1rem"><div style="width:48px;height:48px;border:3px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite"></div><p style="font-size:.85rem;color:#888780;text-align:center;font-weight:500">Tu coach está generando<br>el plan de esta semana...</p></div>';
+  document.getElementById('main-content').innerHTML='<div style="display:flex;...el plan de esta semana...</div>';
+  const prevWeekStart=addDaysISO(currentWeekStart,-7);
+  const prev=allWeeks.find(w=>w.setmana===prevWeekStart);
+  const previousWeek=(prev&&prev.sessions&&prev.sessions.length)
+    ? {sessions:prev.sessions,phase:prev.phase||null}
+    : null;
   try {
     const response=await fetch('/api/coach',{
       method:'POST',
@@ -630,7 +635,8 @@ async function buildPlan(user){
         obj_gym: params.get('obj_gym') || null,
         equipamiento: params.get('equip') || null,
         stravaStats: (function(){ try{ return JSON.parse(sessionStorage.getItem('traineo_strava_stats')||'null'); }catch(e){ return null; } })(),
-        stressTestData: (function(){ try{ return JSON.parse(sessionStorage.getItem('traineo_stress_test_data')||'null'); }catch(e){ return null; } })()
+        stressTestData: (function(){ try{ return JSON.parse(sessionStorage.getItem('traineo_stress_test_data')||'null'); }catch(e){ return null; } })(),
+        previousWeek: previousWeek
       })
     });
     const data=await response.json();
