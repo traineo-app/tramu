@@ -396,6 +396,35 @@ userData.musculos=[];
 userData.objetivoGym='';
 userData.equipamiento='';
 
+function spreadTrainingDays(dias,descanso){
+  dias=Math.max(0,Math.min(7,dias||0));
+  const descIdx=dayNames.indexOf(descanso);
+  const slots=[];
+  for(let i=0;i<7;i++){ if(i!==descIdx) slots.push(i); }
+  const result=[false,false,false,false,false,false,false];
+  if(dias<=0) return result;
+  if(dias>=slots.length){ slots.forEach(i=>result[i]=true); return result; }
+  const picked=new Set();
+  for(let k=0;k<dias;k++){
+    const pos=Math.round(k*(slots.length-1)/Math.max(dias-1,1));
+    picked.add(slots[pos]);
+  }
+  let guard=0;
+  while(picked.size<dias&&guard<slots.length){
+    let best=-1,bestDist=-1;
+    slots.forEach(si=>{
+      if(picked.has(si)) return;
+      let dist=99;
+      picked.forEach(pi=>{dist=Math.min(dist,Math.abs(pi-si));});
+      if(dist>bestDist){bestDist=dist;best=si;}
+    });
+    if(best>=0) picked.add(best); else break;
+    guard++;
+  }
+  picked.forEach(i=>result[i]=true);
+  return result;
+}
+ 
 function toggleMuscle(el,muscle){
   el.classList.toggle('sel');
   if(el.classList.contains('sel')){if(!userData.musculos.includes(muscle)) userData.musculos.push(muscle);}
@@ -763,10 +792,10 @@ function generatePreview(){
   const sports=userData.sports.length>0?userData.sports:['running'];
   const dias=userData.dias||3,descanso=userData.descanso||'Ninguno';
   let allS=[];sports.forEach(s=>(sportSessions[s]||[]).forEach(x=>allS.push(x)));
+  const isTrain=spreadTrainingDays(dias,descanso);
   let planDays=[];let idx=0;
-  dayNames.forEach(d=>{
-    if(d===descanso){planDays.push({day:d,rest:true,icon:'💤',title:'Descanso',sub:''});}
-    else if(idx<dias){planDays.push({day:d,rest:false,...allS[idx%allS.length]});idx++;}
+  dayNames.forEach((d,i)=>{
+    if(isTrain[i]&&allS.length){planDays.push({day:d,rest:false,...allS[idx%allS.length]});idx++;}
     else planDays.push({day:d,rest:true,icon:'💤',title:'Descanso',sub:''});
   });
   document.getElementById('plan-preview').innerHTML=planDays.map(d=>'<div class="plan-day '+(d.rest?'rest-day-plan':'')+'"><span class="plan-day-name">'+d.day+'</span><span class="plan-day-icon">'+d.icon+'</span><div><div class="plan-day-title">'+d.title+'</div>'+(d.sub?'<div class="plan-day-sub">'+d.sub+'</div>':'')+'</div></div>').join('');
