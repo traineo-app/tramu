@@ -582,6 +582,7 @@ async function initDashboard(user){
       const res=await fetch('/api/get-plan?email='+encodeURIComponent(currentEmail));
       const data=await res.json();
       allWeeks=data.weeks||[];
+      periodization=data.periodization||null;
       const cur=allWeeks.find(w=>w.setmana===currentWeekStart);
       const curSessions=cur?cur.sessions:(data.plan&&data.plan.sessions);
       const curResum=cur?cur.resum:(data.plan&&data.plan.resum);
@@ -590,7 +591,7 @@ async function initDashboard(user){
         window._coachResum=curResum||'';
         showToast('Plan cargado ✓');
         renderAll();
-        loadPeriodization();
+        if(!periodization) loadPeriodization();
         maybeShowCatchUp();
         return;
       }
@@ -709,7 +710,7 @@ async function loadPeriodization(){
       userData:user,
       raceDate:(user.carrera&&user.fecha)?user.fecha:null,
       raceName:(user.carrera&&user.fecha)?user.carrera:null,
-      totalWeeks:8
+      email:currentEmail
     };
     const res=await fetch('/api/plan-completo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const data=await res.json();
@@ -769,9 +770,13 @@ function getWeekData(weekStart){
     if(saved&&saved.sessions&&saved.sessions.length){
       const norm=normalizePlan(saved.sessions);
       result={type:weekStart<currentWeekStart?'past':'futureSaved',sessions:norm,resum:saved.resum,load:estimateLoad(norm.filter(s=>!s.rest))};
-    } else if(weekStart>currentWeekStart&&periodization&&periodization.weeks){
-      const weeksAhead=Math.round((isoToDate(weekStart)-isoToDate(currentWeekStart))/(7*86400000));
-      const pw=periodization.weeks[weeksAhead];
+    } else if(weekStart>currentWeekStart&&periodization&&periodization.weeks&&periodization.weeks.length){
+      const anchor=periodization._anchorMonday||currentWeekStart;
+      let offset=Math.round((isoToDate(weekStart)-isoToDate(anchor))/(7*86400000));
+      const n=periodization.weeks.length;
+      const isRolling=periodization.objetivo&&periodization.objetivo!=='carrera';
+      if(isRolling) offset=((offset%n)+n)%n;
+      const pw=periodization.weeks[offset];
       if(pw){
         result={type:'futurePreview',sessions:distributePreview(pw),phase:pw.phase,resum:pw.focus,load:pw.load||null};
       } else { result={type:'empty',sessions:null}; }
