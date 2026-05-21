@@ -86,7 +86,7 @@ const user={
   dias:parseInt(params.get('dias'))||3,
   nivel:decodeURIComponent(params.get('nivel')||'intermedio'),
   fcmax:parseInt(params.get('fcmax'))||185,
-  volum:parseInt(params.get('volum'))||4,
+  volum:parseFloat(params.get('volum'))||4,
   objetivo:decodeURIComponent(params.get('objetivo')||''),
   carrera:decodeURIComponent(params.get('carrera')||''),
   distancia:decodeURIComponent(params.get('distancia')||''),
@@ -96,14 +96,17 @@ const user={
 const hasRace=user.carrera&&user.fecha;
 let configWeeks=hasRace?8:4;
 let planData=null;
+  function isoToDate(iso){const p=iso.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
+  function getMondayISO(d){const x=new Date(d);const day=x.getDay();x.setDate(x.getDate()-(day===0?6:day-1));return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');}
 
-async function loadPlan(){
+async function loadPlan(forceRegenerate){
   try {
     const body={
       userData:user,
       raceDate:hasRace?user.fecha:null,
       raceName:hasRace?user.carrera:null,
-      totalWeeks:configWeeks
+      email:emailParam||'',
+      forceRegenerate:!!forceRegenerate
     };
     const res=await fetch('/api/plan-completo',{
       method:'POST',
@@ -119,16 +122,22 @@ async function loadPlan(){
       renderPlan();
     }
   } catch(e){
-  console.error(e);
-  document.getElementById('content').innerHTML='<div class="loading"><p class="loading-text">Error: '+(e.message||'desconocido')+'</p></div>';
+    console.error(e);
+    document.getElementById('content').innerHTML='<div class="loading"><p class="loading-text">Error: '+(e.message||'desconocido')+'</p></div>';
   }
 }
 
 function renderPlan(){
-  const weeks=planData.weeks;
+  const allW=planData.weeks||[];
+  const weeks=hasRace?allW:allW.slice(0,configWeeks);
   const maxHours=Math.max(...weeks.map(w=>w.totalHours));
   const maxLoad=Math.max(...weeks.map(w=>w.load));
-  const currentWeek=1;
+  let currentWeek=1;
+  if(planData._anchorMonday){
+    const off=Math.round((isoToDate(getMondayISO(new Date()))-isoToDate(planData._anchorMonday))/(7*86400000));
+    const n=Math.max(weeks.length,1);
+    currentWeek=hasRace?Math.min(Math.max(off+1,1),n):((off%n)+n)%n+1;
+  }
   const raceWeek=hasRace?weeks.length:null;
 
   // RACE CARD or CONFIG CARD
@@ -222,7 +231,8 @@ weeks.forEach((w,i)=>{
   });
   weeksHTML+='</div>';
 
-  document.getElementById('content').innerHTML=topCard+graphHTML+summaryHTML+weeksHTML;
+  const regenHTML='<div style="margin:0 1.25rem 1.5rem"><button onclick="regenerate()" style="width:100%;background:#fff;color:#163A28;border:.5px solid #E8E6DF;border-radius:10px;padding:.75rem;font-size:.8rem;font-weight:500;font-family:\'Outfit\',sans-serif;cursor:pointer">↻ Regenerar plan completo</button></div>';
+  document.getElementById('content').innerHTML=topCard+graphHTML+summaryHTML+weeksHTML+regenHTML;
 }
 
 function toggleWeek(num){
@@ -233,11 +243,12 @@ function toggleWeek(num){
 function updateWeeks(v){
   configWeeks=parseInt(v);
   document.getElementById('weeks-val').textContent=v+' sem';
-  clearTimeout(window._weeksTimer);
-  window._weeksTimer=setTimeout(()=>{
-    document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div><p class="loading-text">Regenerando plan de '+configWeeks+' semanas...</p></div>';
-    loadPlan();
-  },800);
+  renderPlan();
+}
+
+function regenerate(){
+  document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div><p class="loading-text">Regenerando tu plan completo...</p></div>';
+  loadPlan(true);
 }
 
 loadPlan();
