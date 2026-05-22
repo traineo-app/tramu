@@ -91,6 +91,32 @@
     .btn-guided-prev{flex:1;background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:11px;padding:.875rem;font-size:.85rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
     .btn-guided-next{flex:2;background:#4A9E6B;border:none;color:#0A1F12;border-radius:11px;padding:.875rem;font-size:.92rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer}
     @keyframes spin{to{transform:rotate(360deg)}}
+    /* ── profundidad sesión ── */
+    .why-card{background:#fff;border:.5px solid #E8E6DF;border-radius:11px;padding:.9rem 1rem;font-size:.84rem;color:#3F3E3A;line-height:1.6;font-weight:500}
+    .obj-list{display:flex;flex-direction:column;gap:5px}
+    .obj-item{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.7rem .85rem;display:flex;gap:.65rem;align-items:flex-start;cursor:pointer;transition:all .15s}
+    .obj-item.done{background:#EBF5EF;border-color:rgba(74,158,107,.3)}
+    .obj-check{width:19px;height:19px;border-radius:6px;border:1.5px solid #C8C6BE;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:transparent;flex-shrink:0;margin-top:1px;transition:all .15s}
+    .obj-item.done .obj-check{background:#163A28;border-color:#163A28;color:#fff}
+    .obj-text{font-size:.82rem;color:#3F3E3A;font-weight:500;line-height:1.45}
+    .obj-item.done .obj-text{color:#888780;text-decoration:line-through}
+    .graph-card{background:#fff;border:.5px solid #E8E6DF;border-radius:11px;padding:.85rem .75rem .25rem}
+    .hint{font-weight:500;color:#B0AEA6;text-transform:none;letter-spacing:0}
+    .alts{display:flex;flex-direction:column;gap:6px}
+    .alt-card{background:#fff;border:.5px solid #E8E6DF;border-radius:11px;padding:.8rem 1rem}
+    .alt-label{font-size:.74rem;font-weight:700;color:#163A28;margin-bottom:.3rem}
+    .alt-text{font-size:.8rem;color:#5F5E5A;line-height:1.5;font-weight:500}
+    .block{display:block;padding:0}
+    .block.expandable{cursor:pointer}
+    .block-head{padding:.85rem 1rem;display:flex;align-items:center;gap:.85rem}
+    .block-chev{font-size:1rem;color:#B0AEA6;transition:transform .2s;flex-shrink:0}
+    .block.open .block-chev{transform:rotate(180deg)}
+    .block-more{max-height:0;overflow:hidden;transition:max-height .25s ease}
+    .block.open .block-more{max-height:300px;border-top:.5px solid #E8E6DF}
+    .more-row{display:flex;gap:.75rem;padding:.55rem 1rem;align-items:flex-start}
+    .more-row:not(:last-child){border-bottom:.5px solid #F0EEE8}
+    .more-k{font-size:.66rem;font-weight:600;color:#888780;text-transform:uppercase;letter-spacing:.05em;width:80px;flex-shrink:0;padding-top:1px}
+    .more-v{font-size:.8rem;color:#3F3E3A;font-weight:500;line-height:1.45;flex:1}
   </style>
 </head>
 <body>
@@ -216,12 +242,24 @@ function mainZoneIdx(){
 
 function renderDetail(){
   var html='';
+  var isGym=detail.kind==='gym';
+
   if(detail.summary){
     html+='<div class="summary-card"><div class="summary-dot"></div><div class="summary-text">'+esc(detail.summary)+'</div></div>';
   }
-  var isGym=detail.kind==='gym';
 
-  // ZONES (cardio)
+  if(detail.why_long){
+    html+='<div class="section"><div class="section-title">Por qué esta sesión</div><div class="why-card">'+esc(detail.why_long)+'</div></div>';
+  }
+
+  if(detail.objectives&&detail.objectives.length){
+    html+='<div class="section"><div class="section-title">Objetivo de hoy</div><div class="obj-list">';
+    detail.objectives.forEach(function(o){
+      html+='<div class="obj-item" onclick="this.classList.toggle(\'done\')"><div class="obj-check">✓</div><div class="obj-text">'+esc(o)+'</div></div>';
+    });
+    html+='</div></div>';
+  }
+
   if(!isGym){
     var mz=mainZoneIdx();
     html+='<div class="section"><div class="section-title">Zonas de frecuencia cardíaca</div><div class="zones-row">';
@@ -231,7 +269,10 @@ function renderDetail(){
     html+='</div><div class="zone-target">Zona principal: <strong>'+zones[mz].label+' · '+zones[mz].min+'-'+zones[mz].max+' bpm</strong></div></div>';
   }
 
-  // ESTRUCTURA / EXERCICIS
+  if(!isGym&&detail.blocks&&detail.blocks.length){
+    html+='<div class="section"><div class="section-title">Perfil de intensidad</div><div class="graph-card">'+intensityGraphSVG(detail.blocks)+'</div></div>';
+  }
+
   if(isGym&&detail.exercises.length){
     html+='<div class="section"><div class="section-title">Ejercicios</div><div class="exercises">';
     detail.exercises.forEach(function(e,i){
@@ -240,21 +281,36 @@ function renderDetail(){
     });
     html+='</div></div>';
   } else if(detail.blocks.length){
-    html+='<div class="section"><div class="section-title">Estructura de la sesión</div><div class="blocks">';
-    detail.blocks.forEach(function(b){
+    html+='<div class="section"><div class="section-title">Estructura de la sesión <span class="hint">· toca un bloque</span></div><div class="blocks">';
+    detail.blocks.forEach(function(b,i){
       var z=zObj(b.zone);
       var t=(b.series&&b.series.reps>1)?('×'+b.series.reps):((b.minutes||0)+"'");
-      html+='<div class="block"><div class="block-dot" style="background:'+z.color+'"></div><div class="block-info"><div class="block-title">'+esc(b.label)+'</div><div class="block-sub">'+esc(b.detail||'')+'</div></div><div class="block-time">'+t+'</div></div>';
+      var hasMore=b.rpe||b.cue||b.feel;
+      html+='<div class="block'+(hasMore?' expandable':'')+'" id="blk-'+i+'"'+(hasMore?' onclick="toggleBlock('+i+')"':'')+'>';
+      html+='<div class="block-head"><div class="block-dot" style="background:'+z.color+'"></div><div class="block-info"><div class="block-title">'+esc(b.label)+'</div><div class="block-sub">'+esc(b.detail||'')+'</div></div><div class="block-time">'+t+'</div>'+(hasMore?'<div class="block-chev">⌄</div>':'')+'</div>';
+      if(hasMore){
+        html+='<div class="block-more">';
+        if(b.rpe) html+='<div class="more-row"><span class="more-k">Esfuerzo</span><span class="more-v">RPE '+esc(b.rpe)+' / 10</span></div>';
+        if(b.feel) html+='<div class="more-row"><span class="more-k">Qué notar</span><span class="more-v">'+esc(b.feel)+'</span></div>';
+        if(b.cue) html+='<div class="more-row"><span class="more-k">Técnica</span><span class="more-v">'+esc(b.cue)+'</span></div>';
+        html+='</div>';
+      }
+      html+='</div>';
     });
     html+='</div></div>';
   }
 
-  // TIP
+  if(detail.alternatives&&(detail.alternatives.short||detail.alternatives.easy)){
+    html+='<div class="section"><div class="section-title">Si hoy no puedes</div><div class="alts">';
+    if(detail.alternatives.short) html+='<div class="alt-card"><div class="alt-label">⏱ Versión corta</div><div class="alt-text">'+esc(detail.alternatives.short)+'</div></div>';
+    if(detail.alternatives.easy) html+='<div class="alt-card"><div class="alt-label">🪶 Versión fácil</div><div class="alt-text">'+esc(detail.alternatives.easy)+'</div></div>';
+    html+='</div></div>';
+  }
+
   if(detail.tip){
     html+='<div class="section"><div class="section-title">Consejo del coach</div><div class="tip"><div class="tip-dot"></div><div class="tip-text">'+esc(detail.tip)+'</div></div></div>';
   }
 
-  // EXPORT
   html+='<div class="section"><div class="section-title">Exportar</div>';
   if(isGym){
     html+='<div class="export-card"><div><div class="export-title">📋 Hoja de ejercicios</div><div class="export-sub">Imprimible · todos los ejercicios</div></div><button class="btn-export" onclick="downloadGymPDF()">Ver PDF</button></div>';
@@ -264,6 +320,38 @@ function renderDetail(){
   html+='</div>';
 
   document.getElementById('body').innerHTML=html;
+}
+
+function intensityGraphSVG(blocks){
+  if(!blocks||!blocks.length) return '';
+  var W=320,H=110,padB=18,padT=8,pad=4;
+  var plotH=H-padB-padT,plotW=W-pad*2;
+  var total=0; blocks.forEach(function(b){total+=(b.minutes||0)||1;});
+  if(total<=0) total=1;
+  var zc={z1:'#60B8F0',z2:'#4A9E6B',z3:'#F0C84A',z4:'#F08C30',z5:'#E04040'};
+  var lvl={z1:1,z2:2,z3:3,z4:4,z5:5};
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" xmlns="http://www.w3.org/2000/svg">';
+  for(var g=1;g<=5;g++){
+    var gy=padT+plotH-(g/5)*plotH;
+    svg+='<line x1="'+pad+'" y1="'+gy.toFixed(1)+'" x2="'+(W-pad)+'" y2="'+gy.toFixed(1)+'" stroke="#E8E6DF" stroke-width="0.5"/>';
+  }
+  var x=pad;
+  blocks.forEach(function(b){
+    var w=((b.minutes||1)/total)*plotW;
+    var L=lvl[b.zone]||2;
+    var barH=(L/5)*plotH;
+    var y=padT+plotH-barH;
+    svg+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+barH.toFixed(1)+'" fill="'+(zc[b.zone]||'#4A9E6B')+'" opacity="0.88"/>';
+    x+=w;
+  });
+  svg+='<text x="'+pad+'" y="'+(H-5)+'" font-size="8" fill="#888780" font-family="Inter">0 min</text>';
+  svg+='<text x="'+(W-pad)+'" y="'+(H-5)+'" font-size="8" fill="#888780" font-family="Inter" text-anchor="end">'+Math.round(total)+' min</text>';
+  svg+='</svg>';
+  return svg;
+}
+function toggleBlock(i){
+  var el=document.getElementById('blk-'+i);
+  if(el) el.classList.toggle('open');
 }
 
 // ─── EXPORT TCX ───
