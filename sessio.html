@@ -186,16 +186,23 @@ function loadDetail(force){
         musculos:musculos?musculos.split(','):[],equipamiento:equip||null}
     })
   })
-  .then(function(r){return r.json();})
+  .then(function(r){return r.json().catch(function(){return {error:'HTTP '+r.status+' — respuesta no-JSON del servidor'};});})
   .then(function(d){
-    if(d.error||(!d.blocks&&!d.exercises)) throw new Error(d.error||'Sin datos');
+    if(d.error){
+      var em=d.error;
+      if(d.stop_reason) em+=' · stop:'+d.stop_reason;
+      if(d.preview) em+=' · '+d.preview;
+      throw new Error(em);
+    }
+    if(!d.blocks&&!d.exercises) throw new Error('Respuesta sin datos del coach');
     detail=d;
     renderDetail();
     document.getElementById('btn-empezar').disabled=false;
   })
   .catch(function(e){
     console.error(e);
-    document.getElementById('body').innerHTML='<div class="err-box"><div class="err-text">No se ha podido cargar el detalle de la sesión.</div><button class="btn-retry" onclick="loadDetail(true)">Reintentar</button></div>';
+    var msg=(e&&e.message)?e.message:'Error desconocido';
+    document.getElementById('body').innerHTML='<div class="err-box"><div class="err-text">No se ha podido cargar el detalle de la sesión.</div><div style="font-size:.68rem;color:#A03030;background:#FBEFEF;border:.5px solid #E5C2C2;border-radius:8px;padding:.6rem .7rem;margin:.55rem 0 .85rem;font-family:ui-monospace,monospace;word-break:break-word;text-align:left;line-height:1.5">'+esc(msg)+'</div><button class="btn-retry" onclick="loadDetail(true)">Reintentar</button></div>';
   });
 }
 
