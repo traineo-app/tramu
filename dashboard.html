@@ -1574,6 +1574,7 @@ function showToast(msg){
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
+window.addEventListener('pageshow',function(e){if(e.persisted)location.reload();});
 </script>
 </body>
 </html>
