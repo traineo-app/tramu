@@ -4,80 +4,92 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>traineo — Sesión</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Outfit',sans-serif;background:#F1EFE8;min-height:100vh}
-    .app{max-width:390px;margin:0 auto;min-height:100vh;background:#F8F7F4;padding-bottom:6rem}
-    .hero{background:#163A28;padding:1rem 1.25rem 1.75rem}
+    body{font-family:'Inter',-apple-system,sans-serif;background:#F1EFE8;min-height:100vh;color:#111110}
+    .app{max-width:390px;margin:0 auto;min-height:100vh;background:#FAF9F5;padding-bottom:6rem}
+    .hero{background:#163A28;padding:1rem 1.25rem 1.75rem;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:#4A9E6B}
     .nav{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem}
-    .btn-back{background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .nav-logo{font-size:1rem;font-weight:400;color:rgba(255,255,255,.5)}
-    .nav-neo{color:rgba(255,255,255,.25)}
-    .hero-icon{font-size:2.2rem;margin-bottom:.5rem}
-    .hero-title{font-size:1.75rem;font-weight:500;color:#fff;letter-spacing:-.4px;margin-bottom:.5rem}
-    .hero-bullets{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
-    .hero-bullet{font-size:.85rem;color:rgba(255,255,255,.7);display:flex;align-items:flex-start;gap:.5rem;line-height:1.5}
+    .btn-back{background:rgba(255,255,255,.1);border:.5px solid rgba(255,255,255,.15);color:#fff;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .nav-logo{font-size:1rem;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:-.3px}
+    .nav-neo{color:rgba(255,255,255,.3)}
+    .hero-icon{font-size:2.2rem;margin-bottom:.4rem}
+    .hero-label{font-size:.62rem;color:#4A9E6B;text-transform:uppercase;letter-spacing:.16em;font-weight:600;margin-bottom:.35rem}
+    .hero-title{font-size:1.7rem;font-weight:600;color:#fff;letter-spacing:-.5px;margin-bottom:.6rem;line-height:1.1}
+    .hero-bullets{display:flex;flex-direction:column;gap:.35rem}
+    .hero-bullet{font-size:.82rem;color:rgba(255,255,255,.65);display:flex;align-items:flex-start;gap:.5rem;line-height:1.5;font-weight:500}
     .hero-bullet-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.4);flex-shrink:0;margin-top:.45rem}
     .body{padding:1.25rem}
     .section{margin-bottom:1.5rem}
-    .section-title{font-size:.72rem;font-weight:600;color:#888780;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem}
-    .zones-row{display:flex;gap:5px;margin-bottom:.5rem}
-    .zone{flex:1;border-radius:8px;padding:7px 3px;text-align:center;opacity:.35}
-    .zone.active{opacity:1;transform:scale(1.05)}
-    .zone-label{font-size:.7rem;font-weight:600;color:#fff}
-    .zone-range{font-size:.62rem;color:rgba(255,255,255,.85);margin-top:2px}
-    .zone-target{font-size:.8rem;color:#111110;margin-top:.4rem}
+    .section-title{font-size:.66rem;font-weight:600;color:#888780;text-transform:uppercase;letter-spacing:.14em;margin-bottom:.75rem}
+    .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1.25rem;gap:1rem}
+    .spinner{width:42px;height:42px;border:3px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite}
+    .loading-text{font-size:.85rem;color:#888780;text-align:center;font-weight:500;line-height:1.5}
+    .summary-card{background:#EBF5EF;border:.5px solid rgba(74,158,107,.25);border-radius:12px;padding:.9rem 1rem;display:flex;gap:.6rem;align-items:flex-start;margin-bottom:1.5rem}
+    .summary-dot{width:6px;height:6px;border-radius:50%;background:#163A28;flex-shrink:0;margin-top:5px}
+    .summary-text{font-size:.82rem;color:#163A28;line-height:1.55;font-weight:500}
+    .zones-row{display:flex;gap:5px;margin-bottom:.6rem}
+    .zone{flex:1;border-radius:8px;padding:8px 3px;text-align:center;opacity:.35;transition:all .15s}
+    .zone.active{opacity:1;transform:scale(1.06)}
+    .zone-label{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:#fff;letter-spacing:.5px;line-height:1}
+    .zone-range{font-size:.58rem;color:rgba(255,255,255,.85);margin-top:2px;font-weight:600}
+    .zone-target{font-size:.78rem;color:#888780;font-weight:500}
+    .zone-target strong{color:#163A28;font-weight:600}
     .blocks{display:flex;flex-direction:column;gap:6px}
-    .block{background:#fff;border:.5px solid #E8E6DF;border-radius:10px;padding:.875rem 1rem;display:flex;align-items:center;gap:.75rem}
-    .block-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-    .block-info{flex:1}
-    .block-title{font-size:.95rem;font-weight:500;color:#111110;margin-bottom:3px}
-    .block-sub{font-size:.8rem;color:#888780}
-    .block-time{font-size:.9rem;font-weight:600;color:#163A28;flex-shrink:0}
-    .exercises{display:flex;flex-direction:column;gap:8px}
-    .exercise{background:#fff;border:.5px solid #E8E6DF;border-radius:12px;padding:1rem;display:flex;align-items:center;gap:1rem}
-    .ex-num{width:36px;height:36px;border-radius:8px;background:#F1FAF5;border:1.5px solid #163A28;color:#163A28;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:600;flex-shrink:0}
-    .ex-info{flex:1}
-    .ex-name{font-size:.95rem;font-weight:500;color:#111110;margin-bottom:4px}
-    .ex-detail{font-size:.82rem;color:#888780;margin-bottom:5px;line-height:1.4}
-    .ex-muscle{font-size:.72rem;font-weight:500;padding:2px 8px;border-radius:20px;background:#E8F4ED;color:#163A28;display:inline-block}
-    .tip{background:#EBF5EF;border-radius:10px;padding:.875rem 1rem;display:flex;gap:.75rem;align-items:flex-start}
-    .tip-dot{width:6px;height:6px;border-radius:50%;background:#163A28;margin-top:5px;flex-shrink:0}
-    .tip-text{font-size:.85rem;color:#163A28;line-height:1.6}
-    .export-card{background:#111110;border-radius:12px;padding:1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:8px}
-    .export-info .export-title{font-size:.9rem;font-weight:500;color:#fff;margin-bottom:2px}
-    .export-info .export-sub{font-size:.75rem;color:rgba(255,255,255,.4)}
-    .btn-export{background:#163A28;border:none;color:#fff;font-size:.8rem;font-weight:500;font-family:'Outfit',sans-serif;padding:.6rem 1rem;border-radius:8px;cursor:pointer;white-space:nowrap}
-    .bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:390px;background:#F8F7F4;border-top:.5px solid #E8E6DF;padding:.875rem 1.25rem;display:flex;gap:.75rem;z-index:50}
-    .btn-empezar{flex:1;background:#163A28;color:#fff;border:none;border-radius:12px;padding:.9rem;font-size:1rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer}
-    .btn-ver{background:#fff;border:.5px solid #E8E6DF;color:#163A28;border-radius:12px;padding:.9rem 1rem;font-size:.85rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer}
+    .block{background:#fff;border:.5px solid #E8E6DF;border-radius:11px;padding:.85rem 1rem;display:flex;align-items:center;gap:.85rem}
+    .block-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+    .block-info{flex:1;min-width:0}
+    .block-title{font-size:.9rem;font-weight:600;color:#111110;margin-bottom:2px;letter-spacing:-.1px}
+    .block-sub{font-size:.76rem;color:#888780;font-weight:500;line-height:1.4}
+    .block-time{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#163A28;flex-shrink:0;letter-spacing:.5px}
+    .exercises{display:flex;flex-direction:column;gap:6px}
+    .exercise{background:#fff;border:.5px solid #E8E6DF;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:flex-start;gap:.85rem}
+    .ex-num{width:34px;height:34px;border-radius:8px;background:#EBF5EF;border:1px solid #163A28;color:#163A28;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:.95rem;flex-shrink:0;letter-spacing:.5px}
+    .ex-info{flex:1;min-width:0}
+    .ex-name{font-size:.92rem;font-weight:600;color:#111110;margin-bottom:3px;letter-spacing:-.1px}
+    .ex-detail{font-size:.78rem;color:#888780;margin-bottom:6px;line-height:1.45;font-weight:500}
+    .ex-muscle{font-size:.66rem;font-weight:600;padding:2px 9px;border-radius:20px;background:#EBF5EF;color:#163A28;display:inline-block;text-transform:uppercase;letter-spacing:.05em}
+    .tip{background:#fff;border:.5px solid #E8E6DF;border-radius:11px;padding:.9rem 1rem;display:flex;gap:.65rem;align-items:flex-start}
+    .tip-dot{width:6px;height:6px;border-radius:50%;background:#4A9E6B;margin-top:5px;flex-shrink:0}
+    .tip-text{font-size:.82rem;color:#5F5E5A;line-height:1.6;font-weight:500}
+    .export-card{background:#111110;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:6px}
+    .export-title{font-size:.86rem;font-weight:600;color:#fff;margin-bottom:2px}
+    .export-sub{font-size:.7rem;color:rgba(255,255,255,.45);font-weight:500}
+    .btn-export{background:#4A9E6B;border:none;color:#0A1F12;font-size:.74rem;font-weight:700;font-family:'Inter',sans-serif;padding:.6rem .9rem;border-radius:8px;cursor:pointer;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+    .err-box{background:#fff;border:.5px solid #E8E6DF;border-radius:12px;padding:1.25rem;text-align:center}
+    .err-text{font-size:.84rem;color:#888780;font-weight:500;margin-bottom:.85rem;line-height:1.5}
+    .btn-retry{background:#163A28;color:#fff;border:none;border-radius:9px;padding:.6rem 1.25rem;font-size:.78rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
+    .bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:390px;background:#FAF9F5;border-top:.5px solid #E8E6DF;padding:.85rem 1.25rem;display:flex;gap:.6rem;z-index:50}
+    .btn-ver{background:#fff;border:.5px solid #E8E6DF;color:#163A28;border-radius:11px;padding:.9rem 1rem;font-size:.8rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;white-space:nowrap}
+    .btn-empezar{flex:1;background:#163A28;color:#fff;border:none;border-radius:11px;padding:.9rem;font-size:.92rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;letter-spacing:.02em}
+    .btn-empezar:disabled{opacity:.4;cursor:not-allowed}
     .guided{display:none;position:fixed;inset:0;background:#163A28;z-index:200;flex-direction:column;align-items:center;justify-content:space-between;padding:2rem 1.5rem;max-width:390px;margin:0 auto}
     .guided.open{display:flex}
-    .guided-header{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
-    .guided-step-info{font-size:.8rem;color:rgba(255,255,255,.5)}
-    .btn-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:.9rem;font-family:'Outfit',sans-serif}
-    .guided-dots{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:240px}
+    .guided-header{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.5rem}
+    .guided-step-info{font-size:.72rem;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.1em}
+    .btn-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:.9rem;flex-shrink:0}
+    .guided-dots{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:230px}
     .gdot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .2s}
     .gdot.done{background:rgba(255,255,255,.5)}
     .gdot.active{background:#fff;transform:scale(1.4)}
-    .gdot.rest{background:rgba(255,255,255,.15)}
-    .guided-body{display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;justify-content:center;gap:.6rem;width:100%}
-    .guided-type{font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em}
-    .guided-serie-counter{font-size:5rem;font-weight:200;color:#fff;letter-spacing:-3px;line-height:1;font-variant-numeric:tabular-nums}
-    .guided-serie-unit{font-size:1.1rem;color:rgba(255,255,255,.5);margin-top:-.5rem}
-    .guided-name{font-size:1.5rem;font-weight:500;color:#fff;letter-spacing:-.3px;line-height:1.2}
-    .guided-detail{font-size:.9rem;color:rgba(255,255,255,.55);line-height:1.5}
-    .guided-zone-badge{background:rgba(255,255,255,.12);border-radius:20px;padding:.3rem .9rem;font-size:.82rem;color:#fff;font-weight:500}
-    .guided-timer{font-size:3.5rem;font-weight:300;color:#fff;letter-spacing:-2px;font-variant-numeric:tabular-nums}
-    .guided-timer-lbl{font-size:.75rem;color:rgba(255,255,255,.35)}
-    .guided-muscle{font-size:.8rem;color:rgba(255,255,255,.35)}
-    .guided-ex-num{width:72px;height:72px;border-radius:16px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:500;color:#fff}
+    .gdot.rest{background:rgba(255,255,255,.12)}
+    .guided-body{display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;justify-content:center;gap:.65rem;width:100%}
+    .guided-type{font-size:.66rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.14em;font-weight:600}
+    .guided-big{font-family:'Bebas Neue',sans-serif;font-size:4.5rem;color:#fff;letter-spacing:1px;line-height:.95}
+    .guided-name{font-size:1.45rem;font-weight:600;color:#fff;letter-spacing:-.3px;line-height:1.2}
+    .guided-detail{font-size:.86rem;color:rgba(255,255,255,.55);line-height:1.5;font-weight:500;max-width:280px}
+    .guided-zone-badge{background:rgba(255,255,255,.12);border-radius:20px;padding:.32rem .95rem;font-size:.78rem;color:#fff;font-weight:600}
+    .guided-timer{font-family:'Bebas Neue',sans-serif;font-size:3.6rem;color:#fff;letter-spacing:1px}
+    .guided-timer-lbl{font-size:.7rem;color:rgba(255,255,255,.35);font-weight:500}
+    .guided-muscle{font-size:.74rem;color:rgba(255,255,255,.4);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+    .guided-ex-num{width:68px;height:68px;border-radius:16px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:#fff;letter-spacing:1px}
     .guided-progress{width:100%;height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden}
-    .guided-progress-fill{height:100%;background:#fff;border-radius:2px;transition:width .5s linear}
-    .guided-actions{display:flex;gap:.75rem;width:100%}
-    .btn-guided-prev{flex:1;background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:12px;padding:.875rem;font-size:.9rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer}
-    .btn-guided-next{flex:2;background:#fff;border:none;color:#163A28;border-radius:12px;padding:.875rem;font-size:.95rem;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer}
+    .guided-progress-fill{height:100%;background:#4A9E6B;border-radius:2px;transition:width .5s linear}
+    .guided-actions{display:flex;gap:.6rem;width:100%}
+    .btn-guided-prev{flex:1;background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:11px;padding:.875rem;font-size:.85rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer}
+    .btn-guided-next{flex:2;background:#4A9E6B;border:none;color:#0A1F12;border-radius:11px;padding:.875rem;font-size:.92rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer}
     @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
@@ -89,21 +101,21 @@
       <span class="nav-logo">trai<span class="nav-neo">neo</span></span>
     </div>
     <div class="hero-icon" id="h-icon">🏃</div>
+    <div class="hero-label">Sesión de entrenamiento</div>
     <div class="hero-title" id="h-title">Sesión</div>
     <div class="hero-bullets" id="h-bullets"></div>
   </div>
-  <div class="body">
-    <div id="zones-sec"></div>
-    <div id="structure-sec"></div>
-    <div id="exercises-sec"></div>
-    <div id="tip-sec"></div>
-    <div id="export-sec"></div>
+  <div class="body" id="body">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p class="loading-text">El coach está preparando<br>el detalle de la sesión...</p>
+    </div>
   </div>
 </div>
 
 <div class="bottom-bar">
-  <button class="btn-ver" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Ver todo</button>
-  <button class="btn-empezar" onclick="startGuided()">▶ Empezar</button>
+  <button class="btn-ver" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Arriba</button>
+  <button class="btn-empezar" id="btn-empezar" disabled onclick="startGuided()">▶ Empezar</button>
 </div>
 
 <div class="guided" id="guided">
@@ -124,109 +136,36 @@
 
 <script>
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(s){var m=Math.floor(s/60);var ss=s%60;return m+':'+(ss<10?'0':'')+ss;}
 
 var params=new URLSearchParams(window.location.search);
-var title='Sesión';try{title=decodeURIComponent(params.get('title')||'Sesión');}catch(e){}
-var sub='';try{sub=decodeURIComponent(params.get('sub')||'');}catch(e){}
-var why='';try{why=decodeURIComponent(params.get('why')||'');}catch(e){}
-var icon='🏃';try{icon=decodeURIComponent(params.get('icon')||'🏃');}catch(e){}
+function gp(k,d){try{return decodeURIComponent(params.get(k)||d||'');}catch(e){return d||'';}}
+var title=gp('title','Sesión'),sub=gp('sub',''),why=gp('why','');
+var icon=gp('icon','🏃'),tags=gp('tags','');
 var fcmax=parseInt(params.get('fcmax'))||185;
 var duracio=parseInt(params.get('duracio'))||45;
+var nivel=gp('nivel','intermedio'),objetivo=gp('objetivo','');
+var pacez2=parseInt(params.get('pacez2'))||null;
+var ftp=parseInt(params.get('ftp'))||null;
+var musculos=gp('musculos',''),equip=gp('equip','');
+var email=gp('email',''),setmana=gp('setmana',''),day=gp('day','');
 var tl=title.toLowerCase();
-
-// DETECTA TIPUS
-var gymWords=['tren inferior','tren superior','full body','calistenia','core y movilidad','lower body','upper body'];
-var cardioWords=['rodaje','trail','bici','ciclismo','natación','nado','piscina','brick','ruta','rodada','series','running'];
-var isGym=gymWords.some(function(k){return tl.includes(k);})||(!cardioWords.some(function(k){return tl.includes(k);})&&(tl.includes('fuerza')||tl.includes('gimnas')||tl.includes('gym')));
-var isCardio=!isGym;
 var isCycling=tl.includes('bici')||tl.includes('cicl')||tl.includes('rodada');
 var isSwim=tl.includes('piscina')||tl.includes('natación')||tl.includes('nado');
 
-// ZONES
 var zones=[
-  {label:'Z1',color:'#60B8F0',min:Math.round(fcmax*.50),max:Math.round(fcmax*.60)},
-  {label:'Z2',color:'#4EA84A',min:Math.round(fcmax*.60),max:Math.round(fcmax*.70)},
-  {label:'Z3',color:'#F0C84A',min:Math.round(fcmax*.70),max:Math.round(fcmax*.80)},
-  {label:'Z4',color:'#F08C30',min:Math.round(fcmax*.80),max:Math.round(fcmax*.90)},
-  {label:'Z5',color:'#E04040',min:Math.round(fcmax*.90),max:fcmax}
+  {key:'z1',label:'Z1',color:'#60B8F0',min:Math.round(fcmax*.50),max:Math.round(fcmax*.60)},
+  {key:'z2',label:'Z2',color:'#4A9E6B',min:Math.round(fcmax*.60),max:Math.round(fcmax*.70)},
+  {key:'z3',label:'Z3',color:'#F0C84A',min:Math.round(fcmax*.70),max:Math.round(fcmax*.80)},
+  {key:'z4',label:'Z4',color:'#F08C30',min:Math.round(fcmax*.80),max:Math.round(fcmax*.90)},
+  {key:'z5',label:'Z5',color:'#E04040',min:Math.round(fcmax*.90),max:fcmax}
 ];
+var zoneIdx={z1:0,z2:1,z3:2,z4:3,z5:4};
+function zObj(key){return zones[zoneIdx[key]!==undefined?zoneIdx[key]:1];}
 
-var colorToZone={'#60B8F0':0,'#4EA84A':1,'#F0C84A':2,'#F08C30':3,'#E04040':4,'#888780':-1};
+var detail=null;
 
-function getMainZone(){
-  if(tl.includes('recupera')) return 0;
-  if(tl.includes('z2')||tl.includes('aeróbico')||tl.includes('largo')||tl.includes('suave')||tl.includes('fondo')) return 1;
-  if(tl.includes('z3')||tl.includes('umbral')||tl.includes('tempo')||tl.includes('sweetspot')) return 2;
-  if(tl.includes('series')||tl.includes('z4')||tl.includes('cuesta')||tl.includes('intervalo')||tl.includes('velocidad')) return 3;
-  if(tl.includes('z5')) return 4;
-  if(tl.includes('trail')) return 1;
-  return 1;
-}
-var mainZone=getMainZone();
-
-// ESTRUCTURES
-function getStruct(){
-  var d=duracio;
-  if(tl.includes('trail')){return [{title:'Calentamiento',sub:'Trote Z1 en llano',dur:10,color:'#60B8F0'},{title:'Bloque principal',sub:sub||'Por esfuerzo · caminar subidas fuertes',dur:d-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave',dur:5,color:'#60B8F0'}];}
-  if(tl.includes('recupera')){return [{title:'Trote Z1',sub:'Muy suave · nunca forzar',dur:d,color:'#60B8F0'}];}
-  if(tl.includes('brick')){return [{title:'Bici Z2-Z3',sub:'Ritmo medio-alto',dur:Math.round(d*.65),color:'#F0C84A'},{title:'Transición',sub:'Cambio rápido de zapatillas',dur:2,color:'#888780'},{title:'Running Z3',sub:'Aguanta con piernas cargadas',dur:Math.round(d*.33),color:'#F08C30'}];}
-  if(tl.includes('cuesta')){return [{title:'Calentamiento',sub:'15 min Z1-Z2',dur:15,color:'#60B8F0'},{title:'8-10 × 45" cuesta arriba',sub:'A Z4 · bajar trotando 60 seg',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min llano suave',dur:10,color:'#60B8F0'}];}
-  if(tl.includes('series')&&(tl.includes('bici')||tl.includes('cicl'))){return [{title:'Calentamiento',sub:'15 min cadencia alta Z2',dur:15,color:'#60B8F0'},{title:'4 × 8 min sweetspot',sub:'88-93% FTP · 4 min recuperación',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min Z1',dur:10,color:'#60B8F0'}];}
-  if(tl.includes('series')&&isSwim){return [{title:'Calentamiento',sub:'200m suave',dur:10,color:'#60B8F0'},{title:'8 × 100m a Z3-Z4',sub:'20 seg pausa entre series',dur:25,color:'#F08C30'},{title:'Vuelta a la calma',sub:'200m suave',dur:5,color:'#60B8F0'}];}
-  if(tl.includes('series')||tl.includes('intervalo')||tl.includes('velocidad')){return [{title:'Calentamiento',sub:'15 min trote + 4 strides',dur:15,color:'#60B8F0'},{title:'6 × 400m a Z4',sub:'90 seg recuperación entre series',dur:20,color:'#F08C30'},{title:'Vuelta a la calma',sub:'10 min trote suave',dur:10,color:'#60B8F0'}];}
-  if(tl.includes('largo')||tl.includes('fondo')){return [{title:'Calentamiento',sub:'Z1 muy suave',dur:10,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo cómodo · hablar sin problemas',dur:d-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Andar + estirar',dur:5,color:'#60B8F0'}];}
-  if(tl.includes('ruta')){return [{title:'Salida suave Z1',sub:'Primeros 20 min tranquilo',dur:20,color:'#60B8F0'},{title:'Fondo Z2',sub:'Ritmo sostenible',dur:d-30,color:'#4EA84A'},{title:'Vuelta a casa',sub:'Reducir intensidad',dur:10,color:'#60B8F0'}];}
-  if(isSwim){return [{title:'Calentamiento',sub:'200m suave',dur:10,color:'#60B8F0'},{title:'Drills técnicos',sub:'Catch-up · one arm · rotació',dur:15,color:'#4EA84A'},{title:'Series técnica',sub:'6 × 50m · foco en brazada',dur:20,color:'#F0C84A'},{title:'Vuelta a la calma',sub:'100m suave',dur:5,color:'#60B8F0'}];}
-  if(isCycling){return [{title:'Calentamiento',sub:'Cadencia alta, potencia baja',dur:10,color:'#60B8F0'},{title:'Z2 en bici',sub:'Cadencia 90+ rpm · '+Math.round(fcmax*.62)+'-'+Math.round(fcmax*.70)+' bpm',dur:d-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Reducir potencia',dur:5,color:'#60B8F0'}];}
-  // Default: rodaje
-  return [{title:'Calentamiento',sub:'Trote suave Z1',dur:10,color:'#60B8F0'},{title:'Bloque principal',sub:sub||('Ritmo conversacional · '+Math.round(fcmax*.63)+'-'+Math.round(fcmax*.70)+' bpm'),dur:d-15,color:'#4EA84A'},{title:'Vuelta a la calma',sub:'Trote suave + estirar',dur:5,color:'#60B8F0'}];
-}
-
-function getGym(){
-  if(tl.includes('inferior')||tl.includes('lower')||tl.includes('pierna')||tl.includes('leg')){
-    return [{name:'Sentadilla',detail:'4 × 8 reps · 75-80% RM · 2 min descanso',muscle:'Cuádriceps · Glúteos'},{name:'Romanian Deadlift',detail:'3 × 10 reps · controla la bajada 3 seg',muscle:'Isquios · Glúteos'},{name:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},{name:'Hip thrust',detail:'4 × 12 reps · aprieta el glúteo arriba',muscle:'Glúteos'},{name:'Step-up',detail:'3 × 10 reps cada pierna',muscle:'Cuádriceps · Glúteos'},{name:'Elevación de talones',detail:'3 × 15 reps · lento y controlado',muscle:'Gemelos · Sóleo'}];
-  }
-  if(tl.includes('superior')||tl.includes('upper')||tl.includes('pecho')||tl.includes('espalda')){
-    return [{name:'Press de banca',detail:'4 × 8-10 reps',muscle:'Pectoral · Tríceps'},{name:'Remo con mancuerna',detail:'3 × 10 reps cada brazo',muscle:'Espalda · Bíceps'},{name:'Press militar',detail:'3 × 8 reps · core activado',muscle:'Hombros · Tríceps'},{name:'Dominadas',detail:'3 × máx o 5 negativas lentas',muscle:'Espalda · Bíceps'},{name:'Curl de bíceps',detail:'3 × 12 reps',muscle:'Bíceps'},{name:'Dips',detail:'3 × máx reps controladas',muscle:'Tríceps · Pectoral'}];
-  }
-  if(tl.includes('calistenia')){
-    return [{name:'Flexiones',detail:'4 × máx reps controladas',muscle:'Pectoral · Tríceps'},{name:'Dominadas',detail:'4 × máx o 5 negativas',muscle:'Espalda · Bíceps'},{name:'Dips',detail:'3 × máx reps',muscle:'Tríceps · Pectoral'},{name:'Sentadilla búlgara',detail:'3 × 8 reps cada pierna',muscle:'Cuádriceps · Glúteos'},{name:'Plancha',detail:'3 × 1 min',muscle:'Core'},{name:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'}];
-  }
-  if(tl.includes('core')||tl.includes('movilidad')){
-    return [{name:'Plancha frontal',detail:'3 × 45-60 seg',muscle:'Core · Transverso'},{name:'Bird dog',detail:'3 × 10 reps cada lado',muscle:'Core · Lumbares'},{name:'Dead bug',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'},{name:'Hip thrust',detail:'2 × 15 reps · movilidad cadera',muscle:'Cadera · Glúteos'},{name:'Sentadilla búlgara',detail:'2 × 8 reps movilidad',muscle:'Cadera · Flexores'},{name:'Elevación de talones',detail:'2 × 12 reps lento',muscle:'Gemelos · Tobillo'}];
-  }
-  return [{name:'Sentadilla',detail:'3 × 12 reps dinámicas',muscle:'Piernas · Glúteos'},{name:'Flexiones',detail:'3 × 10-15 reps',muscle:'Pectoral · Tríceps'},{name:'Dominadas',detail:'3 × 8 reps o máximo',muscle:'Espalda · Bíceps'},{name:'Plancha',detail:'3 × 45 segundos',muscle:'Core'},{name:'Bird dog',detail:'3 × 10 reps cada lado · lento',muscle:'Core · Lumbares'},{name:'Dead bug',detail:'3 × 8 reps · espalda pegada',muscle:'Core · Transverso'}];
-}
-
-// PARSEIG DE SERIES
-function parseSeries(blockTitle, blockSub){
-  var m=blockTitle.match(/(\d+)(?:-\d+)?\s*[×x×]\s*(\d+\.?\d*)\s*(m\b|km\b|min\b)?/i);
-  if(!m) return null;
-  var reps=parseInt(m[1]);
-  var amount=parseFloat(m[2]);
-  var unit=(m[3]||'').toLowerCase();
-  var distMeters=null,timeSecs=null;
-  if(unit==='m') distMeters=Math.round(amount);
-  else if(unit==='km') distMeters=Math.round(amount*1000);
-  else if(unit==='min') timeSecs=Math.round(amount*60);
-  else distMeters=Math.round(amount);
-  var restSecs=60;
-  var rm=(blockSub||'').match(/(\d+)\s*(seg|min|s\b)/i);
-  if(rm){var ra=parseInt(rm[1]);restSecs=rm[2].toLowerCase().startsWith('min')?ra*60:ra;}
-  return {reps:reps,distMeters:distMeters,timeSecs:timeSecs,restSecs:restSecs};
-}
-
-var struct=isCardio?getStruct():null;
-var exList=isGym?getGym():null;
-
-// TIPS
-function getTip(){
-  var tipMap={trail:'En trail el Z2 es por esfuerzo, no por ritmo. Caminar las subidas no es rendirse — es ser listo.',rodaje:'Si puedes mantener una conversación sin problemas, vas bien. Si no puedes hablar, baja el ritmo.',largo:'Ve siempre más despacio de lo que crees. Bebe cada 20 minutos aunque no tengas sed.',recupera:'Ve lento de verdad. Este entreno activa la circulación y elimina el lactato.',bici:'Mantén cadencia por encima de 85-90 rpm. Cadencia baja fatiga más las piernas.',series:'La recuperación es tan importante como el esfuerzo. Mejor 6 series buenas que 10 malas.',inferior:'Controla la bajada contando 3 segundos. La rodilla no pasa el pie. Core activado siempre.',superior:'El remo es tan importante como el press. Equilibra empuje y tracción.',calistenia:'Las negativas en dominadas son el mejor ejercicio para aprender.',core:'Bird dog y dead bug previenen lesiones de espalda.',brick:'Las primeras transiciones son raras — las piernas pesan el doble. Con el tiempo el cuerpo se adapta.',natación:'En natación la técnica vale el doble que el esfuerzo.',piscina:'En natación la técnica vale el doble que el esfuerzo.'};
-  for(var k in tipMap){if(tl.includes(k)) return tipMap[k];}
-  return why||'Cada sesión cuenta. Consistencia > intensidad.';
-}
-
-// RENDERITZA HERO
+// ─── HERO (instantani) ───
 document.getElementById('h-icon').textContent=icon;
 document.getElementById('h-title').textContent=title;
 var bulletsHTML='';
@@ -234,288 +173,252 @@ if(sub) bulletsHTML+='<div class="hero-bullet"><div class="hero-bullet-dot"></di
 if(why) bulletsHTML+='<div class="hero-bullet"><div class="hero-bullet-dot"></div><span>'+esc(why)+'</span></div>';
 document.getElementById('h-bullets').innerHTML=bulletsHTML;
 
-// ZONES
-if(isCardio){
-  try{
-    var zh='<div class="section"><div class="section-title">Zonas de frecuencia cardíaca</div><div class="zones-row">';
-    zones.forEach(function(z,i){zh+='<div class="zone'+(i===mainZone?' active':'')+'" style="background:'+z.color+'"><div class="zone-label">'+z.label+'</div><div class="zone-range">'+z.min+'-'+z.max+'</div></div>';});
-    zh+='</div><div class="zone-target">Zona objetivo: <strong>'+zones[mainZone].label+' · '+zones[mainZone].min+'-'+zones[mainZone].max+' bpm</strong></div></div>';
-    document.getElementById('zones-sec').innerHTML=zh;
-  }catch(e){}
+// ─── CARREGAR DETALL ───
+function loadDetail(force){
+  document.getElementById('body').innerHTML='<div class="loading"><div class="spinner"></div><p class="loading-text">El coach está preparando<br>el detalle de la sesión...</p></div>';
+  document.getElementById('btn-empezar').disabled=true;
+  fetch('/api/session-detail',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      email:email,setmana:setmana,day:day,forceRegenerate:!!force,
+      session:{title:title,sub:sub,why:why,tags:tags?tags.split(','):[],duracio_min:duracio},
+      userData:{fcmax:fcmax,nivel:nivel,objetivo:objetivo,pacez2:pacez2,ftp:ftp,
+        musculos:musculos?musculos.split(','):[],equipamiento:equip||null}
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.error||(!d.blocks&&!d.exercises)) throw new Error(d.error||'Sin datos');
+    detail=d;
+    renderDetail();
+    document.getElementById('btn-empezar').disabled=false;
+  })
+  .catch(function(e){
+    console.error(e);
+    document.getElementById('body').innerHTML='<div class="err-box"><div class="err-text">No se ha podido cargar el detalle de la sesión.</div><button class="btn-retry" onclick="loadDetail(true)">Reintentar</button></div>';
+  });
 }
 
-// ESTRUCTURA
-if(struct){
-  try{
-    var sh='<div class="section"><div class="section-title">Estructura de la sesión</div><div class="blocks">';
-    struct.forEach(function(b){
-      var series=parseSeries(b.title,b.sub);
-      var timeLabel=series?'×'+series.reps:b.dur+' min';
-      sh+='<div class="block"><div class="block-dot" style="background:'+b.color+'"></div><div class="block-info"><div class="block-title">'+esc(b.title)+'</div><div class="block-sub">'+esc(b.sub)+'</div></div><div class="block-time">'+timeLabel+'</div></div>';
+function mainZoneIdx(){
+  var best=1,bestMin=-1;
+  (detail.blocks||[]).forEach(function(b){
+    if((b.minutes||0)>bestMin){bestMin=b.minutes||0;best=zoneIdx[b.zone]!==undefined?zoneIdx[b.zone]:1;}
+  });
+  return best;
+}
+
+function renderDetail(){
+  var html='';
+  if(detail.summary){
+    html+='<div class="summary-card"><div class="summary-dot"></div><div class="summary-text">'+esc(detail.summary)+'</div></div>';
+  }
+  var isGym=detail.kind==='gym';
+
+  // ZONES (cardio)
+  if(!isGym){
+    var mz=mainZoneIdx();
+    html+='<div class="section"><div class="section-title">Zonas de frecuencia cardíaca</div><div class="zones-row">';
+    zones.forEach(function(z,i){
+      html+='<div class="zone'+(i===mz?' active':'')+'" style="background:'+z.color+'"><div class="zone-label">'+z.label+'</div><div class="zone-range">'+z.min+'-'+z.max+'</div></div>';
     });
-    sh+='</div></div>';
-    document.getElementById('structure-sec').innerHTML=sh;
-  }catch(e){}
-}
-
-// EXERCICIS
-if(exList){
-  try{
-    var eh='<div class="section"><div class="section-title">Ejercicios</div><div class="exercises">';
-    exList.forEach(function(e,i){eh+='<div class="exercise"><div class="ex-num">'+String(i+1).padStart(2,'0')+'</div><div class="ex-info"><div class="ex-name">'+esc(e.name)+'</div><div class="ex-detail">'+esc(e.detail)+'</div><span class="ex-muscle">'+esc(e.muscle)+'</span></div></div>';});
-    eh+='</div></div>';
-    document.getElementById('exercises-sec').innerHTML=eh;
-  }catch(e){}
-}
-
-// TIP
-try{document.getElementById('tip-sec').innerHTML='<div class="section"><div class="section-title">Consejo del coach</div><div class="tip"><div class="tip-dot"></div><div class="tip-text">'+esc(getTip())+'</div></div></div>';}catch(e){}
-
-// EXPORT
-try{
-  var expHTML='<div class="section"><div class="section-title">Exportar</div>';
-  if(isCardio){
-    expHTML+='<div class="export-card"><div class="export-info"><div class="export-title">⌚ Garmin / Polar / Suunto</div><div class="export-sub">Zonas FC + series desglosadas con distancias</div></div><button class="btn-export" onclick="downloadTCX()">Descargar .tcx</button></div>';
+    html+='</div><div class="zone-target">Zona principal: <strong>'+zones[mz].label+' · '+zones[mz].min+'-'+zones[mz].max+' bpm</strong></div></div>';
   }
+
+  // ESTRUCTURA / EXERCICIS
+  if(isGym&&detail.exercises.length){
+    html+='<div class="section"><div class="section-title">Ejercicios</div><div class="exercises">';
+    detail.exercises.forEach(function(e,i){
+      var d=[e.prescription,e.load,e.rest_s?('descanso '+e.rest_s+'s'):'',e.cue].filter(Boolean).join(' · ');
+      html+='<div class="exercise"><div class="ex-num">'+String(i+1).padStart(2,'0')+'</div><div class="ex-info"><div class="ex-name">'+esc(e.name)+'</div><div class="ex-detail">'+esc(d)+'</div>'+(e.muscle?'<span class="ex-muscle">'+esc(e.muscle)+'</span>':'')+'</div></div>';
+    });
+    html+='</div></div>';
+  } else if(detail.blocks.length){
+    html+='<div class="section"><div class="section-title">Estructura de la sesión</div><div class="blocks">';
+    detail.blocks.forEach(function(b){
+      var z=zObj(b.zone);
+      var t=(b.series&&b.series.reps>1)?('×'+b.series.reps):((b.minutes||0)+"'");
+      html+='<div class="block"><div class="block-dot" style="background:'+z.color+'"></div><div class="block-info"><div class="block-title">'+esc(b.label)+'</div><div class="block-sub">'+esc(b.detail||'')+'</div></div><div class="block-time">'+t+'</div></div>';
+    });
+    html+='</div></div>';
+  }
+
+  // TIP
+  if(detail.tip){
+    html+='<div class="section"><div class="section-title">Consejo del coach</div><div class="tip"><div class="tip-dot"></div><div class="tip-text">'+esc(detail.tip)+'</div></div></div>';
+  }
+
+  // EXPORT
+  html+='<div class="section"><div class="section-title">Exportar</div>';
   if(isGym){
-    expHTML+='<div class="export-card"><div class="export-info"><div class="export-title">📋 Hoja de ejercicios</div><div class="export-sub">Imprimible · todos los ejercicios y series</div></div><button class="btn-export" onclick="downloadGymPDF()">Ver PDF</button></div>';
+    html+='<div class="export-card"><div><div class="export-title">📋 Hoja de ejercicios</div><div class="export-sub">Imprimible · todos los ejercicios</div></div><button class="btn-export" onclick="downloadGymPDF()">Ver PDF</button></div>';
+  } else {
+    html+='<div class="export-card"><div><div class="export-title">⌚ Garmin / Polar / Suunto</div><div class="export-sub">Zonas FC + series con distancias</div></div><button class="btn-export" onclick="downloadTCX()">.tcx</button></div>';
   }
-  expHTML+='</div>';
-  document.getElementById('export-sec').innerHTML=expHTML;
-}catch(e){}
+  html+='</div>';
 
-// TCX GENERATOR COMPLET
+  document.getElementById('body').innerHTML=html;
+}
+
+// ─── EXPORT TCX ───
 function downloadTCX(){
+  if(!detail) return;
   var sport=isCycling?'Biking':isSwim?'Other':'Running';
-  var stepId=1;
-  var stepsXML='';
-  var s=struct||[{title:title,sub:sub,dur:duracio,color:'#4EA84A'}];
-
-  s.forEach(function(b){
-    var series=parseSeries(b.title,b.sub);
-    var zIdx=colorToZone[b.color]!==undefined?colorToZone[b.color]:mainZone;
-    if(zIdx<0) zIdx=0;
-    var z=zones[Math.min(zIdx,4)];
-
-    if(series&&series.reps>1){
-      var activeId=stepId+1;
-      var restId=stepId+2;
-      stepsXML+='<Step xsi:type="Repeat_t">';
-      stepsXML+='<StepId>'+stepId+'</StepId>';
-      stepsXML+='<Repetitions>'+series.reps+'</Repetitions>';
-      // Active step
-      stepsXML+='<Child xsi:type="Step_t">';
-      stepsXML+='<StepId>'+activeId+'</StepId>';
-      stepsXML+='<Name>'+esc(b.title)+'</Name>';
-      if(series.distMeters){
-        stepsXML+='<Duration xsi:type="Distance_t"><Meters>'+series.distMeters+'</Meters></Duration>';
-      } else if(series.timeSecs){
-        stepsXML+='<Duration xsi:type="Time_t"><Seconds>'+series.timeSecs+'</Seconds></Duration>';
-      } else {
-        stepsXML+='<Duration xsi:type="UserInitiated_t"/>';
-      }
-      stepsXML+='<Intensity>Active</Intensity>';
-      stepsXML+='<Target xsi:type="HeartRate_t"><HeartRateZone xsi:type="CustomHeartRateZone_t"><Low>'+z.min+'</Low><High>'+z.max+'</High></HeartRateZone></Target>';
-      stepsXML+='</Child>';
-      // Rest step
-      stepsXML+='<Child xsi:type="Step_t">';
-      stepsXML+='<StepId>'+restId+'</StepId>';
-      stepsXML+='<Name>Descanso</Name>';
-      stepsXML+='<Duration xsi:type="Time_t"><Seconds>'+series.restSecs+'</Seconds></Duration>';
-      stepsXML+='<Intensity>Rest</Intensity>';
-      stepsXML+='<Target xsi:type="Open_t"/>';
-      stepsXML+='</Child>';
+  var stepId=1,stepsXML='';
+  var blocks=(detail.blocks&&detail.blocks.length)?detail.blocks:[{label:title,minutes:duracio,zone:'z2',series:null}];
+  blocks.forEach(function(b){
+    var z=zObj(b.zone);
+    var ser=b.series;
+    if(ser&&ser.reps>1){
+      stepsXML+='<Step xsi:type="Repeat_t"><StepId>'+(stepId++)+'</StepId><Repetitions>'+ser.reps+'</Repetitions>';
+      stepsXML+='<Child xsi:type="Step_t"><StepId>'+(stepId++)+'</StepId><Name>'+esc(b.label)+'</Name>';
+      if(ser.distance_m) stepsXML+='<Duration xsi:type="Distance_t"><Meters>'+ser.distance_m+'</Meters></Duration>';
+      else if(ser.time_s) stepsXML+='<Duration xsi:type="Time_t"><Seconds>'+ser.time_s+'</Seconds></Duration>';
+      else stepsXML+='<Duration xsi:type="UserInitiated_t"/>';
+      stepsXML+='<Intensity>Active</Intensity><Target xsi:type="HeartRate_t"><HeartRateZone xsi:type="CustomHeartRateZone_t"><Low>'+z.min+'</Low><High>'+z.max+'</High></HeartRateZone></Target></Child>';
+      stepsXML+='<Child xsi:type="Step_t"><StepId>'+(stepId++)+'</StepId><Name>Descanso</Name><Duration xsi:type="Time_t"><Seconds>'+(ser.rest_s||60)+'</Seconds></Duration><Intensity>Rest</Intensity><Target xsi:type="Open_t"/></Child>';
       stepsXML+='</Step>';
-      stepId+=3;
     } else {
-      stepsXML+='<Step xsi:type="Step_t">';
-      stepsXML+='<StepId>'+stepId+'</StepId>';
-      stepsXML+='<Name>'+esc(b.title)+'</Name>';
-      stepsXML+='<Duration xsi:type="Time_t"><Seconds>'+(b.dur*60)+'</Seconds></Duration>';
-      if(zIdx>=0){
-        stepsXML+='<Intensity>Active</Intensity>';
-        stepsXML+='<Target xsi:type="HeartRate_t"><HeartRateZone xsi:type="CustomHeartRateZone_t"><Low>'+z.min+'</Low><High>'+z.max+'</High></HeartRateZone></Target>';
-      } else {
-        stepsXML+='<Intensity>Rest</Intensity><Target xsi:type="Open_t"/>';
-      }
-      stepsXML+='</Step>';
-      stepId++;
+      stepsXML+='<Step xsi:type="Step_t"><StepId>'+(stepId++)+'</StepId><Name>'+esc(b.label)+'</Name>';
+      stepsXML+='<Duration xsi:type="Time_t"><Seconds>'+((b.minutes||5)*60)+'</Seconds></Duration>';
+      stepsXML+='<Intensity>Active</Intensity><Target xsi:type="HeartRate_t"><HeartRateZone xsi:type="CustomHeartRateZone_t"><Low>'+z.min+'</Low><High>'+z.max+'</High></HeartRateZone></Target></Step>';
     }
   });
-
   var xml='<?xml version="1.0" encoding="UTF-8"?>';
   xml+='<TrainingCenterDatabase xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd" xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">';
-  xml+='<Workouts><Workout Sport="'+sport+'">';
-  xml+='<Name>'+esc(title)+'</Name>';
-  xml+=stepsXML;
-  xml+='<ScheduledOn>'+new Date().toISOString().split('T')[0]+'</ScheduledOn>';
-  xml+='</Workout></Workouts></TrainingCenterDatabase>';
-
+  xml+='<Workouts><Workout Sport="'+sport+'"><Name>'+esc(title)+'</Name>'+stepsXML;
+  xml+='<ScheduledOn>'+new Date().toISOString().split('T')[0]+'</ScheduledOn></Workout></Workouts></TrainingCenterDatabase>';
   var a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([xml],{type:'application/xml'}));
   a.download=title.replace(/\s+/g,'_')+'.tcx';
   a.click();
 }
 
-// GYM PDF
+// ─── EXPORT PDF GIMNÀS ───
 function downloadGymPDF(){
-  var ex=exList||getGym();
+  if(!detail) return;
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+esc(title)+'</title>';
   html+='<style>body{font-family:Arial,sans-serif;padding:20px;max-width:600px;margin:0 auto}';
   html+='h1{color:#163A28;border-bottom:2px solid #163A28;padding-bottom:8px}';
-  html+='.ex{margin:16px 0;padding:12px;border:1px solid #ddd;border-radius:8px}';
-  html+='.ex-num{display:inline-block;background:#163A28;color:#fff;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;font-size:13px;margin-right:10px}';
-  html+='.ex-name{font-size:16px;font-weight:bold;color:#111}';
-  html+='.ex-detail{color:#555;margin-top:4px;font-size:14px}';
-  html+='.ex-muscle{background:#EBF5EF;color:#163A28;padding:2px 8px;border-radius:20px;font-size:12px;margin-top:6px;display:inline-block}';
-  html+='@media print{body{padding:0}}</style></head><body>';
-  html+='<h1>'+esc(title)+'</h1>';
-  html+='<p style="color:#888;margin-bottom:20px">'+esc(sub)+'</p>';
-  ex.forEach(function(e,i){
-    html+='<div class="ex">';
-    html+='<span class="ex-num">'+(i+1)+'</span><span class="ex-name">'+esc(e.name)+'</span>';
-    html+='<div class="ex-detail">'+esc(e.detail)+'</div>';
-    html+='<div class="ex-muscle">'+esc(e.muscle)+'</div>';
-    html+='</div>';
+  html+='.ex{margin:14px 0;padding:12px;border:1px solid #ddd;border-radius:8px}';
+  html+='.n{display:inline-block;background:#163A28;color:#fff;width:26px;height:26px;border-radius:50%;text-align:center;line-height:26px;font-size:13px;margin-right:9px}';
+  html+='.nm{font-size:16px;font-weight:bold;color:#111}.dt{color:#555;margin-top:4px;font-size:14px}';
+  html+='.ms{background:#EBF5EF;color:#163A28;padding:2px 8px;border-radius:20px;font-size:12px;margin-top:6px;display:inline-block}';
+  html+='@media print{body{padding:0}}</style></head><body><h1>'+esc(title)+'</h1>';
+  html+='<p style="color:#888;margin-bottom:18px">'+esc(detail.summary||sub)+'</p>';
+  (detail.exercises||[]).forEach(function(e,i){
+    var d=[e.prescription,e.load,e.rest_s?('descanso '+e.rest_s+'s'):'',e.cue].filter(Boolean).join(' · ');
+    html+='<div class="ex"><span class="n">'+(i+1)+'</span><span class="nm">'+esc(e.name)+'</span><div class="dt">'+esc(d)+'</div>'+(e.muscle?'<div class="ms">'+esc(e.muscle)+'</div>':'')+'</div>';
   });
-  html+='<p style="margin-top:30px;color:#888;font-size:12px">traineo.app · '+new Date().toLocaleDateString()+'</p>';
-  html+='</body></html>';
+  html+='<p style="margin-top:28px;color:#888;font-size:12px">traineo · '+new Date().toLocaleDateString()+'</p></body></html>';
   var w=window.open('','_blank');
-  w.document.write(html);
-  w.document.close();
+  w.document.write(html);w.document.close();
   setTimeout(function(){w.print();},500);
 }
 
-// MODE GUIAT
-var steps=[];
-var cur=0;
-var timer=null;
-var timeLeft=0;
+// ─── MODE GUIAT ───
+var steps=[],cur=0,timer=null,timeLeft=0;
 
 function buildSteps(){
   steps=[];
-  if(struct){
-    steps.push({type:'intro',title:'¡Vamos!',sub:'Sesión lista · sigue los pasos',dur:0,color:'#163A28'});
-    struct.forEach(function(b){
-      var series=parseSeries(b.title,b.sub);
-      var zIdx=colorToZone[b.color]!==undefined?colorToZone[b.color]:mainZone;
-      if(zIdx<0) zIdx=0;
-      if(series&&series.reps>1){
-        for(var i=1;i<=series.reps;i++){
-          steps.push({type:'serie',num:i,total:series.reps,distMeters:series.distMeters,timeSecs:series.timeSecs,zoneIdx:Math.min(zIdx,4),blockTitle:b.title,color:b.color});
-          if(i<series.reps){
-            steps.push({type:'descanso',num:i,total:series.reps,dur:series.restSecs,color:'#888780'});
-          }
+  if(detail.kind==='gym'){
+    steps.push({type:'intro',title:'¡A por ello!',sub:'Prepara el espacio · calienta 5 min'});
+    (detail.exercises||[]).forEach(function(e,i){steps.push({type:'exercise',num:i+1,total:detail.exercises.length,ex:e});});
+    steps.push({type:'outro',title:'¡Sesión completada!',sub:'Estira bien y descansa'});
+  } else {
+    steps.push({type:'intro',title:'¡Vamos!',sub:'Sesión lista · sigue los pasos'});
+    (detail.blocks||[]).forEach(function(b){
+      if(b.series&&b.series.reps>1){
+        for(var i=1;i<=b.series.reps;i++){
+          steps.push({type:'serie',num:i,total:b.series.reps,series:b.series,zone:b.zone,label:b.label});
+          if(i<b.series.reps) steps.push({type:'descanso',num:i,total:b.series.reps,dur:b.series.rest_s||60});
         }
       } else {
-        steps.push({type:'cardio',color:b.color,zoneIdx:Math.min(zIdx<0?0:zIdx,4),...b});
+        steps.push({type:'cardio',label:b.label,detail:b.detail,minutes:b.minutes||5,zone:b.zone});
       }
     });
-    steps.push({type:'outro',title:'¡Sesión completada!',sub:'Estira bien · hidratate · descansa',dur:0,color:'#4A9E6B'});
-  } else if(exList){
-    steps.push({type:'intro',title:'¡A por ello!',sub:'Prepara el espacio · calienta 5 min',dur:0,color:'#163A28'});
-    exList.forEach(function(e,i){steps.push({type:'exercise',num:i+1,...e});});
-    steps.push({type:'outro',title:'¡Sesión completada!',sub:'Estira bien y descansa',dur:0,color:'#4A9E6B'});
-  } else {
-    steps.push({type:'cardio',title:title,sub:sub,dur:duracio,color:'#4EA84A',zoneIdx:mainZone});
+    steps.push({type:'outro',title:'¡Sesión completada!',sub:'Estira bien · hidrátate · descansa'});
   }
 }
 
-function startGuided(){buildSteps();cur=0;document.getElementById('guided').classList.add('open');renderStep();}
+function startGuided(){if(!detail) return;buildSteps();cur=0;document.getElementById('guided').classList.add('open');renderStep();}
 function closeGuided(){clearInterval(timer);document.getElementById('guided').classList.remove('open');}
 
 function renderStep(){
   clearInterval(timer);
-  var s=steps[cur];
-  var isLast=cur===steps.length-1;
-  var isFirst=cur===0;
-  var total=steps.length;
-
-  // Dots
+  var s=steps[cur],isLast=cur===steps.length-1,isFirst=cur===0;
   var dotsHTML='';
   steps.forEach(function(_,i){
     var cls='gdot';
     if(i<cur) cls+=' done';
     else if(i===cur) cls+=' active';
-    else if(steps[i]&&steps[i].type==='descanso') cls+=' rest';
+    else if(steps[i].type==='descanso') cls+=' rest';
     dotsHTML+='<div class="'+cls+'"></div>';
   });
   document.getElementById('g-dots').innerHTML=dotsHTML;
-  document.getElementById('g-step-info').textContent='Paso '+(cur+1)+' de '+total;
+  document.getElementById('g-step-info').textContent='Paso '+(cur+1)+' de '+steps.length;
   document.getElementById('g-prev').style.display=isFirst?'none':'block';
-
-  var bodyHTML='';
   document.getElementById('g-progress').style.width='0%';
+  var b='';
 
   if(s.type==='serie'){
-    var z=zones[s.zoneIdx];
-    var distLabel=s.distMeters?(s.distMeters+'m'):(s.timeSecs?fmt(s.timeSecs):'');
+    var z=zObj(s.zone);
+    var big=s.series.distance_m?(s.series.distance_m+' m'):(s.series.time_s?fmt(s.series.time_s):'—');
     document.getElementById('g-next').textContent='Completada ✓';
-    bodyHTML='<div class="guided-type">Serie '+s.num+' de '+s.total+'</div>';
-    bodyHTML+='<div class="guided-serie-counter">'+distLabel+'</div>';
-    bodyHTML+='<div class="guided-zone-badge">'+z.label+' · '+z.min+'-'+z.max+' bpm</div>';
-    bodyHTML+='<div class="guided-detail">'+esc(s.blockTitle||'')+'</div>';
-    bodyHTML+='<div style="font-size:.8rem;color:rgba(255,255,255,.3);margin-top:.25rem">El GPS contará los metros</div>';
+    b='<div class="guided-type">Serie '+s.num+' de '+s.total+'</div>';
+    b+='<div class="guided-big">'+big+'</div>';
+    b+='<div class="guided-zone-badge">'+z.label+' · '+z.min+'-'+z.max+' bpm</div>';
+    b+='<div class="guided-detail">'+esc(s.label||'')+'</div>';
 
   } else if(s.type==='descanso'){
     document.getElementById('g-next').textContent='Listo →';
-    timeLeft=s.dur||60;
-    var total2=timeLeft;
-    bodyHTML='<div class="guided-type">Descanso '+s.num+' / '+(s.total-1)+'</div>';
-    bodyHTML+='<div class="guided-name">Recupera</div>';
-    bodyHTML+='<div class="guided-timer" id="g-timer">'+fmt(timeLeft)+'</div>';
-    bodyHTML+='<div class="guided-timer-lbl">segundos · pulsa Listo cuando estés preparado</div>';
-    setTimeout(function(){
-      timer=setInterval(function(){
-        timeLeft--;
-        var el=document.getElementById('g-timer');
-        if(el) el.textContent=fmt(timeLeft);
-        document.getElementById('g-progress').style.width=((total2-timeLeft)/total2*100)+'%';
-        if(timeLeft<=0){clearInterval(timer);}
-      },1000);
-    },100);
+    timeLeft=s.dur||60;var tot=timeLeft;
+    b='<div class="guided-type">Descanso '+s.num+' / '+(s.total-1)+'</div>';
+    b+='<div class="guided-name">Recupera</div>';
+    b+='<div class="guided-timer" id="g-timer">'+fmt(timeLeft)+'</div>';
+    b+='<div class="guided-timer-lbl">pulsa Listo cuando estés preparado</div>';
+    setTimeout(function(){timer=setInterval(function(){
+      timeLeft--;var el=document.getElementById('g-timer');if(el)el.textContent=fmt(timeLeft);
+      document.getElementById('g-progress').style.width=((tot-timeLeft)/tot*100)+'%';
+      if(timeLeft<=0) clearInterval(timer);
+    },1000);},100);
 
   } else if(s.type==='exercise'){
     document.getElementById('g-next').textContent='Hecho ✓';
-    bodyHTML='<div class="guided-type">Ejercicio '+s.num+' de '+exList.length+'</div>';
-    bodyHTML+='<div class="guided-ex-num">'+String(s.num).padStart(2,'0')+'</div>';
-    bodyHTML+='<div class="guided-name">'+esc(s.name)+'</div>';
-    bodyHTML+='<div class="guided-detail">'+esc(s.detail)+'</div>';
-    bodyHTML+='<div class="guided-muscle">'+esc(s.muscle)+'</div>';
+    var e=s.ex;
+    var dt=[e.prescription,e.load,e.cue].filter(Boolean).join(' · ');
+    b='<div class="guided-type">Ejercicio '+s.num+' de '+s.total+'</div>';
+    b+='<div class="guided-ex-num">'+String(s.num).padStart(2,'0')+'</div>';
+    b+='<div class="guided-name">'+esc(e.name)+'</div>';
+    b+='<div class="guided-detail">'+esc(dt)+'</div>';
+    b+='<div class="guided-muscle">'+esc(e.muscle||'')+'</div>';
 
   } else if(s.type==='intro'||s.type==='outro'){
     document.getElementById('g-next').textContent=s.type==='outro'?'¡Cerrar! 🎉':'Empezar →';
-    bodyHTML='<div class="guided-name">'+esc(s.title)+'</div>';
-    bodyHTML+='<div class="guided-detail">'+esc(s.sub||'')+'</div>';
+    b='<div class="guided-name">'+esc(s.title)+'</div><div class="guided-detail">'+esc(s.sub||'')+'</div>';
 
   } else {
-    // cardio amb timer
     document.getElementById('g-next').textContent=isLast?'¡Completado! 🎉':'Siguiente →';
-    var z2=zones[s.zoneIdx||mainZone];
-    timeLeft=(s.dur||1)*60;
-    var total3=timeLeft;
-    bodyHTML='<div class="guided-type">Bloque</div>';
-    bodyHTML+='<div class="guided-name">'+esc(s.title)+'</div>';
-    bodyHTML+='<div class="guided-zone-badge">'+z2.label+' · '+z2.min+'-'+z2.max+' bpm</div>';
-    bodyHTML+='<div class="guided-timer" id="g-timer">'+fmt(timeLeft)+'</div>';
-    bodyHTML+='<div class="guided-timer-lbl">minutos restantes</div>';
-    setTimeout(function(){
-      timer=setInterval(function(){
-        timeLeft--;
-        var el=document.getElementById('g-timer');
-        if(el) el.textContent=fmt(timeLeft);
-        document.getElementById('g-progress').style.width=((total3-timeLeft)/total3*100)+'%';
-        if(timeLeft<=0){clearInterval(timer);if(!isLast) nextStep();}
-      },1000);
-    },100);
+    var z2=zObj(s.zone);
+    timeLeft=(s.minutes||1)*60;var tot3=timeLeft;
+    b='<div class="guided-type">Bloque</div>';
+    b+='<div class="guided-name">'+esc(s.label)+'</div>';
+    b+='<div class="guided-zone-badge">'+z2.label+' · '+z2.min+'-'+z2.max+' bpm</div>';
+    b+='<div class="guided-timer" id="g-timer">'+fmt(timeLeft)+'</div>';
+    b+='<div class="guided-timer-lbl">minutos restantes</div>';
+    if(s.detail) b+='<div class="guided-detail">'+esc(s.detail)+'</div>';
+    setTimeout(function(){timer=setInterval(function(){
+      timeLeft--;var el=document.getElementById('g-timer');if(el)el.textContent=fmt(timeLeft);
+      document.getElementById('g-progress').style.width=((tot3-timeLeft)/tot3*100)+'%';
+      if(timeLeft<=0){clearInterval(timer);if(!isLast) nextStep();}
+    },1000);},100);
   }
-
-  document.getElementById('g-body').innerHTML=bodyHTML;
+  document.getElementById('g-body').innerHTML=b;
 }
 
 function nextStep(){if(cur<steps.length-1){cur++;renderStep();}else closeGuided();}
 function prevStep(){if(cur>0){cur--;renderStep();}}
-function fmt(s){var m=Math.floor(s/60);var ss=s%60;return m+':'+(ss<10?'0':'')+ss;}
+
+loadDetail();
 </script>
 </body>
 </html>
