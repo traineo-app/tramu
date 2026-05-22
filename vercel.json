@@ -3,5 +3,6 @@
     "api/coach.js": { "includeFiles": "coach-methodology.md", "maxDuration": 60 },
     "api/reajust.js": { "includeFiles": "coach-methodology.md", "maxDuration": 60 },
     "api/plan-completo.js": { "includeFiles": "coach-methodology.md", "maxDuration": 60 }
+    "api/session-detail.js": { "includeFiles": "coach-methodology.md", "maxDuration": 60 },
   }
 }
