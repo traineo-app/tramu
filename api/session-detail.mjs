@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 import path from "path";
 
-const anthropic = new Anthropic({ maxRetries: 4 });
+const anthropic = new Anthropic({ maxRetries: 2 });
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
