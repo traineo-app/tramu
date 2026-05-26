@@ -31,6 +31,7 @@ REGLA #3 — DISTRIBUCIÓN DE INTENSIDAD (SIEMPRE aplica, incluso sin déficit/s
   → Los 1-2 días ANTERIORES deben ser Z1/Z2 o descanso (no series, no intensidad alta)
   → El día POSTERIOR debe ser Z1, recuperación activa o descanso
 - Nunca dos sesiones de alta intensidad (Z4/Z5 o series) en días consecutivos
+- DURACIÓN MÍNIMA: Running/Trail mín. 15 min · Ciclismo mín. 25 min · Gimnasio mín. 10 min · Natación mín. 15 min. Si al redistribuir una sesión queda por debajo del mínimo, conviértela en DESCANSO (rest:true) en lugar de dejarla con duración ridícula.
 - Puedes CAMBIAR EL TIPO de sesión de los días no modificados si la metodología lo requiere:
   ejemplo → convertir "Series de velocidad" en "Rodaje Z2 recuperación", o reducir intensidad de un bloque
   → Si cambias el tipo, actualiza title, sub, tags, icon y why coherentemente
