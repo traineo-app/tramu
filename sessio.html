@@ -554,11 +554,15 @@ function normalizePlan(sessions){
 
 // Carrega la setmana sencera des de la taula plans (font única de la veritat)
 function loadWeek(){
-  if(!email||!setmana||!day) return;
+  if(!email||!setmana||!day) {
+    // Sense email/setmana: activem igualment el botó amb les dades de la URL
+    enableAdjustFromURL();
+    return;
+  }
   fetch('/api/get-plan?email='+encodeURIComponent(email)+'&_t='+Date.now())
   .then(function(r){return r.json();})
   .then(function(data){
-    if(!data) return;
+    if(!data) { enableAdjustFromURL(); return; }
     userData=(data.plan&&data.plan.userData)?Object.assign({},data.plan.userData):{};
     if(pacez2) userData.pacez2=pacez2;
     if(ftp) userData.ftp=ftp;
@@ -579,10 +583,45 @@ function loadWeek(){
         renderHeroStats();
         var aj=document.getElementById('btn-ajustar');
         if(aj) aj.disabled=false;
+      } else {
+        // Dia no trobat a la setmana del DB — fallback a URL
+        enableAdjustFromURL();
       }
+    } else {
+      enableAdjustFromURL();
     }
   })
-  .catch(function(e){ console.log('loadWeek failed',e); });
+  .catch(function(e){
+    console.log('loadWeek failed',e);
+    enableAdjustFromURL(); // Si falla get-plan, el botó funciona igualment
+  });
+}
+
+// Fallback: construeix una sessió mínima des dels paràmetres de la URL
+function enableAdjustFromURL(){
+  userData=userData||{};
+  userData.pacez2=userData.pacez2||pacez2||null;
+  userData.ftp=userData.ftp||ftp||null;
+  userData.nivel=userData.nivel||nivel||'intermedio';
+  userData.fcmax=userData.fcmax||fcmax||185;
+  // Construïm weekSessions mínim (una sola sessió — la d'avui)
+  var fallbackSession={
+    day:day,title:title,sub:sub,why:why,
+    tags:tags?tags.split(','):[],icon:icon,
+    rest:false,duracio_min:duracio,canviat:false,
+    completed:false,completion:null,custom:null,detail:null
+  };
+  if(!weekSessions||!weekSessions.length){
+    weekSessions=[fallbackSession];
+    dayIdx=0;
+  } else {
+    // Si ja tenim sessions però no hem trobat el dia
+    dayIdx=-1;
+    for(var j=0;j<weekSessions.length;j++){ if(weekSessions[j].day===day){ dayIdx=j; break; } }
+    if(dayIdx<0){ weekSessions.push(fallbackSession); dayIdx=weekSessions.length-1; }
+  }
+  var aj=document.getElementById('btn-ajustar');
+  if(aj) aj.disabled=false;
 }
 
 // Obre el modal d'ajust (mateixos camps que el dashboard, segons l'esport)
