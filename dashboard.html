@@ -600,8 +600,42 @@ async function initDashboard(user){
   await buildPlan(user);
 }
 
+var _tipInterval=null;
+function showPlanLoading(){
+  var tips=[
+    'El 80% del entrenamiento debe ser aeróbico. La base Z2 construye el motor.',
+    'La recuperación no es perder el tiempo — es donde ocurre la adaptación real.',
+    'Mejor 3 días constantes todo el año que 7 días intensos un mes.',
+    'El rodaje Z2 parece fácil. Debe parecerlo — así se forja la resistencia.',
+    'La fuerza previene lesiones. 1-2 días de gimnasio marcan la diferencia.',
+    'Cuando tienes sed ya has perdido un 2% de rendimiento. Hidrátate antes.',
+    'Primero el fondo, luego la velocidad. Las series no funcionan sin base aeróbica.',
+    'El sueño es el mejor suplemento. 7-9 horas optimizan la recuperación.'
+  ];
+  var idx=0;
+  document.getElementById('main-content').innerHTML=
+    '<div style="display:flex;flex-direction:column;align-items:center;padding:3rem 1.25rem 2rem;min-height:60vh;justify-content:center">'+
+    '<div style="width:42px;height:42px;border:3px solid #E8E6DF;border-top-color:#163A28;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:1.75rem"></div>'+
+    '<p style="font-size:.6rem;color:#B0AEA6;text-transform:uppercase;letter-spacing:.2em;font-weight:700;margin-bottom:.4rem">Generando tu plan</p>'+
+    '<p style="font-size:.95rem;color:#163A28;font-weight:600;margin-bottom:2.5rem;letter-spacing:-.2px">El coach está trabajando...</p>'+
+    '<div style="max-width:290px;background:#EBF5EF;border-radius:14px;padding:1.1rem 1.1rem;border:.5px solid rgba(74,158,107,.25)">'+
+    '<p style="font-size:.58rem;color:#4A9E6B;text-transform:uppercase;letter-spacing:.2em;font-weight:700;margin-bottom:.45rem">💡 Mientras esperas</p>'+
+    '<p id="tip-text" style="font-size:.82rem;color:#163A28;line-height:1.6;font-weight:500;transition:opacity .35s">'+tips[0]+'</p>'+
+    '</div></div>';
+  _tipInterval=setInterval(function(){
+    var el=document.getElementById('tip-text');
+    if(!el){clearInterval(_tipInterval);return;}
+    el.style.opacity='0';
+    setTimeout(function(){
+      idx=(idx+1)%tips.length;
+      var el2=document.getElementById('tip-text');
+      if(el2){el2.textContent=tips[idx];el2.style.opacity='1';}
+    },380);
+  },4000);
+}
+
 async function buildPlan(user){
-  document.getElementById('main-content').innerHTML='<div style="display:flex;...el plan de esta semana...</div>';
+  showPlanLoading();
   const prevWeekStart=addDaysISO(currentWeekStart,-7);
   const prev=allWeeks.find(w=>w.setmana===prevWeekStart);
   const previousWeek=(prev&&prev.sessions&&prev.sessions.length)
