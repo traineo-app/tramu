@@ -124,7 +124,7 @@ REGLAS DEL FORMATO:
 
     const response = await anthropic.messages.create({
       model: "claude-haiku-4-5",
-      max_tokens: 1800,
+      max_tokens: 2500,
       system: [
         { type: "text", text: BASE_INSTRUCTIONS },
         { type: "text", text: METHODOLOGY, cache_control: { type: "ephemeral" } }
