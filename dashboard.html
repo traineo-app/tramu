@@ -720,7 +720,7 @@ async function buildPlan(user){
       planDays=planDays.map(function(d){
         var dPos=dayNames.indexOf(d.day);
         if(dPos<todayPos&&!d.rest){
-          return{...d,rest:true,icon:'💤',title:'Descanso',sub:'Día anterior al plan',tags:[],why:'',duracio_min:0};
+          return{...d,rest:true,icon:'💤',title:'Descanso',sub:'Día anterior al plan',tags:[],why:'',duracio_min:0,canviat:true};
         }
         return d;
       });
@@ -936,10 +936,19 @@ async function reajustarDiferit(descripcioCanvi,loadingMsg){
     if(requestId!==reajustRequestId) return;
     if(data.setmana){
       let aiPlan=normalizePlan(data.setmana);
-      immutableSnapshot.forEach(function(item){
-        if(item.idx<aiPlan.length){aiPlan[item.idx]=item.day;}
-      });
-      planDays=aiPlan;
+        immutableSnapshot.forEach(function(item){
+          var targetIdx=aiPlan.findIndex(function(d){return d.day===item.day.day;});
+          if(targetIdx>=0) aiPlan[targetIdx]=item.day;
+        });
+        var todayPosCk=dayNames.indexOf(todayName);
+        aiPlan=aiPlan.map(function(d){
+          var dPos=dayNames.indexOf(d.day);
+          if(dPos<todayPosCk&&!d.rest){
+            return{...d,rest:true,icon:'💤',title:'Descanso',sub:'',tags:[],why:'',duracio_min:0,canviat:true};
+          }
+          return d;
+        });
+        planDays=aiPlan;
       if(data.resum) window._coachResum=data.resum;
       renderAll();
       showCoachBanner(false,data.missatge||'Plan ajustado ✓');
