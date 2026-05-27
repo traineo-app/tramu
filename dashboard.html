@@ -371,7 +371,7 @@ document.getElementById('greeting-date').textContent=todayName.toUpperCase()+' Â
 
 const params=new URLSearchParams(window.location.search);
 const sportsParam=params.get('sports');
-const emailParam=params.get('email');
+const emailParam=params.get('email');  
 
 const user=sportsParam?{
   sports:sportsParam.split(','),
@@ -397,6 +397,9 @@ const user=sportsParam?{
   ftp:parseInt(params.get('ftp'))||null,
   hasPDF:params.get('pdf')==='1',
   hasStrava:params.get('strava')==='1'
+  tempsObj:params.get('temps_obj')?parseInt(params.get('temps_obj')):null,
+  ritmeObj:params.get('ritme_obj')?parseInt(params.get('ritme_obj')):null,
+  velObj:params.get('vel_obj')?parseFloat(params.get('vel_obj')):null,
 }:null;
 
 const allSessionsDB={
@@ -623,6 +626,7 @@ async function initDashboard(user){
       const curResum=cur?cur.resum:(data.plan&&data.plan.resum);
       if(curSessions&&curSessions.length>0){
         planDays=normalizePlan(curSessions);
+        planDays=applyStravaCompletions(planDays);
         window._coachResum=curResum||'';
         showToast('Plan cargado âœ“');
         renderAll();
