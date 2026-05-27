@@ -575,6 +575,39 @@ function normalizePlan(sessions){
   }));
 }
 
+function applyStravaCompletions(plan){
+  try{
+    var stats=JSON.parse(sessionStorage.getItem('traineo_strava_stats')||'null');
+    if(!stats||!stats.currentWeek||stats.currentWeek.length===0) return plan;
+    var acts=stats.currentWeek;
+    return plan.map(function(s){
+      if(s.rest||s.completed) return s;
+      var match=acts.find(function(a){
+        if(a.dayOfWeek!==s.day) return false;
+        var sp=getSportType(s);
+        return (sp==='running'&&a.sport==='running')||
+               (sp==='trail'&&(a.sport==='trail'||a.sport==='running'))||
+               (sp==='cycling'&&a.sport==='ciclismo')||
+               (sp==='gym'&&a.sport==='gimnasio')||
+               (sp==='swim'&&a.sport==='natacion');
+      });
+      if(!match) return s;
+      return Object.assign({},s,{
+        completed:true,
+        completion:{
+          status:'completed',
+          rpe:'good',
+          actualDuration:match.durationMin,
+          plannedDuration:s.duracio_min||45,
+          note:'Importado desde Strava'+(match.distanceKm?' · '+match.distanceKm+'km':''),
+          date:match.date+'T12:00:00.000Z',
+          fromStrava:true
+        }
+      });
+    });
+  }catch(e){return plan;}
+}  
+  
 async function initDashboard(user){
   if(currentEmail){
     document.getElementById('nav-avatar').textContent=currentEmail[0].toUpperCase();
@@ -690,6 +723,7 @@ async function buildPlan(user){
       if(data.resum) window._coachResum=data.resum;
       allWeeks=allWeeks.filter(w=>w.setmana!==currentWeekStart);
       allWeeks.push({setmana:currentWeekStart,sessions:planDays,resum:window._coachResum||''});
+      planDays=applyStravaCompletions(planDays);
       renderAll();
       loadPeriodization();
       if(currentEmail) await savePlanToSupabase();
