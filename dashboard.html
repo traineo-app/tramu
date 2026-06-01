@@ -400,6 +400,8 @@ const user=sportsParam?{
   tempsObj:params.get('temps_obj')?parseInt(params.get('temps_obj')):null,
   ritmeObj:params.get('ritme_obj')?parseInt(params.get('ritme_obj')):null,
   velObj:params.get('vel_obj')?parseFloat(params.get('vel_obj')):null,
+  gymUbi:params.get('gym_ubi')||'',
+  gymMat:params.get('gym_mat')?params.get('gym_mat').split(','):[],
 }:null;
 
 const allSessionsDB={
@@ -708,6 +710,8 @@ async function buildPlan(user){
         musculos: params.get('musculos') ? params.get('musculos').split(',') : [],
         obj_gym: params.get('obj_gym') || null,
         equipamiento: params.get('equip') || null,
+        gym_ubi: params.get('gym_ubi') || null,
+        gym_mat: params.get('gym_mat') ? params.get('gym_mat').split(',') : [],
         stravaStats: (function(){ try{ return JSON.parse(sessionStorage.getItem('traineo_strava_stats')||'null'); }catch(e){ return null; } })(),
         stressTestData: (function(){ try{ return JSON.parse(sessionStorage.getItem('traineo_stress_test_data')||'null'); }catch(e){ return null; } })(),
         previousWeek: previousWeek
@@ -1649,7 +1653,8 @@ function openSessio(idx){
     duracio:d.duracio_min||45,
     email:currentEmail||'',setmana:currentWeekStart,day:d.day||'',
     objetivo:user?.objetivo||'',pacez2:user?.pacez2||'',ftp:user?.ftp||'',
-    musculos:params.get('musculos')||'',equip:params.get('equip')||''
+    musculos:params.get('musculos')||'',equip:params.get('equip')||'',
+    gym_ubi:params.get('gym_ubi')||'',gym_mat:params.get('gym_mat')||''
   });
   window.location.href='sessio.html?'+p.toString();
 }
