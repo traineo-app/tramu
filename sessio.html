@@ -313,7 +313,7 @@ function loadDetail(force){
       session:{title:title,sub:sub,why:why,tags:tags?tags.split(','):[],duracio_min:duracio},
       userData:{fcmax:fcmax,nivel:nivel,objetivo:objetivo,pacez2:pacez2,ftp:ftp,
         musculos:musculos?musculos.split(','):[],equipamiento:equip||null,
-        gym_ubi:gymUbi||null,gym_mat:gymMat?gymMat.split(','):[]}
+        gymUbi:gymUbi||null,gymMat:gymMat?gymMat.split(','):[]}
     })
   })
   .then(function(r){return r.json().catch(function(){return {error:'HTTP '+r.status+' — respuesta no-JSON del servidor'};});})
