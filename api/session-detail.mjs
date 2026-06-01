@@ -15,13 +15,29 @@ const METHODOLOGY = fs.readFileSync(
   "utf8"
 );
 
+function describeMaterial(gym_ubi, gym_mat, equipamiento) {
+  if (gym_ubi === 'gimnasio' || equipamiento === 'gym_completo') {
+    return 'Gimnasio completo: barras, mancuernas, máquinas, poleas, banco. Cualquier ejercicio.';
+  }
+  const mats = Array.isArray(gym_mat) ? gym_mat : (typeof gym_mat === 'string' && gym_mat ? gym_mat.split(',') : []);
+  if (mats.length === 0 || mats.includes('nada') || equipamiento === 'cuerpo') {
+    return 'SOLO peso corporal. PROHIBIDO pesas, barras o máquinas. Ejercicios de calistenia (flexiones, fondos, sentadillas, zancadas, planchas, puentes, dominadas si hay barra).';
+  }
+  const matNames = {
+    mancuernas: 'mancuernas', kettlebell: 'kettlebell', gomas: 'gomas elásticas',
+    barra_dominadas: 'barra de dominadas', banco: 'banco y barra'
+  };
+  const list = mats.map(m => matNames[m] || m).join(', ');
+  return `EN CASA. Material: ${list}. SOLO ejercicios con este material. NADA de máquinas ni poleas. Si falta material para un grupo, usa peso corporal.`;
+}
+
 const BASE_INSTRUCTIONS = `Eres el coach IA de traineo. Tu metodologia completa esta en el CERVELL DEL COACH que sigue. Siguela siempre.
 
 El coach ya ha planificado una sesion (titulo, duracion, intencion). Tu NO la cambias: la DESARROLLAS en su ejecucion detallada paso a paso.
 
 REGLAS:
 - CARDIO: genera bloques (calentamiento, bloque principal, vuelta a la calma). La suma de minutos es la duracion de la sesion.
-- GIMNASIO/FUERZA/CALISTENIA: genera 5-7 ejercicios coherentes con el grupo muscular y el material disponible.
+- GIMNASIO/FUERZA/CALISTENIA: genera 5-7 ejercicios coherentes con el grupo muscular Y EL MATERIAL DISPONIBLE. Es OBLIGATORIO respetar el material: si solo hay peso corporal, NO prescribas ejercicios con pesas o máquinas. Si solo hay mancuernas, NO uses barras ni poleas. Adapta cada ejercicio al material exacto del atleta.
 - Respeta la intencion del titulo: si es Z2, el bloque principal es Z2; si es series, estructura series reales con repeticiones y recuperacion.
 - Numeros concretos SIEMPRE: minutos, repeticiones, distancias, porcentajes de FTP o RM, descansos, zona FC.
 - Aplica la metodologia del cervell para decidir estructura, intensidades, recuperaciones y tecnica.
@@ -32,7 +48,8 @@ function detailSig(session, userData) {
     "v2",
     session?.title || "", session?.duracio_min ?? 45,
     (session?.tags || []).join(","), userData?.fcmax ?? 185,
-    userData?.nivel || "intermedio", userData?.pacez2 || "", userData?.ftp || ""
+    userData?.nivel || "intermedio", userData?.pacez2 || "", userData?.ftp || "",
+    userData?.gymUbi || "", (Array.isArray(userData?.gymMat) ? userData.gymMat.join(",") : userData?.gymMat || "")
   ].join("|");
 }
 
@@ -46,7 +63,6 @@ export default async function handler(req, res) {
     const sig = detailSig(session, userData);
     const fc = userData?.fcmax || 185;
 
-    // 1. Cache: detall ja desat dins de plans.sessions[].detail
     let planRow = null, sessionIdx = -1;
     if (email && setmana && day) {
       const { data: profile } = await supabase
@@ -66,8 +82,8 @@ export default async function handler(req, res) {
       }
     }
 
-    // 2. Generar
     const z = p => Math.round(fc * p);
+    const hasMaterial = userData?.gymUbi || userData?.equipamiento || (userData?.gymMat && userData.gymMat.length);
     const userMessage = `# SESION PLANIFICADA POR EL COACH
 
 - Titulo: ${session.title}
@@ -85,7 +101,7 @@ export default async function handler(req, res) {
 ${userData?.pacez2 ? `- Ritmo Z2 running: ${Math.floor(userData.pacez2 / 60)}:${String(userData.pacez2 % 60).padStart(2, "0")}/km` : ""}
 ${userData?.ftp ? `- FTP: ${userData.ftp} W` : ""}
 ${userData?.musculos && userData.musculos.length ? `- Grupos musculares prioritarios: ${userData.musculos.join(", ")}` : ""}
-${userData?.equipamiento ? `- Material disponible: ${userData.equipamiento}` : ""}
+${hasMaterial ? `- MATERIAL DISPONIBLE (OBLIGATORIO respetar): ${describeMaterial(userData.gymUbi, userData.gymMat, userData.equipamiento)}` : ""}
 
 # TAREA
 
@@ -114,7 +130,7 @@ FORMATO OBLIGATORIO. Devuelve SOLO este JSON (sin markdown):
 
 REGLAS DEL FORMATO:
 - Si es cardio: rellena "blocks" (3-5 bloques) con sus campos "rpe", "cue" y "feel"; deja "exercises" como [].
-- Si es gimnasio/fuerza/calistenia: rellena "exercises" (5-7); deja "blocks" como [].
+- Si es gimnasio/fuerza/calistenia: rellena "exercises" (5-7) RESPETANDO EL MATERIAL DISPONIBLE; deja "blocks" como [].
 - "kind" debe ser exactamente la palabra cardio o la palabra gym.
 - "zone" es uno de: z1, z2, z3, z4, z5. "rpe" es un numero o rango del 1 al 10 (esfuerzo percibido).
 - "series" solo cuando el bloque son repeticiones; si no, null.
@@ -124,7 +140,7 @@ REGLAS DEL FORMATO:
 
     const response = await anthropic.messages.create({
       model: "claude-haiku-4-5",
-      max_tokens: 2500,
+      max_tokens: 4000,
       system: [
         { type: "text", text: BASE_INSTRUCTIONS },
         { type: "text", text: METHODOLOGY, cache_control: { type: "ephemeral" } }
@@ -173,11 +189,7 @@ REGLAS DEL FORMATO:
       _generatedAt: new Date().toISOString()
     };
 
-    // 3. Persistir dins de la sessio
-    // IMPORTANT: rellegim sessions fresques just ara (el Claude ha trigat 5-10s
-    // i el dashboard podria haver guardat canvis durant aquest temps).
     if (planRow && sessionIdx >= 0) {
-      // Re-llegim sessions fresques ara: l'AI ha trigat 10-30s i la DB pot haver canviat
       const { data: freshPlan } = await supabase
         .from("plans").select("sessions").eq("id", planRow.id).maybeSingle();
       if (freshPlan && Array.isArray(freshPlan.sessions)) {
