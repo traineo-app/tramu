@@ -173,7 +173,16 @@
 </div>
 
 <div class="toast" id="toast"></div>
-
+<div class="modal-overlay" id="modal-email" onclick="closeModal('modal-email',event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Guarda tu plan</div>
+    <div class="modal-sub">Introduce tu email para guardar los cambios y recuperar tu plan cuando vuelvas.</div>
+    <input type="email" id="email-input" placeholder="hola@ejemplo.com" style="width:100%;padding:.8rem 1rem;border:.5px solid #E8E6DF;border-radius:10px;font-size:.9rem;font-family:'Inter',sans-serif;color:#111110;background:#fff;outline:none;margin-bottom:1rem">
+    <button class="btn-green" onclick="saveEmailThenAdjust()">Guardar y ajustar →</button>
+    <button class="btn-cancel" onclick="closeModal('modal-email')">Ahora no</button>
+  </div>
+</div>
 <!-- ── NOU: modal ajustar (temps / km / ritme) ── -->
 <div class="modal-overlay" id="modal-time" onclick="closeModal('modal-time',event)">
   <div class="modal">
@@ -625,7 +634,27 @@ function enableAdjustFromURL(){
 }
 
 // Obre el modal d'ajust (mateixos camps que el dashboard, segons l'esport)
+async function saveEmailThenAdjust(){
+  var v=(document.getElementById('email-input').value||'').trim();
+  if(!v||v.indexOf('@')<0){ showToast('Introduce un email válido'); return; }
+  email=v;
+  // Assegura que userData i weekSessions estan llestos (fallback si loadWeek no havia trobat res)
+  if(!weekSessions||dayIdx<0) enableAdjustFromURL();
+  closeModal('modal-email');
+  try{
+    await savePlanReq();        // primer save: crea el perfil + pla a Supabase
+    showToast('Plan guardado ✓');
+  }catch(e){
+    showToast('⚠ No se pudo guardar · '+String(e.message).substring(0,50));
+    return;
+  }
+  setTimeout(openAdjustModal, 300);  // ara email ja existeix → obre l'ajust
+}
 function openAdjustModal(){
+  if(!email){
+    document.getElementById('modal-email').classList.add('open');
+    return;
+  }
   if(dayIdx<0||!weekSessions||!weekSessions[dayIdx]) return;
   adjustingSession=weekSessions[dayIdx];
   var sport=getSportType(adjustingSession);
