@@ -628,7 +628,6 @@ async function initDashboard(user){
       const curResum=cur?cur.resum:(data.plan&&data.plan.resum);
       if(curSessions&&curSessions.length>0){
         planDays=normalizePlan(curSessions);
-        planDays=applyStravaCompletions(planDays);
         window._coachResum=curResum||'';
         showToast('Plan cargado ✓');
         renderAll();
@@ -732,7 +731,6 @@ async function buildPlan(user){
       if(data.resum) window._coachResum=data.resum;
       allWeeks=allWeeks.filter(w=>w.setmana!==currentWeekStart);
       allWeeks.push({setmana:currentWeekStart,sessions:planDays,resum:window._coachResum||''});
-      planDays=applyStravaCompletions(planDays);
       renderAll();
       loadPeriodization();
       if(currentEmail){ await savePlanToSupabase(); pregenTodayDetail(); }
