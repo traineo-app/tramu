@@ -51,6 +51,15 @@
     .ex-name{font-size:.92rem;font-weight:600;color:#111110;margin-bottom:3px;letter-spacing:-.1px}
     .ex-detail{font-size:.78rem;color:#888780;margin-bottom:6px;line-height:1.45;font-weight:500}
     .ex-muscle{font-size:.66rem;font-weight:600;padding:2px 9px;border-radius:20px;background:#EBF5EF;color:#163A28;display:inline-block;text-transform:uppercase;letter-spacing:.05em}
+    .exercise.expandable{cursor:pointer;flex-direction:column;align-items:stretch;gap:0}
+    .ex-head{display:flex;align-items:flex-start;gap:.85rem;width:100%}
+    .ex-chev{font-size:1rem;color:#B0AEA6;transition:transform .2s;flex-shrink:0;align-self:center}
+    .exercise.open .ex-chev{transform:rotate(180deg)}
+    .ex-more{max-height:0;overflow:hidden;transition:max-height .25s ease;width:100%}
+    .exercise.open .ex-more{max-height:400px;margin-top:.75rem;border-top:.5px solid #E8E6DF;padding-top:.75rem}
+    .ex-howto-label{font-size:.66rem;font-weight:600;color:#888780;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem}
+    .ex-howto{font-size:.82rem;color:#3F3E3A;line-height:1.55;font-weight:500;margin-bottom:.6rem}
+    .ex-video-btn{display:inline-flex;align-items:center;gap:.4rem;background:#163A28;color:#fff;border:none;border-radius:8px;padding:.55rem .9rem;font-size:.76rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;text-decoration:none}
     .tip{background:#fff;border:.5px solid #E8E6DF;border-radius:11px;padding:.9rem 1rem;display:flex;gap:.65rem;align-items:flex-start}
     .tip-dot{width:6px;height:6px;border-radius:50%;background:#4A9E6B;margin-top:5px;flex-shrink:0}
     .tip-text{font-size:.82rem;color:#5F5E5A;line-height:1.6;font-weight:500}
@@ -379,11 +388,22 @@ function renderDetail(){
     html+='<div class="section"><div class="section-title">Perfil de intensidad</div><div class="graph-card">'+intensityGraphSVG(detail.blocks)+'</div></div>';
   }
 
-  if(isGym&&detail.exercises.length){
-    html+='<div class="section"><div class="section-title">Ejercicios</div><div class="exercises">';
+ if(isGym&&detail.exercises.length){
+    html+='<div class="section"><div class="section-title">Ejercicios <span class="hint">· toca un ejercicio</span></div><div class="exercises">';
     detail.exercises.forEach(function(e,i){
-      var d=[e.prescription,e.load,e.rest_s?('descanso '+e.rest_s+'s'):'',e.cue].filter(Boolean).join(' · ');
-      html+='<div class="exercise"><div class="ex-num">'+String(i+1).padStart(2,'0')+'</div><div class="ex-info"><div class="ex-name">'+esc(e.name)+'</div><div class="ex-detail">'+esc(d)+'</div>'+(e.muscle?'<span class="ex-muscle">'+esc(e.muscle)+'</span>':'')+'</div></div>';
+      var d=[e.prescription,e.load,e.rest_s?('descanso '+e.rest_s+'s'):''].filter(Boolean).join(' · ');
+      var hasMore=e.howto||e.cue;
+      var ytq=encodeURIComponent((e.name||'')+' técnica ejercicio');
+      html+='<div class="exercise'+(hasMore?' expandable':'')+'" id="ex-'+i+'"'+(hasMore?' onclick="toggleEx('+i+')"':'')+'>';
+      html+='<div class="ex-head"><div class="ex-num">'+String(i+1).padStart(2,'0')+'</div><div class="ex-info"><div class="ex-name">'+esc(e.name)+'</div><div class="ex-detail">'+esc(d)+'</div>'+(e.muscle?'<span class="ex-muscle">'+esc(e.muscle)+'</span>':'')+'</div>'+(hasMore?'<div class="ex-chev">⌄</div>':'')+'</div>';
+      if(hasMore){
+        html+='<div class="ex-more" onclick="event.stopPropagation()">';
+        if(e.howto){ html+='<div class="ex-howto-label">Cómo se hace</div><div class="ex-howto">'+esc(e.howto)+'</div>'; }
+        if(e.cue){ html+='<div class="ex-howto-label">Técnica</div><div class="ex-howto">'+esc(e.cue)+'</div>'; }
+        html+='<a class="ex-video-btn" href="https://www.youtube.com/results?search_query='+ytq+'" target="_blank" rel="noopener">▶ Ver vídeo</a>';
+        html+='</div>';
+      }
+      html+='</div>';
     });
     html+='</div></div>';
   } else if(detail.blocks.length){
@@ -457,6 +477,10 @@ function intensityGraphSVG(blocks){
 }
 function toggleBlock(i){
   var el=document.getElementById('blk-'+i);
+  if(el) el.classList.toggle('open');
+}
+function toggleEx(i){
+  var el=document.getElementById('ex-'+i);
   if(el) el.classList.toggle('open');
 }
 
