@@ -45,7 +45,7 @@ REGLAS:
 
 function detailSig(session, userData) {
   return [
-    "v2",
+    "v3",
     session?.title || "", session?.duracio_min ?? 45,
     (session?.tags || []).join(","), userData?.fcmax ?? 185,
     userData?.nivel || "intermedio", userData?.pacez2 || "", userData?.ftp || "",
