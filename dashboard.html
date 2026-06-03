@@ -402,6 +402,8 @@ const user=sportsParam?{
   velObj:params.get('vel_obj')?parseFloat(params.get('vel_obj')):null,
   gymUbi:params.get('gym_ubi')||'',
   gymMat:params.get('gym_mat')?params.get('gym_mat').split(','):[],
+  stravaStats:(function(){try{return JSON.parse(sessionStorage.getItem('traineo_strava_stats')||'null');}catch(e){return null;}})(),
+  stressTestData:(function(){try{return JSON.parse(sessionStorage.getItem('traineo_stress_test_data')||'null');}catch(e){return null;}})(),
 }:null;
 
 const allSessionsDB={
@@ -621,6 +623,10 @@ async function initDashboard(user){
       // NOU: &_t= evita que el navegador serveixi una resposta cacheada
       const res=await fetch('/api/get-plan?email='+encodeURIComponent(currentEmail)+'&_t='+Date.now());
       const data=await res.json();
+      if(data.plan&&data.plan.userData){
+        if(data.plan.userData.stravaStats&&!user.stravaStats) user.stravaStats=data.plan.userData.stravaStats;
+        if(data.plan.userData.stressTestData&&!user.stressTestData) user.stressTestData=data.plan.userData.stressTestData;
+      }
       allWeeks=data.weeks||[];
       periodization=data.periodization||null;
       const cur=allWeeks.find(w=>w.setmana===currentWeekStart);
