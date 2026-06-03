@@ -286,10 +286,12 @@ async function handlePlanGeneration(req, res) {
     if (fecha) {
       const diff = Math.ceil((new Date(fecha) - new Date()) / (1000*60*60*24));
       ctx += `- Data: ${fecha} (${diff} dies)\n`;
-      if (diff < 30) ctx += `- **FASE: TAPER** — manteniment, no augmentis càrrega\n`;
-      else if (diff < 60) ctx += `- **FASE: ESPECÍFIC** — prioritzar intensitat específica de cursa\n`;
-      else if (diff < 120) ctx += `- **FASE: CONSTRUCCIÓ** — augmentar volum progressivament\n`;
-      else ctx += `- **FASE: BASE** — construir base aeròbica\n`;
+      if (diff < 0) ctx += `- **LA CARRERA YA HA PASADO** (hace ${Math.abs(diff)} días). Genera una semana de RECUPERACIÓN post-competición: Z1-Z2 suave, volumen muy bajo, sin intensidad. Pregunta implícitamente por un nuevo objetivo.\n`;
+      else if (diff <= 3) ctx += `- **SEMANA DE CARRERA** — TAPER FINAL: reduce el volumen al 40-50% del habitual, mantén 1-2 activaciones cortas de calidad, descanso total los 2 días previos. NADA de sesiones largas ni series duras.\n`;
+      else if (diff <= 10) ctx += `- **FASE: TAPER** — reduce volumen progresivamente (60-70% del habitual), mantén algo de intensidad específica pero acorta las sesiones. Llega fresco.\n`;
+      else if (diff < 35) ctx += `- **FASE: ESPECÍFICO** — prioriza intensidad específica de carrera, simula ritmos objetivo. Volumen alto pero empezando a pulir.\n`;
+      else if (diff < 70) ctx += `- **FASE: CONSTRUCCIÓN** — aumenta volumen progresivamente, introduce calidad.\n`;
+      else ctx += `- **FASE: BASE** — construye base aeróbica.\n`;
     }
   }
 
