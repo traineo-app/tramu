@@ -43,14 +43,19 @@ function getMondayISO(date) {
 }
 
 function periodizationSig(userData, objetivo, raceDate) {
+  const sv = userData?.stravaStats;
+  const fotoMark = sv
+    ? "s" + Math.round(Number(sv?.last4Weeks?.weeklyAvgHours || sv?.avgWeeklyHours || 0))
+    : "nofoto";
   return [
-    "v2",
+    "v3",
     objetivo,
     raceDate || "",
     Math.round(Number(userData?.volum) || 4),
     userData?.dias ?? 3,
     (userData?.sports || ["running"]).slice().sort().join(","),
-    userData?.nivel || "intermedio"
+    userData?.nivel || "intermedio",
+    fotoMark
   ].join("|");
 }
 
@@ -110,7 +115,15 @@ ESTRUCTURA OBLIGATORIA DE LA CURVA DE CARGA (es lo MÁS importante de este plan)
 - Respeta los microciclos 3+1: cada ~4 semanas una de descarga (~25-30% menos que la anterior).
 - El objetivo de toda la curva es llegar al día de la carrera en PICO de forma: fresco pero entrenado.${ritmeBlock}
 
-Nomenclatura de fase: usa "Base 1", "Construcción 2", "Específico", "Taper", "Carrera" (la última semana SIEMPRE "Carrera").`,
+ADAPTA LAS FASES AL TIEMPO REAL Y AL PUNTO DE FORMA ACTUAL (clave — NO empieces siempre por Base):
+- El plan tiene ${weeks} semana(s) hasta la carrera. Distribuye las fases según ESE tiempo disponible y el estado de forma del atleta (su histórico Strava y nivel indican de dónde viene).
+- Si quedan POCAS semanas (≤4) Y el atleta ya tiene base (nivel intermedio/avanzado o volumen Strava decente): NO empieces por "Base 1". El atleta YA está entrenado. Entra directamente en Específico + Taper. Sería un error hacerle empezar la base a pocas semanas de competir.
+- Si quedan 5-8 semanas: poca o nula Base, sobre todo Construcción + Específico + Taper.
+- Si quedan 9-14 semanas: Base corta + Construcción + Específico + Taper.
+- Si quedan 15+ semanas: periodización completa Base → Construcción → Específico → Taper.
+- Un atleta avanzado necesita MENOS base que un principiante para el mismo tiempo. Usa el histórico para calibrar de dónde parte.
+
+Nomenclatura de fase: usa "Base 1", "Construcción 2", "Específico", "Taper", "Carrera" (la última semana SIEMPRE "Carrera"). Si saltas la base, empieza directamente por "Construcción" o "Específico".`,
 
       forma: `OBJETIVO: PONERSE EN FORMA (mejora general, SIN carrera).
 Como no hay pico objetivo, usa CICLO ROLLING 3+1 según BLOC 9 #57 de tu metodología (3 sem progresión + 1 descarga).
@@ -132,6 +145,24 @@ Nomenclatura OBLIGATORIA: "Ciclo 1 · Semana X/${weeks}". Ciclo rolling 3+1 con 
     const ejemploFase = objetivo === "carrera" ? "Base 1" : `Ciclo 1 · Semana 1/${weeks}`;
     const volumBase = userData?.volum || 4;
 
+    // ── LA FOTO DE L'ATLETA: context d'on venim (Strava de l'onboarding) ──
+    const sv = userData?.stravaStats || null;
+    let fotoBlock = "";
+    if (sv) {
+      fotoBlock += `\n\n# FOTO DEL ATLETA AL EMPEZAR (de dónde viene — histórico Strava)\n`;
+      fotoBlock += `Esta es la foto real de su estado de forma. ÚSALA para decidir de qué fase partir (no le hagas empezar de cero si ya viene entrenado).\n`;
+      if (sv.recentActivities6mo != null) fotoBlock += `- Actividades últimos 6 meses: ${sv.recentActivities6mo}\n`;
+      if (sv.avgWeeklyHours != null) fotoBlock += `- Volumen medio histórico: ${sv.avgWeeklyHours} h/semana (${sv.avgWeeklyKm || "?"} km/sem)\n`;
+      if (sv.last4Weeks?.weeklyAvgHours != null) fotoBlock += `- Últimas 4 semanas (estado actual): ${sv.last4Weeks.weeklyAvgHours} h/sem · ${sv.last4Weeks.km || "?"} km\n`;
+      if (sv.running?.longestKm) fotoBlock += `- Rodaje más largo reciente: ${sv.running.longestKm} km\n`;
+      if (sv.running?.best5K_pace) fotoBlock += `- Mejor 5K: ${sv.running.best5K_pace}\n`;
+      if (sv.running?.best10K_pace) fotoBlock += `- Mejor 10K: ${sv.running.best10K_pace}\n`;
+      if (sv.cycling?.longestKm) fotoBlock += `- Ruta bici más larga: ${sv.cycling.longestKm} km\n`;
+      fotoBlock += `INTERPRETACIÓN: si este volumen/nivel indica que ya tiene una base sólida, ARRANCA el plan en una fase avanzada (Construcción/Específico) acorde al tiempo que queda. No repitas base que ya tiene hecha.`;
+    } else {
+      fotoBlock = `\n\n# SIN HISTÓRICO STRAVA\nNo hay foto de Strava. Usa el nivel declarado (${userData?.nivel || "intermedio"}) y el volumen base para estimar de qué fase partir según el tiempo disponible.`;
+    }
+
     const userMessage = `${objectiveTask[objetivo] || objectiveTask.forma}
 
 # DATOS DEL ATLETA
@@ -145,6 +176,7 @@ ${userData?.fcmax ? `- FCmax: ${userData.fcmax} bpm` : ""}
 ${objetivo === "carrera"
         ? `- CARRERA: ${raceName} el ${raceDate} (distancia ${userData?.distancia || ""}${userData?.desnivel ? ", +" + userData.desnivel + "m D+" : ""})`
         : ""}
+${fotoBlock}
 
 # TAREA
 
