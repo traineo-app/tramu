@@ -31,6 +31,7 @@ REGLES GENERALS:
 - Aplica la filosofia 80/20 i els principis de càrrega/recuperació del cervell
 - Respecta la nomenclatura de fase segons l'objectiu
 - Volum total setmanal coherent amb el volum base de l'atleta
+- La CORBA DE CÀRREGA importa: ha de pujar progressivament i BAIXAR al final si hi ha cursa (taper). Mai una línia plana ni ascendent fins al final.
 - Retorna JSON estricte sense markdown ni preàmbul`;
 
 function getMondayISO(date) {
@@ -43,6 +44,7 @@ function getMondayISO(date) {
 
 function periodizationSig(userData, objetivo, raceDate) {
   return [
+    "v2",
     objetivo,
     raceDate || "",
     Math.round(Number(userData?.volum) || 4),
@@ -81,11 +83,34 @@ export default async function handler(req, res) {
       weeks = ROLLING_WEEKS;
     }
 
+    // Format del ritme/velocitat/temps objectiu per al prompt (camelCase del dashboard)
+    const ritmeObjTxt = userData?.ritmeObj
+      ? `${Math.floor(userData.ritmeObj / 60)}:${String(userData.ritmeObj % 60).padStart(2, "0")}/km`
+      : null;
+    const velObjTxt = userData?.velObj ? `${userData.velObj} km/h` : null;
+    const tempsObjTxt = userData?.tempsObj
+      ? `${Math.floor(userData.tempsObj / 3600)}h${String(Math.floor((userData.tempsObj % 3600) / 60)).padStart(2, "0")}min`
+      : null;
+
+    let ritmeBlock = "";
+    if (ritmeObjTxt) ritmeBlock += `\nRITMO OBJETIVO de carrera: ${ritmeObjTxt}. Las sesiones de calidad de las fases Construcción y Específico deben orientarse a este ritmo (series y tiradas a ritmo objetivo o ligeramente más rápido). Es la referencia para dosificar la intensidad.`;
+    if (velObjTxt) ritmeBlock += `\nVELOCIDAD OBJETIVO de carrera: ${velObjTxt}. Orienta las sesiones de calidad a esta velocidad media.`;
+    if (tempsObjTxt) ritmeBlock += `\nTIEMPO OBJETIVO total: ${tempsObjTxt}. Ten en cuenta la exigencia de este objetivo al planificar las cargas.`;
+
     const objectiveTask = {
       carrera: `OBJETIVO: CARRERA hacia ${raceName || "objetivo competitivo"} el ${raceDate}.
-Aplica la periodización descrita en BLOC 9 #56 de tu metodología (Off-season → Base → Build → Peak → Taper → Carrera).
-Nomenclatura de fase: usa "Base 1", "Construcción 2", "Específico", "Taper", "Carrera".
-Calcula fase según las semanas hasta la prueba (las pautas internas del cervell ya las describen).`,
+Aplica la periodización del BLOC 9 #56 de tu metodología (Off-season → Base → Build → Peak → Taper → Carrera).
+
+ESTRUCTURA OBLIGATORIA DE LA CURVA DE CARGA (es lo MÁS importante de este plan):
+- La carga y el volumen deben DIBUJAR UNA CURVA que sube progresivamente y BAJA claramente al final (taper). NUNCA una línea plana ni ascendente hasta el final.
+- BASE (primeras semanas): volumen moderado y creciente, carga 250-400.
+- CONSTRUCCIÓN/ESPECÍFICO (centro del bloque): PICO de volumen y carga del bloque, las semanas más altas (carga 450-650). Aquí es donde más se entrena.
+- PENÚLTIMA semana (Taper): reduce a ~60-70% del pico.
+- ÚLTIMA semana (la de la carrera, el weekNum más alto): volumen MUY bajo (~40% del pico), carga 150-250. Solo activaciones cortas + la propia carrera. Es de las semanas MÁS SUAVES de todo el bloque. NUNCA debe tener carga alta — sería un error grave.
+- Respeta los microciclos 3+1: cada ~4 semanas una de descarga (~25-30% menos que la anterior).
+- El objetivo de toda la curva es llegar al día de la carrera en PICO de forma: fresco pero entrenado.${ritmeBlock}
+
+Nomenclatura de fase: usa "Base 1", "Construcción 2", "Específico", "Taper", "Carrera" (la última semana SIEMPRE "Carrera").`,
 
       forma: `OBJETIVO: PONERSE EN FORMA (mejora general, SIN carrera).
 Como no hay pico objetivo, usa CICLO ROLLING 3+1 según BLOC 9 #57 de tu metodología (3 sem progresión + 1 descarga).
@@ -123,7 +148,7 @@ ${objetivo === "carrera"
 
 # TAREA
 
-Genera ${weeks} semanas. Para cada semana retorna: weekNum, phase (respeta la nomenclatura del objetivo), totalHours (coherente con ${volumBase}h base, varía según la fase), load (100-700), focus (una frase clara), sessions (3-4 títulos descriptivos en castellano).
+Genera ${weeks} semanas. Para cada semana retorna: weekNum, phase (respeta la nomenclatura del objetivo), totalHours (coherente con ${volumBase}h base, varía según la fase — taper y descarga van MUY por debajo), load (100-700, dibujando la curva descrita), focus (una frase clara), sessions (3-4 títulos descriptivos en castellano).
 
 **FORMATO OBLIGATORIO** — Devuelve SOLO un objeto JSON válido (sin markdown, sin \`\`\`json, sin preámbulo):
 
