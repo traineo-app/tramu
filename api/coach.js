@@ -42,7 +42,7 @@ QUAN GENERIS UN PLA SETMANAL (mode JSON):
 - Respecta dies disponibles i dia de descans fix
 - Respecta el VOLUM REAL (ve de Strava últimes 4 setmanes si està disponible)
 - Distribució 80/20: ~80% Z1-Z2 (aeròbic base), ~20% Z3-Z5 (qualitat)
-- Si hi ha cursa propera, ajusta la fase (base/construcció/específic/taper)
+- Si hi ha cursa propera, ajusta la fase (base/construcció/específic/taper) i RESPECTA LA FASE indicada al context
 - Si hi ha sessions de força, respecta SEMPRE el material disponible de l'atleta
 - Retorna JSON estricte sense markdown segons el format demanat al missatge`;
 
@@ -286,12 +286,19 @@ async function handlePlanGeneration(req, res) {
     if (fecha) {
       const diff = Math.ceil((new Date(fecha) - new Date()) / (1000*60*60*24));
       ctx += `- Data: ${fecha} (${diff} dies)\n`;
-      if (diff < 0) ctx += `- **LA CARRERA YA HA PASADO** (hace ${Math.abs(diff)} días). Genera una semana de RECUPERACIÓN post-competición: Z1-Z2 suave, volumen muy bajo, sin intensidad. Pregunta implícitamente por un nuevo objetivo.\n`;
-      else if (diff <= 3) ctx += `- **SEMANA DE CARRERA** — TAPER FINAL: reduce el volumen al 40-50% del habitual, mantén 1-2 activaciones cortas de calidad, descanso total los 2 días previos. NADA de sesiones largas ni series duras.\n`;
-      else if (diff <= 10) ctx += `- **FASE: TAPER** — reduce volumen progresivamente (60-70% del habitual), mantén algo de intensidad específica pero acorta las sesiones. Llega fresco.\n`;
-      else if (diff < 35) ctx += `- **FASE: ESPECÍFICO** — prioriza intensidad específica de carrera, simula ritmos objetivo. Volumen alto pero empezando a pulir.\n`;
-      else if (diff < 70) ctx += `- **FASE: CONSTRUCCIÓN** — aumenta volumen progresivamente, introduce calidad.\n`;
-      else ctx += `- **FASE: BASE** — construye base aeróbica.\n`;
+      if (diff < 0) {
+        ctx += `- **LA CARRERA YA HA PASADO** (hace ${Math.abs(diff)} días). Genera una SEMANA DE RECUPERACIÓN post-competición: solo Z1-Z2 muy suave, volumen muy bajo (~40% del habitual), sin series ni intensidad. El cuerpo necesita recuperarse del esfuerzo de la carrera. No programes sesiones duras.\n`;
+      } else if (diff <= 3) {
+        ctx += `- **SEMANA DE LA CARRERA — TAPER FINAL**: reduce el volumen al 40-50% del habitual. Solo activaciones cortas de calidad (15-20 min con unos pocos cambios de ritmo). Descanso total o muy suave los 2 días previos a la carrera. PROHIBIDO sesiones largas, tiradas o series duras. El objetivo es llegar FRESCO, no entrenado.\n`;
+      } else if (diff <= 10) {
+        ctx += `- **FASE TAPER**: reduce el volumen progresivamente (60-70% del habitual). Mantén algo de intensidad específica de carrera pero acorta mucho las sesiones. Empieza a descargar fatiga para llegar fresco.\n`;
+      } else if (diff < 35) {
+        ctx += `- **FASE ESPECÍFICO**: prioriza intensidad específica de carrera, simula los ritmos objetivo en las sesiones de calidad. Volumen todavía alto pero empezando a pulir. Las tiradas/series deben parecerse a la exigencia de la prueba.\n`;
+      } else if (diff < 70) {
+        ctx += `- **FASE CONSTRUCCIÓN**: aumenta volumen progresivamente e introduce calidad (series, ritmo). Es la fase de mayor carga del bloque.\n`;
+      } else {
+        ctx += `- **FASE BASE**: construye base aeróbica (mayoría Z2), volumen moderado y creciente. Todavía sin demasiada intensidad.\n`;
+      }
     }
   }
 
@@ -320,11 +327,12 @@ async function handlePlanGeneration(req, res) {
 **RESTRICCIONS ESTRICTES:**
 - Els 7 dies en ordre Lu, Ma, Mi, Ju, Vi, Sá, Do
 - El/els dia(es) "${descanso}" → rest:true, icon:"💤", title:"Descanso", duracio_min:0
-- Total duracio_min de sessions d'entrenament ≈ ${Math.round(volumReal * 60)} minuts (volum objectiu)
+- Total duracio_min de sessions d'entrenament ≈ ${Math.round(volumReal * 60)} minuts (volum objectiu), AJUSTAT segons la fase indicada al context (taper i recuperació van molt per sota)
 - Tags amb zona FC ["Z2"] si running/bici, o grup muscular ["Piernas"] si gym
 - Icones: 🏃 running/trail · 🚴 ciclisme · 🏊 natació · 🏋️ gimnàs · 🤸 calistenia/core · 💤 descans · 🥇 brick triatleta
 - "why" en castellà, frase curta i motivadora
-- "title" en castellà, descriptiu i concret`;
+- "title" en castellà, descriptiu i concret
+- RESPECTA LA FASE indicada al context: si és taper o recuperació, el volum i la intensitat han de baixar de veritat`;
 
   const response = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
