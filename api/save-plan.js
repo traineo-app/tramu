@@ -11,6 +11,14 @@ function getMondayISO(date) {
   d.setHours(0, 0, 0, 0);
   return d.toISOString().split('T')[0];
 }
+
+// Afegeix camp a l'objecte NOMÉS si el valor és significatiu (no undefined/null/'').
+// Així desar un canvi de sessió sense reenviar l'Strava no esborra la foto ja guardada.
+function setIf(obj, key, val) {
+  if (val === undefined || val === null || val === '') return;
+  obj[key] = val;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { email, userData, sessions, resum, weekStartDate } = req.body;
@@ -24,7 +32,8 @@ export default async function handler(req, res) {
       .maybeSingle();
     if (selErr) throw selErr;
     let profileId;
-    // Camps que mapegem de userData → profiles
+
+    // Camps base (sempre presents)
     // IMPORTANT: columnes date/int han de rebre null, mai string buit
     const profileFields = {
       sports:        Array.isArray(userData?.sports) ? userData.sports : (userData?.sports ? [userData.sports] : ['running']),
@@ -39,6 +48,33 @@ export default async function handler(req, res) {
       desnivel:      parseInt(userData?.desnivel) || 0,
       carrera_fecha: userData?.fecha || null
     };
+
+    // ── LA FOTO DE L'ATLETA: només s'escriu si ve (setIf), per no esborrar-la ──
+    // Dades personals
+    setIf(profileFields, 'edat',   userData?.edat != null ? parseInt(userData.edat) : null);
+    setIf(profileFields, 'alcada', userData?.alcada != null ? parseInt(userData.alcada) : null);
+    setIf(profileFields, 'pes',    userData?.pes != null ? parseFloat(userData.pes) : null);
+    setIf(profileFields, 'fcrep',  userData?.fcrep != null ? parseInt(userData.fcrep) : null);
+    setIf(profileFields, 'genere', userData?.genere);
+    // Rendiment / ritmes
+    setIf(profileFields, 'pacez2',   userData?.pacez2 != null ? parseInt(userData.pacez2) : null);
+    setIf(profileFields, 'ftp',      userData?.ftp != null ? parseInt(userData.ftp) : null);
+    setIf(profileFields, 'race5k',   userData?.race5k != null ? parseInt(userData.race5k) : null);
+    setIf(profileFields, 'race10k',  userData?.race10k != null ? parseInt(userData.race10k) : null);
+    // Objectius de cursa
+    setIf(profileFields, 'ritme_obj', userData?.ritmeObj != null ? parseInt(userData.ritmeObj) : null);
+    setIf(profileFields, 'vel_obj',   userData?.velObj != null ? parseFloat(userData.velObj) : null);
+    setIf(profileFields, 'temps_obj', userData?.tempsObj != null ? parseInt(userData.tempsObj) : null);
+    // Gimnàs
+    setIf(profileFields, 'musculos',     Array.isArray(userData?.musculos) && userData.musculos.length ? userData.musculos : null);
+    setIf(profileFields, 'obj_gym',      userData?.objGym || userData?.obj_gym);
+    setIf(profileFields, 'equipamiento', userData?.equipamiento);
+    setIf(profileFields, 'gym_ubi',      userData?.gymUbi || userData?.gym_ubi);
+    setIf(profileFields, 'gym_mat',      Array.isArray(userData?.gymMat) && userData.gymMat.length ? userData.gymMat : (Array.isArray(userData?.gym_mat) && userData.gym_mat.length ? userData.gym_mat : null));
+    // LA FOTO sencera (jsonb) — el context d'on venim
+    setIf(profileFields, 'strava_stats',      userData?.stravaStats);
+    setIf(profileFields, 'stress_test_data',  userData?.stressTestData);
+
     if (existing) {
       const { error: updErr } = await supabase
         .from('profiles')
@@ -55,6 +91,7 @@ export default async function handler(req, res) {
       if (insErr) throw insErr;
       profileId = created.id;
     }
+
     // 2. Upsert plan per (profile_id, setmana)
     const setmana = weekStartDate || getMondayISO(new Date());
     const planData = {
