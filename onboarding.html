@@ -302,11 +302,20 @@
     <button class="btn-next" id="btn5" onclick="goNext()">Siguiente →</button>
   </div>
 
- <!-- S5B: ENFOQUE MUSCULAR (solo gym/calistenia) -->
+ <!-- S5B: ENFOQUE MUSCULAR (gym/calistenia, solo o complemento) -->
 <div class="step" id="s5b">
-  <div class="step-label">Tu entreno</div>
-  <div class="step-title">¿Qué quieres trabajar más?</div>
-  <div class="step-sub">Diseñaré tu plan de fuerza con estos grupos como prioridad.</div>
+  <div class="step-label">Tu entreno de fuerza</div>
+  <div class="step-title">¿Qué quieres trabajar?</div>
+  <div class="step-sub">Todo es opcional — me ayuda a priorizar tu plan de fuerza. Puedes saltarlo.</div>
+
+  <!-- NOU: només si l'objectiu és cursa -->
+  <div class="field-group" id="gym-purpose-section" style="display:none">
+    <label class="field-label">¿Para qué haces fuerza?</label>
+    <div class="options" style="margin-bottom:.5rem">
+      <div class="opt" onclick="selGymPurpose(this,'cursa')"><span class="opt-icon">🏁</span><div class="opt-info"><div class="opt-title">Para preparar mi carrera</div><div class="opt-sub">Trabajo específico, prevención de lesiones, potencia</div></div></div>
+      <div class="opt" onclick="selGymPurpose(this,'aparte')"><span class="opt-icon">🎯</span><div class="opt-info"><div class="opt-title">Es un objetivo aparte</div><div class="opt-sub">Estética, fuerza general, salud — independiente de la carrera</div></div></div>
+    </div>
+  </div>
 
   <div class="field-group">
     <label class="field-label">Grupos musculares prioritarios (elige los que quieras)</label>
@@ -321,7 +330,7 @@
   </div>
 
   <div class="field-group">
-    <label class="field-label">Objetivo</label>
+    <label class="field-label">Objetivo del trabajo de fuerza</label>
     <div class="options" style="margin-bottom:.5rem">
       <div class="opt" onclick="selOpt(this,'s5b','fuerza')"><span class="opt-icon">🏋️</span><div class="opt-info"><div class="opt-title">Fuerza y potencia</div><div class="opt-sub">Levantar más, ser más fuerte</div></div></div>
       <div class="opt" onclick="selOpt(this,'s5b','hipertrofia')"><span class="opt-icon">💪</span><div class="opt-info"><div class="opt-title">Hipertrofia</div><div class="opt-sub">Ganar volumen y masa muscular</div></div></div>
@@ -330,16 +339,7 @@
     </div>
   </div>
 
-  <div class="field-group">
-    <label class="field-label">¿Dónde entrenas?</label>
-    <div class="grid-options" style="grid-template-columns:1fr 1fr 1fr">
-      <div class="grid-opt" onclick="selEquip(this,'gym_completo')"><div class="check-badge">✓</div><div class="grid-opt-icon">🏋️</div><div class="grid-opt-title">Gimnasio</div></div>
-      <div class="grid-opt" onclick="selEquip(this,'mancuernas')"><div class="check-badge">✓</div><div class="grid-opt-icon">🔧</div><div class="grid-opt-title">Casa con pesas</div></div>
-      <div class="grid-opt" onclick="selEquip(this,'cuerpo')"><div class="check-badge">✓</div><div class="grid-opt-icon">🤸</div><div class="grid-opt-title">Solo cuerpo</div></div>
-    </div>
-  </div>
-
-  <button class="btn-next" id="btns5b" disabled onclick="goNext()">Siguiente →</button>
+  <button class="btn-next" id="btns5b" onclick="goNext()">Siguiente →</button>
 </div>
 
  <div class="step" id="s5c">
@@ -450,6 +450,7 @@ userData.objetivoGym='';
 userData.equipamiento='';
 userData.gymUbicacion='';
 userData.gymMaterial=[];
+userData.gymPurpose=''; // NOU: 'cursa' | 'aparte' (només quan objectiu=carrera)
 
 function spreadTrainingDays(dias,descanso){
   dias=Math.max(0,Math.min(7,dias||0));
@@ -485,18 +486,19 @@ function toggleMuscle(el,muscle){
   el.classList.toggle('sel');
   if(el.classList.contains('sel')){if(!userData.musculos.includes(muscle)) userData.musculos.push(muscle);}
   else userData.musculos=userData.musculos.filter(function(m){return m!==muscle;});
-  checkBtnS5b();
 }
 
-function selEquip(el,equip){
-  document.querySelectorAll('#s5b [onclick^="selEquip"]').forEach(function(o){o.classList.remove('sel');});
+// NOU: tria de propòsit del gym (només cursa)
+function selGymPurpose(el,val){
+  document.querySelectorAll('#gym-purpose-section .opt').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
-  userData.equipamiento=equip;
-  checkBtnS5b();
+  userData.gymPurpose=val;
 }
 
+// s5b ja no obliga res — botó sempre actiu
 function checkBtnS5b(){
-  document.getElementById('btns5b').disabled=!(userData.objetivoGym&&userData.equipamiento);
+  var b=document.getElementById('btns5b');
+  if(b) b.disabled=false;
 }
 
 function selGymUbi(el,ubi){
@@ -528,28 +530,33 @@ function checkBtnS5c(){
   document.getElementById('btns5c').disabled=!ok;
 }
 
+// Helper: hi ha gym o calistènia triats?
+function hasGymSel(){
+  return (userData.sports||[]).some(function(s){return ['gimnasio','calistenia'].includes(s);});
+}
+
 function buildStepOrder(){
   stepOrder=['s1'];
   const isCarrera=userData.objetivo==='carrera';
   const sports=userData.sports||[];
   const hasCardio=sports.some(function(s){return ['running','ciclismo','trail','natacion','triatlon'].includes(s);});
-  const isGymOnly=sports.length>0&&sports.every(function(s){return ['gimnasio','calistenia'].includes(s);});
+  const hasGym=hasGymSel();
 
   if(isCarrera){
     stepOrder.push('s2','s4','s5','s3');
-    if(sports.some(function(s){return ['gimnasio','calistenia'].includes(s);})) stepOrder.push('s5c');
+    if(hasGym){ stepOrder.push('s5b'); stepOrder.push('s5c'); }
     stepOrder.push('s6');
   } else {
     // Forma/peso/vuelta: ESPORTS PRIMER, després la resta
-    stepOrder.push('s5'); // Esports (sense "practicas algún deporte más?")
+    stepOrder.push('s5'); // Esports
     stepOrder.push('s2'); // Personal data
-    const hasGym=sports.some(function(s){return ['gimnasio','calistenia'].includes(s);});
+    const isGymOnly=sports.length>0&&sports.every(function(s){return ['gimnasio','calistenia'].includes(s);});
     if(isGymOnly){
       stepOrder.push('s5b');
       stepOrder.push('s5c');
     } else {
       stepOrder.push('s3');
-      if(hasGym) stepOrder.push('s5c');
+      if(hasGym){ stepOrder.push('s5b'); stepOrder.push('s5c'); }
       if(hasCardio||sports.length===0) stepOrder.push('s6');
     }
   }
@@ -581,6 +588,7 @@ function goNext(){
   document.getElementById(nextId).classList.add('active');
   updateProgress();
   if(nextId==='s5') setupS5();
+  if(nextId==='s5b') setupS5b();
   if(nextId==='s6') renderCalibration();
   if(nextId==='s8') generatePreview();
   window.scrollTo(0,0);
@@ -599,7 +607,6 @@ function setupS5(){
   const isCarrera=userData.objetivo==='carrera';
 
   if(isCarrera){
-    // Ja té disciplina de cursa → pregunta esports complementaris
     const discMap={'triatlon':['running','ciclismo','natacion'],'duatlon':['running','ciclismo'],'running':['running'],'trail':['trail'],'ciclismo':['ciclismo'],'natacion':['natacion']};
     if(disc&&disc!=='otro'){
       const toSel=discMap[disc]||[disc];
@@ -619,10 +626,19 @@ function setupS5(){
       }
     }
   } else {
-    // No és carrera → pregunta principal, sense preselecció
     document.getElementById('s5-title').textContent='¿Qué deportes practicas?';
     document.getElementById('s5-sub').textContent='Elige todo lo que practiques o quieras incluir en tu plan.';
   }
+}
+
+// NOU: prepara s5b — mostra/amaga la pregunta de propòsit segons objectiu
+function setupS5b(){
+  const isCarrera=userData.objetivo==='carrera';
+  const purposeSec=document.getElementById('gym-purpose-section');
+  if(purposeSec) purposeSec.style.display=isCarrera?'block':'none';
+  // títol contextual
+  const onlyCalistenia=(userData.sports||[]).includes('calistenia')&&!(userData.sports||[]).includes('gimnasio');
+  document.getElementById('btns5b').disabled=false; // sempre opcional
 }
 
 function selOpt(el,stepId,val){
@@ -630,8 +646,8 @@ function selOpt(el,stepId,val){
   el.classList.add('sel');
   const n=stepId.replace('s','');
   if(n==='1'){userData.objetivo=val;buildStepOrder();}
-  if(n==='5b'){userData.objetivoGym=val;checkBtnS5b();}
-  document.getElementById('btn'+n).disabled=false;
+  if(n==='5b'){userData.objetivoGym=val;}
+  if(n!=='5b') document.getElementById('btn'+n).disabled=false;
 }
 
 function selCarrera(el,disc){
@@ -791,7 +807,6 @@ function renderCalibration(){
   const hr=sv.heartRate||{};
   const fields=[];
 
-  // FCmax — prioridad: PDF > Strava max HR (real en entreno) > 220 − edad
   const fcmaxFromPDF=st.fcmax;
   const fcmaxFromStravaHR=hr.maxEver;
   const fcmaxFromAge=userData.edat?Math.max(150,Math.min(210,220-userData.edat)):null;
@@ -805,7 +820,6 @@ function renderCalibration(){
   
   fields.push({id:'cal-fcmax',name:'Frecuencia cardíaca máxima',unit:'bpm',value:fcmaxInitial,min:140,max:220,step:1,source:fcSrc,sourceLabel:fcLabel,help:fcHelp});
 
-  // Z2 pace running
   const hasRun=userData.sports.includes('running')||userData.sports.includes('trail')||userData.carreraDisciplina==='running'||userData.carreraDisciplina==='trail'||userData.carreraDisciplina==='triatlon'||userData.carreraDisciplina==='duatlon';
   if(hasRun){
     const z2FromPDF=st.ritme_z2;
@@ -824,32 +838,27 @@ function renderCalibration(){
     fields.push({id:'cal-pacez2',name:'Ritmo Z2 (running)',unit:'/km',value:z2Initial,min:180,max:600,step:5,format:'pace',source:z2Src,sourceLabel:z2Label,help:z2Help});
   }
 
-  // FTP (solo si bici + PDF lo tiene)
   const hasBici=userData.sports.includes('ciclismo')||userData.carreraDisciplina==='ciclismo'||userData.carreraDisciplina==='triatlon'||userData.carreraDisciplina==='duatlon';
   if(hasBici&&st.ftp){
     userData.calibrated.ftp=st.ftp;
     fields.push({id:'cal-ftp',name:'FTP (ciclismo)',unit:'W',value:st.ftp,min:100,max:500,step:5,source:'detected',sourceLabel:'Detectado · prueba esfuerzo',help:'Tu FTP medida en el test.'});
   }
 
-  // Nivel — sugerido por Strava si hay datos
   let nivelSugerido='intermedio';
   if(sv.avgWeeklyHours){
     if(sv.avgWeeklyHours>=8) nivelSugerido='avanzado';
     else if(sv.avgWeeklyHours>=4) nivelSugerido='intermedio';
     else nivelSugerido='principiante';
   }
-  // Migrar 'inicio' (legacy) a 'principiante'
   if(userData.nivel==='inicio'||userData.nivel==='vuelta') userData.nivel='principiante';
   userData.nivel=userData.nivel||nivelSugerido;
   userData.calibrated.nivel=userData.nivel;
 
-  // Volumen
   const volFromStrava=sv.last4Weeks?.weeklyAvgHours;
   userData.volum=volFromStrava||userData.volum||4;
   userData.calibrated.volum=userData.volum;
   fields.push({id:'cal-volum',name:'Volumen semanal',unit:'h/sem',value:userData.volum,min:1,max:20,step:0.5,source:volFromStrava?'detected':'manual',sourceLabel:volFromStrava?'Detectado · Strava 4 sem':'Manual',help:volFromStrava?'Volumen real de tus últimas 4 semanas en Strava.':'Horas que entrenas semanalmente ahora.'});
 
-  // Nivel selector
   fields.push({id:'cal-nivel',name:'Nivel actual',unit:'',value:userData.nivel,source:sv.avgWeeklyHours?'detected':'manual',sourceLabel:sv.avgWeeklyHours?'Sugerido · Strava ('+sv.avgWeeklyHours+'h/sem)':'Manual',help:sv.avgWeeklyHours?'Sugerido por tu volumen real. Confirma o cambia.':'Elige tu nivel actual con honestidad.',type:'level'});
 
   document.getElementById('cal-fields').innerHTML=fields.map(f=>renderCalField(f)).join('');
@@ -965,6 +974,8 @@ function generatePreview(){
   const sportNames=sports.map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(' + ');
   let aiText='Plan de '+dias+' días con '+sportNames+'. Tu Z2 FC es '+z2min+'-'+z2max+' bpm. ';
   if(userData.carreraDisciplina&&userData.carreraDistancia){aiText+='Orientado a tu '+userData.carreraDisciplina+' de '+userData.carreraDistancia;if(userData.carreraDesnivel>0) aiText+=' con +'+userData.carreraDesnivel+'m';aiText+='. ';}
+  if(hasGymSel()&&userData.gymPurpose==='cursa') aiText+='La fuerza está orientada a preparar la carrera. ';
+  else if(hasGymSel()&&userData.gymPurpose==='aparte') aiText+='La fuerza es un objetivo aparte. ';
   if(userData.pdfName||stravaFile){aiText+='Personalizado con ';const srcs=[];if(userData.pdfName) srcs.push('tu prueba de esfuerzo');if(stravaFile) srcs.push('tu histórico de Strava');aiText+=srcs.join(' y ')+'. ';}
   aiText+='Empezamos con fase base.';
   document.getElementById('ai-summary').textContent=aiText;
@@ -1023,6 +1034,7 @@ async function savePlan(){
   if(userData.stravaName) url+='&strava=1';
   if(userData.musculos&&userData.musculos.length>0) url+='&musculos='+encodeURIComponent(userData.musculos.join(','));
   if(userData.objetivoGym) url+='&obj_gym='+encodeURIComponent(userData.objetivoGym);
+  if(userData.gymPurpose) url+='&gym_purpose='+encodeURIComponent(userData.gymPurpose);
   if(userData.equipamiento) url+='&equip='+encodeURIComponent(userData.equipamiento);
   if(userData.gymUbicacion) url+='&gym_ubi='+encodeURIComponent(userData.gymUbicacion);
   if(userData.gymMaterial&&userData.gymMaterial.length>0) url+='&gym_mat='+encodeURIComponent(userData.gymMaterial.join(','));
