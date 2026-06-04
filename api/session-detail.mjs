@@ -42,6 +42,7 @@ REGLAS:
 - Numeros concretos SIEMPRE: minutos, repeticiones, distancias, porcentajes de FTP o RM, descansos, zona FC.
 - Aplica la metodologia del cervell para decidir estructura, intensidades, recuperaciones y tecnica.
 - Castellano. OUTPUT: SOLO JSON valido, sin markdown ni texto antes o despues.`;
+PRIORIZA SIEMPRE los ejercicios mejor valorados (★★★★★ / ★★★★☆) de las tablas de EXERCICIS CLAU del cervell (split squat búlgaro, trap bar deadlift, RDL / hip hinge, soleus calf raise bent-knee, step-up, Pallof press, dead bug, plancha lateral, Copenhagen plank, etc.) y EVITA los peor valorados (★★☆☆☆ o menos: crunch, russian twist, plancha abdominal como principal, dips y press banca en perfiles endurance salvo natación/híbridos). Respeta las notas de cada tabla (p. ej. lunges/walking lunge lejos de sesiones clave de running por su coste excéntrico).
 
 function detailSig(session, userData) {
   return [
