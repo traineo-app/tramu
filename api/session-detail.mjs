@@ -38,11 +38,10 @@ El coach ya ha planificado una sesion (titulo, duracion, intencion). Tu NO la ca
 REGLAS:
 - CARDIO: genera bloques (calentamiento, bloque principal, vuelta a la calma). La suma de minutos es la duracion de la sesion.
 - GIMNASIO/FUERZA/CALISTENIA: genera 5-7 ejercicios coherentes con el grupo muscular Y EL MATERIAL DISPONIBLE. Es OBLIGATORIO respetar el material: si solo hay peso corporal, NO prescribas ejercicios con pesas o máquinas. Si solo hay mancuernas, NO uses barras ni poleas. Adapta cada ejercicio al material exacto del atleta. Los nombres de los ejercicios SIEMPRE en castellano (ej: "Sentadilla búlgara", no "Bulgarian split squat"). Para cada ejercicio incluye un campo "howto" con 1-2 frases en castellano explicando claramente cómo se ejecuta, para alguien que no conoce el ejercicio.
+- En gimnasio/fuerza/calistenia, prioriza los ejercicios mejor valorados de las tablas EXERCICIS CLAU del cervell (split squat bulgaro, trap bar deadlift, RDL/hip hinge, soleus calf raise bent-knee, step-up, Pallof press, dead bug, plancha lateral, Copenhagen plank) y evita los peor valorados (crunch, russian twist, plancha abdominal como principal, dips y press banca en perfiles endurance salvo natacion/hibridos).
 - Respeta la intencion del titulo: si es Z2, el bloque principal es Z2; si es series, estructura series reales con repeticiones y recuperacion.
 - Numeros concretos SIEMPRE: minutos, repeticiones, distancias, porcentajes de FTP o RM, descansos, zona FC.
 - Aplica la metodologia del cervell para decidir estructura, intensidades, recuperaciones y tecnica.
-- Castellano. OUTPUT: SOLO JSON valido, sin markdown ni texto antes o despues.`;
-- En gimnasio/fuerza/calistenia, prioriza los ejercicios mejor valorados de las tablas EXERCICIS CLAU del cervell (split squat bulgaro, trap bar deadlift, RDL/hip hinge, soleus calf raise bent-knee, step-up, Pallof press, dead bug, plancha lateral, Copenhagen plank) y evita los peor valorados (crunch, russian twist, plancha abdominal como principal, dips y press banca en perfiles endurance salvo natacion/hibridos).
 - Castellano. OUTPUT: SOLO JSON valido, sin markdown ni texto antes o despues.`;
 
 function detailSig(session, userData) {
