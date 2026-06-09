@@ -597,16 +597,22 @@ async function initDashboard(user){
       allWeeks=data.weeks||[];
       periodization=data.periodization||null;
       const cur=allWeeks.find(w=>w.setmana===currentWeekStart);
-      const curSessions=cur?cur.sessions:(data.plan&&data.plan.sessions);
-      const curResum=cur?cur.resum:(data.plan&&data.plan.resum);
-      if(curSessions&&curSessions.length>0){
-        planDays=normalizePlan(curSessions);
-        window._coachResum=curResum||'';
+      if(cur&&cur.sessions&&cur.sessions.length>0){
+        planDays=normalizePlan(cur.sessions);
+        window._coachResum=cur.resum||'';
         showToast('Plan cargado ✓');
         renderAll();
         if(!periodization) loadPeriodization();
         maybeShowCatchUp();
         pregenTodayDetail();
+        return;
+      }
+      // No hi ha setmana per a AQUESTA setmana real, però sí pla previ → generar la nova
+      const hasPreviousPlan=allWeeks&&allWeeks.length>0;
+      if(hasPreviousPlan){
+        if(!periodization){ try{ await loadPeriodizationSync(); }catch(e){} }
+        await buildPlan(user, phaseForWeek(currentWeekStart));
+        maybeShowCatchUp();
         return;
       }
     } catch(e){ console.log('No saved plan',e); }
@@ -648,6 +654,24 @@ function showPlanLoading(){
   },4000);
 }
 
+function phaseForWeek(weekStart){
+  if(!periodization||!periodization.weeks||!periodization.weeks.length) return null;
+  const anchor=periodization._anchorMonday||currentWeekStart;
+  let offset=Math.round((isoToDate(weekStart)-isoToDate(anchor))/(7*86400000));
+  const n=periodization.weeks.length;
+  const isRolling=periodization.objetivo&&periodization.objetivo!=='carrera';
+  if(isRolling) offset=((offset%n)+n)%n;
+  const pw=periodization.weeks[offset];
+  return pw?(pw.phase||null):null;
+}
+async function loadPeriodizationSync(){
+  if(!user) return;
+  const body={userData:user,raceDate:(user.carrera&&user.fecha)?user.fecha:null,raceName:(user.carrera&&user.fecha)?user.carrera:null,email:currentEmail};
+  const res=await fetch('/api/plan-completo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const data=await res.json();
+  if(data&&data.weeks&&data.weeks.length) periodization=data;
+}
+  
 async function buildPlan(user){
   showPlanLoading();
   const prevWeekStart=addDaysISO(currentWeekStart,-7);
