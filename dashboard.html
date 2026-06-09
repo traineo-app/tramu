@@ -471,6 +471,7 @@ function addDaysISO(iso,n){const d=isoToDate(iso);d.setDate(d.getDate()+n);retur
 function dayIdxOfISO(iso){return (isoToDate(iso).getDay()+6)%7;}
 let currentWeekStart=getMondayISO(new Date());
 let selectedWeekStart=currentWeekStart;
+let pendingNewWeekAfterCatchUp=false;
 
 function expandSports(sports){
   var expanded=[];
@@ -596,7 +597,7 @@ async function initDashboard(user){
       }
       allWeeks=data.weeks||[];
       periodization=data.periodization||null;
-      const cur=allWeeks.find(w=>w.setmana===currentWeekStart);
+    const cur=allWeeks.find(w=>w.setmana===currentWeekStart);
       if(cur&&cur.sessions&&cur.sessions.length>0){
         planDays=normalizePlan(cur.sessions);
         window._coachResum=cur.resum||'';
@@ -607,12 +608,22 @@ async function initDashboard(user){
         pregenTodayDetail();
         return;
       }
-      // No hi ha setmana per a AQUESTA setmana real, però sí pla previ → generar la nova
+      // Setmana nova sense generar, però hi ha pla previ
       const hasPreviousPlan=allWeeks&&allWeeks.length>0;
       if(hasPreviousPlan){
         if(!periodization){ try{ await loadPeriodizationSync(); }catch(e){} }
+        const pendingPrev=getUnconfirmedPrevWeek();
+        if(pendingPrev.length>0){
+          // Primer confirmar la setmana anterior; en desar, es genera la nova
+          showPlanLoading();
+          pendingNewWeekAfterCatchUp=true;
+          catchUpItems=pendingPrev.map(function(o){return {week:'prev',idx:o.idx,day:o.day,title:o.title,status:null};});
+          renderCatchUp();
+          document.getElementById('catchup-save-btn').disabled=true;
+          document.getElementById('modal-catchup').classList.add('open');
+          return;
+        }
         await buildPlan(user, phaseForWeek(currentWeekStart));
-        maybeShowCatchUp();
         return;
       }
     } catch(e){ console.log('No saved plan',e); }
@@ -672,7 +683,7 @@ async function loadPeriodizationSync(){
   if(data&&data.weeks&&data.weeks.length) periodization=data;
 }
   
-async function buildPlan(user){
+async function buildPlan(user,phase){
   showPlanLoading();
   const prevWeekStart=addDaysISO(currentWeekStart,-7);
   const prev=allWeeks.find(w=>w.setmana===prevWeekStart);
@@ -714,7 +725,9 @@ async function buildPlan(user){
         temps_obj: user.tempsObj || null,
         stravaStats: user.stravaStats || (function(){ try{ return JSON.parse(sessionStorage.getItem('traineo_strava_stats')||'null'); }catch(e){ return null; } })(),
         stressTestData: user.stressTestData || (function(){ try{ return JSON.parse(sessionStorage.getItem('traineo_stress_test_data')||'null'); }catch(e){ return null; } })(),
-        previousWeek: previousWeek
+        previousWeek: previousWeek,
+        phase: phase || null,
+        weekNumber: (allWeeks ? allWeeks.length : 0) + 1
       })
     });
     const data=await response.json();
@@ -1640,27 +1653,42 @@ function getUnconfirmedPastSessions(){
   const out=[];
   planDays.forEach((d,i)=>{
     const pos=dayNames.indexOf(d.day);
-    if(pos>=0&&pos<todayPos&&!d.rest&&!d.completion) out.push(i);
+    if(pos>=0&&pos<todayPos&&!d.rest&&!d.completion) out.push({week:'current',idx:i});
   });
+  return out;
+}
+function getUnconfirmedPrevWeek(){
+  const prevWeekStart=addDaysISO(currentWeekStart,-7);
+  const prev=allWeeks.find(w=>w.setmana===prevWeekStart);
+  const out=[];
+  if(prev&&Array.isArray(prev.sessions)){
+    prev.sessions.forEach((d,i)=>{
+      if(d&&!d.rest&&!d.completion) out.push({week:'prev',idx:i,day:d.day,title:d.title||'Sesión'});
+    });
+  }
   return out;
 }
 
 function maybeShowCatchUp(){
-  const idxs=getUnconfirmedPastSessions();
-  if(idxs.length===0) return;
-  catchUpItems=idxs.map(i=>({idx:i,status:null}));
+  const cur=getUnconfirmedPastSessions().map(function(o){var s=planDays[o.idx];return {week:'current',idx:o.idx,day:s.day,title:s.title||'Sesión'};});
+  const prev=getUnconfirmedPrevWeek();
+  const all=prev.concat(cur);
+  if(all.length===0) return;
+  catchUpItems=all.map(function(o){return {week:o.week,idx:o.idx,day:o.day,title:o.title,status:null};});
   renderCatchUp();
   document.getElementById('catchup-save-btn').disabled=true;
   document.getElementById('modal-catchup').classList.add('open');
 }
 
 function renderCatchUp(){
-  document.getElementById('catchup-list').innerHTML=catchUpItems.map((it,k)=>{
-    const s=planDays[it.idx];
+  document.getElementById('catchup-list').innerHTML=catchUpItems.map(function(it,k){
+    var t=it.title||'Sesión';
+    var dd=it.day||'';
+    var tag=it.week==='prev'?' <span style="font-size:.55rem;color:#888780">(sem. pasada)</span>':'';
     return '<div class="catchup-item">'+
       '<div class="catchup-item-head">'+
-        '<span class="catchup-item-day">'+getDayLong(s.day)+'</span>'+
-        '<span class="catchup-item-title">'+s.title+'</span>'+
+        '<span class="catchup-item-day">'+getDayLong(dd)+'</span>'+
+        '<span class="catchup-item-title">'+t+tag+'</span>'+
       '</div>'+
       '<div class="catchup-status">'+
         '<button class="catchup-btn'+(it.status==='completed'?' sel':'')+'" onclick="setCatchUp('+k+',\'completed\')">✓ Hecho</button>'+
@@ -1671,31 +1699,54 @@ function renderCatchUp(){
   }).join('');
 }
 
+async function confirmCatchUp(){
+  if(catchUpItems.some(function(it){return !it.status;})) return;
+  var prevWeekStart=addDaysISO(currentWeekStart,-7);
+  var prev=allWeeks.find(function(w){return w.setmana===prevWeekStart;});
+  var prevChanged=false;
+  var descParts=[];
+  catchUpItems.forEach(function(it){
+    var comp={status:it.status,rpe:null,actualDuration:null,plannedDuration:null,note:'',date:new Date().toISOString()};
+    if(it.week==='prev'&&prev&&Array.isArray(prev.sessions)&&prev.sessions[it.idx]){
+      var ps=prev.sessions[it.idx];
+      comp.actualDuration=ps.duracio_min||45;comp.plannedDuration=ps.duracio_min||45;
+      ps.completed=true;ps.completion=comp;prevChanged=true;
+    } else if(it.week==='current'&&planDays[it.idx]){
+      var cs=planDays[it.idx];
+      comp.actualDuration=cs.duracio_min||45;comp.plannedDuration=cs.duracio_min||45;
+      cs.completed=true;cs.completion=comp;
+    }
+    var lbl={completed:'hecha',partial:'a medias',skipped:'no hecha'}[it.status];
+    descParts.push('"'+(it.title||'Sesión')+'" ('+(it.day||'')+'): '+lbl);
+  });
+  closeModal('modal-catchup');
+  // Desar la setmana anterior actualitzada
+  if(prevChanged&&currentEmail){
+    try{
+      await fetch('/api/save-plan',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:currentEmail,userData:user,sessions:prev.sessions,resum:prev.resum||'',weekStartDate:prevWeekStart})});
+    }catch(e){ console.log('save prev failed',e); }
+  }
+  // Si estàvem esperant generar la setmana nova → generar-la ara amb el compliment real
+  if(pendingNewWeekAfterCatchUp){
+    pendingNewWeekAfterCatchUp=false;
+    await buildPlan(user, phaseForWeek(currentWeekStart));
+    return;
+  }
+  renderAll();
+  if(currentEmail) savePlanToSupabase();
+  var anyBad=catchUpItems.some(function(it){return it.status==='partial'||it.status==='skipped';});
+  if(anyBad){
+    reajustarDiferit('Puesta al día — '+descParts.join('; ')+'. Adapta los días que quedan en consecuencia.','Coach adaptando la semana...');
+  } else {
+    showToast('Semana al día ✓');
+  }
+}
+
 function setCatchUp(k,status){
   catchUpItems[k].status=status;
   renderCatchUp();
   document.getElementById('catchup-save-btn').disabled=catchUpItems.some(it=>!it.status);
-}
-
-function confirmCatchUp(){
-  if(catchUpItems.some(it=>!it.status)) return;
-  let descParts=[];
-  catchUpItems.forEach(it=>{
-    const s=planDays[it.idx];
-    s.completed=true;
-    s.completion={status:it.status,rpe:null,actualDuration:s.duracio_min||45,plannedDuration:s.duracio_min||45,note:'',date:new Date().toISOString()};
-    const lbl={completed:'hecha',partial:'a medias',skipped:'no hecha'}[it.status];
-    descParts.push('"'+s.title+'" ('+s.day+'): '+lbl);
-  });
-  closeModal('modal-catchup');
-  renderAll();
-  if(currentEmail) savePlanToSupabase();
-  const anyBad=catchUpItems.some(it=>it.status==='partial'||it.status==='skipped');
-  if(anyBad){
-    reajustarDiferit('Puesta al día de la semana — '+descParts.join('; ')+'. Adapta los días que quedan de la semana en consecuencia.','Coach adaptando la semana...');
-  } else {
-    showToast('Semana al día ✓');
-  }
 }
 
 function closeModal(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
