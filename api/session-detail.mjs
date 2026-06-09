@@ -42,6 +42,7 @@ REGLAS:
 - Respeta la intencion del titulo: si es Z2, el bloque principal es Z2; si es series, estructura series reales con repeticiones y recuperacion.
 - Numeros concretos SIEMPRE: minutos, repeticiones, distancias, porcentajes de FTP o RM, descansos, zona FC.
 - Aplica la metodologia del cervell para decidir estructura, intensidades, recuperaciones y tecnica.
+- LENGUAJE LLANO: escribe para alguien sin conocimientos tecnicos. Evita jerga (umbral, glucogeno, VO2, capilarizacion, derivada cardiaca). Si usas una zona o un termino, explicalo en sensaciones (ej: "Z2 = puedes hablar sin ahogarte"). Frases cortas y claras. El "summary" y el "tip" especialmente faciles y cercanos.
 - Castellano. OUTPUT: SOLO JSON valido, sin markdown ni texto antes o despues.`;
 
 function detailSig(session, userData) {
