@@ -720,6 +720,7 @@ async function buildPlan(user,phase){
         equipamiento: params.get('equip') || null,
         gym_ubi: params.get('gym_ubi') || null,
         gym_mat: params.get('gym_mat') ? params.get('gym_mat').split(',') : [],
+        gym_purpose: params.get('gym_purpose') || null,
         ritme_obj: user.ritmeObj || null,
         vel_obj: user.velObj || null,
         temps_obj: user.tempsObj || null,
