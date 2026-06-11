@@ -702,7 +702,8 @@ function renderHeroStats(){
   if(sport==='trail'){
     var kmT=custom&&custom.km?custom.km:Math.round((duracio*60/(paces.running[zone]||paces.running.z2))*10)/10;
     var elevT=(custom&&custom.elev)||(curSess&&(curSess.desnivel_m||curSess.desnivel))||0;
-    v2=kmT+' km';l2='Distancia';v3=elevT>0?('+'+elevT+'m'):'—';l3='Desnivel';
+    if(!elevT) elevT=Math.round(kmT*30);
+    v2=kmT+' km';l2='Distancia';v3='+'+elevT+'m';l3='Desnivel';
   } else if(sport==='running'){
     var km2=custom&&custom.km?custom.km:Math.round((duracio*60/(paces.running[zone]||paces.running.z2))*10)/10;
     var p2=custom&&custom.pace?custom.pace:(paces.running[zone]||paces.running.z2);
