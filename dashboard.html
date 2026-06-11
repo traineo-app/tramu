@@ -545,7 +545,8 @@ function getSessionMetrics(d,user){
   if(sport==='running'||sport==='trail'){
     const pace=paces.running[zone]||paces.running.z2;
     const km=Math.round((min*60/pace)*10)/10;
-    const elev=d.desnivel_m||d.desnivel||(d.custom&&d.custom.elev)||0;
+    let elev=d.desnivel_m||d.desnivel||(d.custom&&d.custom.elev)||0;
+    if(sport==='trail'&&!elev) elev=Math.round(km*30);
     return {km:km,pace:formatPace(pace),sport:sport,elev:elev};
   }
   if(sport==='cycling'){
