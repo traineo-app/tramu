@@ -336,7 +336,7 @@ async function handlePlanGeneration(req, res) {
 - El/els dia(es) "${descanso}" → rest:true, icon:"💤", title:"Descanso", duracio_min:0
 - Total duracio_min de sessions d'entrenament ≈ ${Math.round(volumReal * 60)} minuts (volum objectiu), AJUSTAT segons la fase indicada al context (taper i recuperació van molt per sota)
 - Tags amb zona FC ["Z2"] si running/bici, o grup muscular ["Piernas"] si gym
-- En sessions de TRAIL, inclou SEMPRE "desnivel_m" amb els metres de desnivell positiu de la sessió (coherents amb la durada, el terreny i la fase). A trail el desnivell és tan important com els km: una sessió de trail SENSE desnivell no té sentit
+- En sessions de TRAIL, inclou SEMPRE "desnivel_m" amb els metres de desnivell positiu reals de la sessió. Planifica el desnivell segons la teva metodologia de trail; si la metodologia no ho concreta, aplica criteris generals d'entrenament de trail. Si hi ha cursa amb desnivell objectiu, fes progressar el D+ de les sessions al llarg del bloc cap a aquest objectiu (poc desnivell a fase base, acostant-se al D+ de cursa a fase específica, amb sessions clau que simulin l'exigència real). El D+ ha de ser coherent amb la durada, la fase i el terreny de la prova. Una sessió de trail SENSE desnivell no té sentit
 - Icones: 🏃 running/trail · 🚴 ciclisme · 🏊 natació · 🏋️ gimnàs · 🤸 calistenia/core · 💤 descans · 🥇 brick triatleta
 - "why" en castellà, frase curta i motivadora
 - "title" en castellà, descriptiu i concret
