@@ -323,6 +323,7 @@ async function handlePlanGeneration(req, res) {
       "why": "Construyes la base aeróbica de la semana",
       "tags": ["Running", "Z2"],
       "duracio_min": 45,
+      "desnivel_m": 0,
       "rest": false
     }
   ],
@@ -335,6 +336,7 @@ async function handlePlanGeneration(req, res) {
 - El/els dia(es) "${descanso}" → rest:true, icon:"💤", title:"Descanso", duracio_min:0
 - Total duracio_min de sessions d'entrenament ≈ ${Math.round(volumReal * 60)} minuts (volum objectiu), AJUSTAT segons la fase indicada al context (taper i recuperació van molt per sota)
 - Tags amb zona FC ["Z2"] si running/bici, o grup muscular ["Piernas"] si gym
+- En sessions de TRAIL, inclou SEMPRE "desnivel_m" amb els metres de desnivell positiu de la sessió (coherents amb la durada, el terreny i la fase). A trail el desnivell és tan important com els km: una sessió de trail SENSE desnivell no té sentit
 - Icones: 🏃 running/trail · 🚴 ciclisme · 🏊 natació · 🏋️ gimnàs · 🤸 calistenia/core · 💤 descans · 🥇 brick triatleta
 - "why" en castellà, frase curta i motivadora
 - "title" en castellà, descriptiu i concret
@@ -376,6 +378,7 @@ async function handlePlanGeneration(req, res) {
       why: s.why || s.razon || s.porque || '',
       tags: s.tags || s.etiquetas || [],
       duracio_min: s.duracio_min || s.duracion || s.duration || (s.rest ? 0 : 45),
+      desnivel_m: s.desnivel_m || s.desnivel || 0,
       rest: s.rest || false
     };
   });
