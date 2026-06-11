@@ -95,7 +95,7 @@ async function handlePlanGeneration(req, res) {
     objetivo, carrera, distancia, desnivel, fecha,
     edat, alcada, pes, fcrep, genere,
     pacez2, race5k, race10k, ftp,
-    musculos, obj_gym, equipamiento, gym_ubi, gym_mat,
+    musculos, obj_gym, equipamiento, gym_ubi, gym_mat, gym_purpose,
     stravaStats, stressTestData,
     previousWeek, weekNumber, cycleInfo
   } = req.body;
