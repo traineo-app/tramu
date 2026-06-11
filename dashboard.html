@@ -545,8 +545,7 @@ function getSessionMetrics(d,user){
   if(sport==='running'||sport==='trail'){
     const pace=paces.running[zone]||paces.running.z2;
     const km=Math.round((min*60/pace)*10)/10;
-    let elev=d.desnivel_m||d.desnivel||(d.custom&&d.custom.elev)||0;
-    if(sport==='trail'&&!elev) elev=Math.round(km*30);
+    const elev=d.desnivel_m||d.desnivel||(d.custom&&d.custom.elev)||0;
     return {km:km,pace:formatPace(pace),sport:sport,elev:elev};
   }
   if(sport==='cycling'){
@@ -951,7 +950,7 @@ function weekItemSub(d){
   const metrics=getSessionMetrics(d,user);
   if(metrics){
     const mins=d.duracio_min||45;
-    if(metrics.sport==='trail') return mins+"' · "+metrics.km+' KM · +'+metrics.elev+'M D+';
+    if(metrics.sport==='trail') return mins+"' · "+metrics.km+' KM'+(metrics.elev>0?' · +'+metrics.elev+'M D+':'');
     if(metrics.sport==='running') return mins+"' · "+metrics.km+' KM · '+metrics.pace+'/KM';
     if(metrics.sport==='cycling') return mins+"' · "+metrics.km+' KM · '+metrics.kmh+' KM/H'+(metrics.elev>0?' · +'+metrics.elev+'M':'');
   }
@@ -1287,7 +1286,7 @@ function renderPlanItem(d,i){
     const metrics=getSessionMetrics(d,user);
     if(metrics){
       const mins=d.duracio_min||45;
-      if(metrics.sport==='trail') subText=mins+"' · "+metrics.km+' KM · +'+metrics.elev+'M D+';
+      if(metrics.sport==='trail') subText=mins+"' · "+metrics.km+' KM'+(metrics.elev>0?' · +'+metrics.elev+'M D+':'');
       else if(metrics.sport==='running') subText=mins+"' · "+metrics.km+' KM · '+metrics.pace+'/KM';
       else if(metrics.sport==='cycling') subText=mins+"' · "+metrics.km+' KM · '+metrics.kmh+' KM/H'+(metrics.elev>0?' · +'+metrics.elev+'M':'');
     } else {
