@@ -699,7 +699,11 @@ function renderHeroStats(){
   var paces=calculatePaces(userData||{nivel:nivel,pacez2:pacez2,ftp:ftp});
   var custom=curSess&&curSess.custom;
   var v1=duracio+"'",v2,l2,v3,l3;
-  if(sport==='running'||sport==='trail'){
+  if(sport==='trail'){
+    var kmT=custom&&custom.km?custom.km:Math.round((duracio*60/(paces.running[zone]||paces.running.z2))*10)/10;
+    var elevT=(custom&&custom.elev)||(curSess&&(curSess.desnivel_m||curSess.desnivel))||0;
+    v2=kmT+' km';l2='Distancia';v3=elevT>0?('+'+elevT+'m'):'—';l3='Desnivel';
+  } else if(sport==='running'){
     var km2=custom&&custom.km?custom.km:Math.round((duracio*60/(paces.running[zone]||paces.running.z2))*10)/10;
     var p2=custom&&custom.pace?custom.pace:(paces.running[zone]||paces.running.z2);
     v2=km2+' km';l2='Distancia';v3=formatPace(p2)+'/km';l3='Ritmo';
