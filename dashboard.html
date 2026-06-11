@@ -1680,12 +1680,20 @@ function maybeShowCatchUp(){
   document.getElementById('modal-catchup').classList.add('open');
 }
 
+function getCatchUpSession(it){
+  if(it.week==='prev'){
+    var prev=allWeeks.find(function(w){return w.setmana===addDaysISO(currentWeekStart,-7);});
+    return (prev&&prev.sessions&&prev.sessions[it.idx])||null;
+  }
+  return planDays[it.idx]||null;
+}
+
 function renderCatchUp(){
   document.getElementById('catchup-list').innerHTML=catchUpItems.map(function(it,k){
     var t=it.title||'Sesión';
     var dd=it.day||'';
     var tag=it.week==='prev'?' <span style="font-size:.55rem;color:#888780">(sem. pasada)</span>':'';
-    return '<div class="catchup-item">'+
+    var h='<div class="catchup-item">'+
       '<div class="catchup-item-head">'+
         '<span class="catchup-item-day">'+getDayLong(dd)+'</span>'+
         '<span class="catchup-item-title">'+t+tag+'</span>'+
@@ -1694,9 +1702,29 @@ function renderCatchUp(){
         '<button class="catchup-btn'+(it.status==='completed'?' sel':'')+'" onclick="setCatchUp('+k+',\'completed\')">✓ Hecho</button>'+
         '<button class="catchup-btn'+(it.status==='partial'?' sel':'')+'" onclick="setCatchUp('+k+',\'partial\')">~ A medias</button>'+
         '<button class="catchup-btn'+(it.status==='skipped'?' sel':'')+'" onclick="setCatchUp('+k+',\'skipped\')">✗ No</button>'+
-      '</div>'+
-    '</div>';
+      '</div>';
+    if(it.status==='partial'){
+      var s=getCatchUpSession(it);
+      var sport=s?getSportType(s):'gym';
+      var isCardio=(sport==='running'||sport==='trail'||sport==='cycling');
+      var plannedMin=(s&&s.duracio_min)||45;
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr'+(isCardio&&sport==='trail'||sport==='cycling'?' 1fr':'')+';gap:.4rem;margin-top:.55rem">';
+      h+='<div><div style="font-size:.58rem;color:#888780;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Min reales</div><input type="number" id="cu-time-'+k+'" value="'+(it.actualMin!=null?it.actualMin:Math.round(plannedMin/2))+'" min="0" max="600" oninput="cuVal('+k+',\'actualMin\',this.value)" style="width:100%;padding:.45rem .5rem;border:.5px solid #E8E6DF;border-radius:8px;font-size:.85rem;font-family:Inter,sans-serif;background:#fff"></div>';
+      if(isCardio){
+        h+='<div><div style="font-size:.58rem;color:#888780;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Km reales</div><input type="number" step="0.1" id="cu-km-'+k+'" value="'+(it.actualKm!=null?it.actualKm:'')+'" min="0" max="300" oninput="cuVal('+k+',\'actualKm\',this.value)" style="width:100%;padding:.45rem .5rem;border:.5px solid #E8E6DF;border-radius:8px;font-size:.85rem;font-family:Inter,sans-serif;background:#fff"></div>';
+        if(sport==='trail'||sport==='cycling'){
+          h+='<div><div style="font-size:.58rem;color:#888780;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Desnivel m</div><input type="number" id="cu-elev-'+k+'" value="'+(it.actualElev!=null?it.actualElev:'')+'" min="0" max="6000" oninput="cuVal('+k+',\'actualElev\',this.value)" style="width:100%;padding:.45rem .5rem;border:.5px solid #E8E6DF;border-radius:8px;font-size:.85rem;font-family:Inter,sans-serif;background:#fff"></div>';
+        }
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+    return h;
   }).join('');
+}
+
+function cuVal(k,field,v){
+  catchUpItems[k][field]=v===''?null:parseFloat(v);
 }
 
 async function confirmCatchUp(){
@@ -1706,18 +1734,26 @@ async function confirmCatchUp(){
   var prevChanged=false;
   var descParts=[];
   catchUpItems.forEach(function(it){
-    var comp={status:it.status,rpe:null,actualDuration:null,plannedDuration:null,note:'',date:new Date().toISOString()};
+    var comp={status:it.status,rpe:null,actualDuration:null,plannedDuration:null,actualKm:it.actualKm!=null?it.actualKm:null,actualElev:it.actualElev!=null?it.actualElev:null,note:'',date:new Date().toISOString()};
     if(it.week==='prev'&&prev&&Array.isArray(prev.sessions)&&prev.sessions[it.idx]){
       var ps=prev.sessions[it.idx];
-      comp.actualDuration=ps.duracio_min||45;comp.plannedDuration=ps.duracio_min||45;
+      comp.actualDuration=(it.status==='partial'&&it.actualMin!=null)?it.actualMin:(ps.duracio_min||45);comp.plannedDuration=ps.duracio_min||45;
       ps.completed=true;ps.completion=comp;prevChanged=true;
     } else if(it.week==='current'&&planDays[it.idx]){
       var cs=planDays[it.idx];
-      comp.actualDuration=cs.duracio_min||45;comp.plannedDuration=cs.duracio_min||45;
+      comp.actualDuration=(it.status==='partial'&&it.actualMin!=null)?it.actualMin:(cs.duracio_min||45);comp.plannedDuration=cs.duracio_min||45;
       cs.completed=true;cs.completion=comp;
     }
     var lbl={completed:'hecha',partial:'a medias',skipped:'no hecha'}[it.status];
-    descParts.push('"'+(it.title||'Sesión')+'" ('+(it.day||'')+'): '+lbl);
+    var extra='';
+    if(it.status==='partial'){
+      var parts=[];
+      if(it.actualMin!=null) parts.push(it.actualMin+' min');
+      if(it.actualKm!=null) parts.push(it.actualKm+' km');
+      if(it.actualElev!=null) parts.push('+'+it.actualElev+'m');
+      if(parts.length) extra=' ('+parts.join(', ')+' reales)';
+    }
+    descParts.push('"'+(it.title||'Sesión')+'" ('+(it.day||'')+'): '+lbl+extra);
   });
   closeModal('modal-catchup');
   // Desar la setmana anterior actualitzada
