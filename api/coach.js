@@ -45,6 +45,7 @@ QUAN GENERIS UN PLA SETMANAL (mode JSON):
 - Si hi ha cursa propera, ajusta la fase (base/construcció/específic/taper) i RESPECTA LA FASE indicada al context
 - Si hi ha sessions de força, respecta SEMPRE el material disponible de l'atleta
 - En sessions de força/gimnàs/calistènia, prioritza els exercicis més ben valorats de les taules EXERCICIS CLAU del cervell (split squat, trap bar deadlift, RDL, soleus bent-knee, step-up, Pallof press, dead bug, planxa lateral, Copenhagen plank) i evita els pitjor valorats (crunch, russian twist, planxa abdominal com a principal, dips i press banca en perfils endurance excepte natació/híbrids)
+- Retorna JSON estricte sense markdown segons el format demanat al missatge`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
