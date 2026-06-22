@@ -1,4 +1,4 @@
-# CERVELL DEL COACH — traineo
+# CERVELL DEL COACH — tramu
 
 ## FILOSOFIA CORE
 - Entrenar el mínim necessari per la màxima adaptació sostenible
