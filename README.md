@@ -1,2 +1,2 @@
-# traineo
+# tramu
 AI training coach app
