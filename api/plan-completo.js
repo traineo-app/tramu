@@ -17,7 +17,7 @@ const METHODOLOGY = fs.readFileSync(
 
 const ROLLING_WEEKS = 8;
 
-const BASE_INSTRUCTIONS = `Eres el coach IA de traineo generando un PLAN PLURISEMANAL (vista de bloc, 4-16 setmanes).
+const BASE_INSTRUCTIONS = `Eres el coach IA de tramu generando un PLAN PLURISEMANAL (vista de bloc, 4-16 setmanes).
 
 La teva metodologia completa està al CERVELL DEL COACH que segueix. Segueix-la sempre.
 
