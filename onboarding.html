@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>traineo — Configura tu plan</title>
+<title>tramu — Configura tu plan</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
@@ -765,7 +765,7 @@ async function handleStressTestUpload(input){
     if(d.observacions) preview+='<br><span style="display:block;margin-top:4px;font-size:.72rem;color:#5F5E5A;font-weight:500;font-style:italic">'+d.observacions+'</span>';
     preview+='<br><span style="display:block;margin-top:6px;font-size:.7rem;color:#888780;font-weight:500">Podrás verificar y editar estos valores en el siguiente paso.</span>';
     document.getElementById('stress-test-info').innerHTML=preview;
-    try{sessionStorage.setItem('traineo_stress_test_data',JSON.stringify(d));}catch(e){}
+    try{sessionStorage.setItem('tramu_stress_test_data',JSON.stringify(d));}catch(e){}
   } catch(e){console.error(e);alert('Error: '+e.message);removeStressTest();}
 }
 
@@ -795,7 +795,7 @@ async function handleStravaUpload(input){
     if(d.running?.best10K_pace) preview+=' · 10K <strong>'+d.running.best10K_pace+'</strong>';
     preview+='<br><span style="display:block;margin-top:6px;font-size:.7rem;color:#888780;font-weight:500">Verificarás los valores en el siguiente paso.</span>';
     document.getElementById('strava-info').innerHTML=preview;
-    try{sessionStorage.setItem('traineo_strava_stats',JSON.stringify(result.data));}catch(e){}
+    try{sessionStorage.setItem('tramu_strava_stats',JSON.stringify(result.data));}catch(e){}
   } catch(e){console.error(e);alert('Error: '+e.message);removeStrava();}
 }
 
@@ -992,7 +992,7 @@ async function savePlan(){
   const sports=userData.sports.length>0?userData.sports.join(','):'running';
   
   try {
-    sessionStorage.setItem('traineo_userdata',JSON.stringify({
+    sessionStorage.setItem('tramu_userdata',JSON.stringify({
       edat:userData.edat,alcada:userData.alcada,pes:userData.pes,fcrep:userData.fcrep,genere:userData.genere,
       pdfName:userData.pdfName,stravaName:userData.stravaName,
       stressTestData:userData.stressTestData,stravaStats:userData.stravaStats,
