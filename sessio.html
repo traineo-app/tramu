@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>traineo — Sesión</title>
+  <title>tramu — Sesión</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -203,7 +203,7 @@
   <div class="hero">
     <div class="nav">
       <button class="btn-back" onclick="history.back()">←</button>
-      <span class="nav-logo">trai<span class="nav-neo">neo</span></span>
+      <span class="nav-logo">tramu</span>
     </div>
     <div class="hero-icon" id="h-icon">🏃</div>
     <div class="hero-label">Sesión de entrenamiento</div>
@@ -963,7 +963,7 @@ function downloadGymPDF(){
     var d=[e.prescription,e.load,e.rest_s?('descanso '+e.rest_s+'s'):'',e.cue].filter(Boolean).join(' · ');
     html+='<div class="ex"><span class="n">'+(i+1)+'</span><span class="nm">'+esc(e.name)+'</span><div class="dt">'+esc(d)+'</div>'+(e.muscle?'<div class="ms">'+esc(e.muscle)+'</div>':'')+'</div>';
   });
-  html+='<p style="margin-top:28px;color:#888;font-size:12px">traineo · '+new Date().toLocaleDateString()+'</p></body></html>';
+  html+='<p style="margin-top:28px;color:#888;font-size:12px">tramu · '+new Date().toLocaleDateString()+'</p></body></html>';
   var w=window.open('','_blank');
   w.document.write(html);w.document.close();
   setTimeout(function(){w.print();},500);
