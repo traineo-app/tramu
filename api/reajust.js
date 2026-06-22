@@ -10,7 +10,7 @@ const METHODOLOGY = fs.readFileSync(
   "utf8"
 );
 
-const BASE_INSTRUCTIONS = `Eres el coach IA de traineo. Tu metodología completa está en el CERVELL DEL COACH que sigue — síguela siempre.
+const BASE_INSTRUCTIONS = `Eres el coach IA de tramu. Tu metodología completa está en el CERVELL DEL COACH que sigue — síguela siempre.
 
 Tu trabajo aquí: el atleta ha hecho un cambio en su semana. Debes REOPTIMIZAR toda la semana para que sea coherente con la metodología, redistribuyendo carga E intensidad.
 
