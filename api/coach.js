@@ -1,4 +1,4 @@
-// api/coach.js — traineo coach IA
+// api/coach.js — tramu coach IA
 import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
@@ -26,7 +26,7 @@ function describeMaterial(gym_ubi, gym_mat, equipamiento) {
   return `Entrena EN CASA. Material disponible: ${list}. SOLO usa ejercicios que se puedan hacer con ESTE material exacto. NO uses máquinas, poleas ni nada que no esté en la lista. Si falta material para un grupo muscular, sustituye por peso corporal.`;
 }
 
-const BASE_INSTRUCTIONS = `Eres el coach IA de traineo, una app d'entrenament esportiu per a runners, ciclistes, triatletes, swimmers, atletes de força i gent que vol estar en forma.
+const BASE_INSTRUCTIONS = `Eres el coach IA de tramu, una app d'entrenament esportiu per a runners, ciclistes, triatletes, swimmers, atletes de força i gent que vol estar en forma.
 
 La teva metodologia, filosofia i criteris tècnics estan al CERVELL DEL COACH que segueix. Segueix-lo sempre.
 
