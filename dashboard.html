@@ -402,8 +402,8 @@ const user=sportsParam?{
   velObj:params.get('vel_obj')?parseFloat(params.get('vel_obj')):null,
   gymUbi:params.get('gym_ubi')||'',
   gymMat:params.get('gym_mat')?params.get('gym_mat').split(','):[],
-  stravaStats:(function(){try{return JSON.parse(sessionStorage.getItem('traineo_strava_stats')||'null');}catch(e){return null;}})(),
-  stressTestData:(function(){try{return JSON.parse(sessionStorage.getItem('traineo_stress_test_data')||'null');}catch(e){return null;}})(),
+  stravaStats:(function(){try{return JSON.parse(sessionStorage.getItem('tramu_strava_stats')||'null');}catch(e){return null;}})(),
+  stressTestData:(function(){try{return JSON.parse(sessionStorage.getItem('tramu_stress_test_data')||'null');}catch(e){return null;}})(),
 }:null;
 
 const allSessionsDB={
@@ -725,8 +725,8 @@ async function buildPlan(user,phase){
         ritme_obj: user.ritmeObj || null,
         vel_obj: user.velObj || null,
         temps_obj: user.tempsObj || null,
-        stravaStats: user.stravaStats || (function(){ try{ return JSON.parse(sessionStorage.getItem('traineo_strava_stats')||'null'); }catch(e){ return null; } })(),
-        stressTestData: user.stressTestData || (function(){ try{ return JSON.parse(sessionStorage.getItem('traineo_stress_test_data')||'null'); }catch(e){ return null; } })(),
+        stravaStats: user.stravaStats || (function(){ try{ return JSON.parse(sessionStorage.getItem('tramu_strava_stats')||'null'); }catch(e){ return null; } })(),
+        stressTestData: user.stressTestData || (function(){ try{ return JSON.parse(sessionStorage.getItem('tramu_stress_test_data')||'null'); }catch(e){ return null; } })(),
         previousWeek: previousWeek,
         phase: phase || null,
         weekNumber: (allWeeks ? allWeeks.length : 0) + 1
