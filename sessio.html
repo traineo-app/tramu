@@ -210,12 +210,7 @@
     <div class="hero-title" id="h-title">Sesión</div>
     <div id="h-stats"></div>
   </div>
-  <div class="body" id="body">
-    <div class="loading">
-      <div class="spinner"></div>
-      <p class="loading-text">El coach está preparando<br>el detalle de la sesión...</p>
-    </div>
-  </div>
+  <div class="body" id="body"></div>
 </div>
 
 <div class="bottom-bar">
@@ -346,8 +341,42 @@ function showToast(msg){
   window._toastT=setTimeout(function(){t.classList.remove('show');},3000);
 }
 
+var _sessTipInterval=null;
+function showSessionTips(){
+  var tips=[
+    'Empieza más suave de lo que crees. El cuerpo entra en faena en los primeros minutos.',
+    'En Z2 deberías poder hablar. Si no puedes, baja el ritmo: no es un fallo, es la sesión.',
+    'La técnica aguanta cuando llega el cansancio. Cuida la forma hasta el último tramo.',
+    'Las series valen por la calidad, no por el sufrimiento. Respeta las recuperaciones.',
+    'Hidrátate antes de tener sed. La sed ya es señal de que vas tarde.',
+    'El calentamiento no es opcional: prepara el motor y previene lesiones.',
+    'Escucha las señales. Molestia que cambia tu técnica es motivo para parar.',
+    'La sesión cuenta cuando la terminas bien, no cuando la terminas a cualquier precio.'
+  ];
+  var idx=0;
+  if(_sessTipInterval){clearInterval(_sessTipInterval);_sessTipInterval=null;}
+  document.getElementById('body').innerHTML=
+    '<div style="display:flex;flex-direction:column;align-items:center;padding:2.5rem 1.25rem;justify-content:center">'+
+    '<div class="spinner" style="margin-bottom:1.5rem"></div>'+
+    '<p style="font-size:.85rem;color:#888780;text-align:center;font-weight:500;line-height:1.5;margin-bottom:2rem">El coach está preparando<br>el detalle de la sesión...</p>'+
+    '<div style="max-width:290px;background:#EBF5EF;border-radius:14px;padding:1.1rem;border:.5px solid rgba(74,158,107,.25)">'+
+    '<p style="font-size:.58rem;color:#4A9E6B;text-transform:uppercase;letter-spacing:.2em;font-weight:700;margin-bottom:.45rem">💡 Mientras esperas</p>'+
+    '<p id="sess-tip-text" style="font-size:.82rem;color:#163A28;line-height:1.6;font-weight:500;transition:opacity .35s">'+tips[0]+'</p>'+
+    '</div></div>';
+  _sessTipInterval=setInterval(function(){
+    var el=document.getElementById('sess-tip-text');
+    if(!el){clearInterval(_sessTipInterval);_sessTipInterval=null;return;}
+    el.style.opacity='0';
+    setTimeout(function(){
+      idx=(idx+1)%tips.length;
+      var el2=document.getElementById('sess-tip-text');
+      if(el2){el2.textContent=tips[idx];el2.style.opacity='1';}
+    },380);
+  },4000);
+}
+
 function loadDetail(force){
-  document.getElementById('body').innerHTML='<div class="loading"><div class="spinner"></div><p class="loading-text">El coach está preparando<br>el detalle de la sesión...</p></div>';
+  showSessionTips();
   document.getElementById('btn-empezar').disabled=true;
   return fetch('/api/session-detail',{
     method:'POST',headers:{'Content-Type':'application/json'},
@@ -375,6 +404,7 @@ function loadDetail(force){
   })
   .catch(function(e){
     console.error(e);
+    if(_sessTipInterval){clearInterval(_sessTipInterval);_sessTipInterval=null;}
     var msg=(e&&e.message)?e.message:'Error desconocido';
     document.getElementById('body').innerHTML='<div class="err-box"><div class="err-text">No se ha podido cargar el detalle de la sesión.</div><div style="font-size:.68rem;color:#A03030;background:#FBEFEF;border:.5px solid #E5C2C2;border-radius:8px;padding:.6rem .7rem;margin:.55rem 0 .85rem;font-family:ui-monospace,monospace;word-break:break-word;text-align:left;line-height:1.5">'+esc(msg)+'</div><button class="btn-retry" onclick="loadDetail(true)">Reintentar</button></div>';
   });
@@ -403,6 +433,7 @@ function fold(label,inner,cls){
 // RENDER PRINCIPAL — visual, per punts, text plegat
 // ════════════════════════════════════════════════════════
 function renderDetail(){
+  if(_sessTipInterval){clearInterval(_sessTipInterval);_sessTipInterval=null;}
   var html='';
   var isGym=detail.kind==='gym';
 
