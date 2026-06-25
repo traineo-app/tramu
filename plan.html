@@ -69,12 +69,7 @@
     <div class="nav-title">Plan completo</div>
   </div>
 
-  <div id="content">
-    <div class="loading">
-      <div class="spinner"></div>
-      <p class="loading-text">Generando tu plan completo...</p>
-    </div>
-  </div>
+  <div id="content"></div>
 </div>
 
 <script>
@@ -103,7 +98,43 @@ let planData=null;
   function isoToDate(iso){const p=iso.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
   function getMondayISO(d){const x=new Date(d);const day=x.getDay();x.setDate(x.getDate()-(day===0?6:day-1));return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');}
 
+var _planTipInterval=null;
+function showPlanTips(titulo){
+  var tips=[
+    'Un buen plan no es el más duro, es el que puedes sostener semana tras semana.',
+    'La periodización ordena el esfuerzo: no todas las semanas pesan lo mismo.',
+    'Cada bloque construye sobre el anterior. La progresión es paciencia con dirección.',
+    'Las semanas de descarga no son tiempo perdido: consolidan lo entrenado.',
+    'La curva de carga sube y baja a propósito. Llegar fresco al objetivo es parte del plan.',
+    'Planificar 8 semanas vista evita improvisar y entrenar de más.',
+    'El mejor plan se adapta a tu vida, no al revés. Por eso lo recalculamos contigo.',
+    'Primero la base, luego el pico. La forma se construye, no se fuerza.'
+  ];
+  var idx=0;
+  if(_planTipInterval){clearInterval(_planTipInterval);_planTipInterval=null;}
+  document.getElementById('content').innerHTML=
+    '<div style="display:flex;flex-direction:column;align-items:center;padding:3rem 1.25rem 2rem;min-height:55vh;justify-content:center">'+
+    '<div class="spinner" style="margin-bottom:1.75rem"></div>'+
+    '<p style="font-size:.6rem;color:#B0AEA6;text-transform:uppercase;letter-spacing:.2em;font-weight:700;margin-bottom:.4rem">'+(titulo||'Generando tu plan')+'</p>'+
+    '<p style="font-size:.95rem;color:#163A28;font-weight:600;margin-bottom:2.5rem;letter-spacing:-.2px">El coach está trabajando...</p>'+
+    '<div style="max-width:290px;background:#EBF5EF;border-radius:14px;padding:1.1rem 1.1rem;border:.5px solid rgba(74,158,107,.25)">'+
+    '<p style="font-size:.58rem;color:#4A9E6B;text-transform:uppercase;letter-spacing:.2em;font-weight:700;margin-bottom:.45rem">💡 Mientras esperas</p>'+
+    '<p id="plan-tip-text" style="font-size:.82rem;color:#163A28;line-height:1.6;font-weight:500;transition:opacity .35s">'+tips[0]+'</p>'+
+    '</div></div>';
+  _planTipInterval=setInterval(function(){
+    var el=document.getElementById('plan-tip-text');
+    if(!el){clearInterval(_planTipInterval);_planTipInterval=null;return;}
+    el.style.opacity='0';
+    setTimeout(function(){
+      idx=(idx+1)%tips.length;
+      var el2=document.getElementById('plan-tip-text');
+      if(el2){el2.textContent=tips[idx];el2.style.opacity='1';}
+    },380);
+  },4000);
+}
+
 async function loadPlan(forceRegenerate){
+  showPlanTips(forceRegenerate?'Regenerando tu plan':'Generando tu plan');
   try {
     const body={
       userData:user,
@@ -127,11 +158,13 @@ async function loadPlan(forceRegenerate){
     }
   } catch(e){
     console.error(e);
+    if(_planTipInterval){clearInterval(_planTipInterval);_planTipInterval=null;}
     document.getElementById('content').innerHTML='<div class="loading"><p class="loading-text">Error: '+(e.message||'desconocido')+'</p></div>';
   }
 }
 
 function renderPlan(){
+  if(_planTipInterval){clearInterval(_planTipInterval);_planTipInterval=null;}
   const allW=planData.weeks||[];
   const weeks=hasRace?allW:allW.slice(0,configWeeks);
   const maxHours=Math.max(...weeks.map(w=>w.totalHours));
@@ -251,7 +284,6 @@ function updateWeeks(v){
 }
 
 function regenerate(){
-  document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div><p class="loading-text">Regenerando tu plan completo...</p></div>';
   loadPlan(true);
 }
 
