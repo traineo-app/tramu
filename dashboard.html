@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>tramu — Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Inter',-apple-system,sans-serif;background:#F1EFE8;min-height:100vh;color:#111110}
@@ -181,19 +183,143 @@
     .catchup-status{display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem}
     .catchup-btn{border:.5px solid #E8E6DF;background:#fff;border-radius:8px;padding:.55rem .25rem;font-size:.72rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;color:#888780;text-align:center}
     .catchup-btn.sel{border:1.5px solid #163A28;background:#F1FAF5;color:#163A28}
+
+    /* ============================================================
+       PREMIUM THEME · Geist · "Calma" — overrides + elements nous
+       ============================================================ */
+    :root{--verd:#163A28;--verd-clar:#3DA56E;--verd-viu:#5FC68C;--bg:#FCFBF8;--ink:#16160F;--mut:#AAA69B;--mut2:#9C9A90;--line:#F1EEE5;--soft:#F6F4EE}
+    body{font-family:'Geist','Inter',-apple-system,sans-serif;background:#E7E4DC;letter-spacing:-.014em;color:var(--ink)}
+    .app{background:var(--bg);padding-bottom:2.5rem}
+    .nav{padding:1.6rem 1.5rem 0}
+    .nav-logo{font-size:1.12rem;letter-spacing:-.5px}
+    .nav-logo b{color:var(--verd);font-weight:600}
+    .nav-neo{color:var(--verd)}
+    .nav-avatar{border-radius:50%;background:var(--ink);font-weight:500}
+    .greeting{padding:1.75rem 1.5rem 1.35rem}
+    .greeting-sub{font-size:.72rem;color:var(--mut);text-transform:none;letter-spacing:.01em;font-weight:500;margin-bottom:.5rem}
+    .greeting-name{font-size:1.68rem;font-weight:600;letter-spacing:-1px;line-height:1.08}
+    .greeting-name .gsoft{color:var(--mut);font-weight:500}
+
+    /* HERO (today) */
+    .today{margin:0 1.1rem 1.6rem;background:var(--verd);border-radius:26px;padding:1.5rem}
+    .today::before{display:none}
+    .today::after{content:'';position:absolute;top:-30%;right:-22%;width:72%;height:95%;background:radial-gradient(circle,rgba(74,158,107,.20),transparent 70%);pointer-events:none}
+    .today-meta{margin-bottom:1.1rem;position:relative}
+    .today-label{display:flex;align-items:center;gap:8px;font-size:.7rem;color:#8FBFA4;text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+    .today-label::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--verd-viu);box-shadow:0 0 0 4px rgba(95,198,140,.18)}
+    .today-badge{background:transparent;color:rgba(255,255,255,.45);padding:0;font-size:.7rem;font-weight:500;text-transform:none;letter-spacing:0}
+    .today-title{font-size:1.5rem;font-weight:600;letter-spacing:-.6px;margin-bottom:.55rem;position:relative}
+    .today-zone{font-size:.84rem;color:rgba(255,255,255,.6);margin-bottom:1.5rem;position:relative;line-height:1.5}
+    .perf-grid{display:flex;gap:0;margin-bottom:1.5rem;position:relative}
+    .perf-stat{flex:1;background:transparent;border:0;padding:0;border-radius:0}
+    .perf-stat + .perf-stat{border-left:1px solid rgba(255,255,255,.12);padding-left:1rem}
+    .perf-stat:not(:last-child){padding-right:1rem}
+    .perf-val{font-family:'Geist',sans-serif;font-size:1.25rem;font-weight:600;letter-spacing:-.5px;line-height:1}
+    .perf-unit{font-size:.62rem;color:rgba(255,255,255,.4);letter-spacing:.05em;margin-top:.5rem;font-weight:500}
+    .today-actions{display:flex;gap:.55rem;position:relative}
+    .btn-white{flex:1;background:rgba(255,255,255,.1);border:0;border-radius:14px;padding:.9rem;font-family:'Geist';font-weight:500;font-size:.84rem}
+    .btn-ghost{flex:1.7;background:var(--verd-viu);border:0;color:#0A2114;border-radius:14px;padding:.9rem;font-family:'Geist';font-weight:600;font-size:.88rem;letter-spacing:-.2px}
+    .today-done{background:rgba(255,255,255,.1);border:0;border-radius:14px;padding:.95rem}
+    .today-done-sub{color:rgba(255,255,255,.5)}
+
+    /* PLAN LINK */
+    .plan-link{margin:0 1.5rem 1.6rem;background:transparent;border:0;border-radius:0;padding:0;gap:.85rem}
+    .plan-link-icon{width:44px;height:44px;border-radius:14px;background:#EDF4EF;font-size:1rem}
+    .plan-link-title{font-size:.9rem;font-weight:600;letter-spacing:-.2px}
+    .plan-link-sub{font-size:.75rem;color:var(--mut);font-weight:400}
+    .plan-link-arrow{color:#CFCCC3;font-size:1.25rem;font-weight:400}
+
+    /* WEEK */
+    .week-section{margin:0 1.5rem 0}
+    .section-title{font-size:.68rem;letter-spacing:.12em;color:var(--mut)}
+    .week-nav-head{margin-bottom:.25rem}
+    .week-nav-title{display:none}
+    .plan-list{gap:0}
+    /* fila B */
+    .plan-item{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:.95rem 0;gap:.85rem;-webkit-user-select:none;user-select:none}
+    .plan-item:last-child{border-bottom:0}
+    .plan-item.today-item,.plan-item.rest-item,.plan-item.changed,.plan-item.completed,.plan-item.completed-partial,.plan-item.completed-skipped{background:transparent;border:0;border-bottom:1px solid var(--line)}
+    .plan-item.dragging{opacity:.4}
+    .plan-item.drag-over{background:#EAF5EF;border-radius:12px;transform:none;border-bottom-color:transparent}
+    .plan-item.today-item{position:relative;padding-left:14px;margin-left:-14px;padding-right:12px;margin-right:-12px;border-radius:14px;background:#F4FAF6;border-bottom-color:transparent}
+    .plan-item.today-item::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--verd-clar)}
+    .plan-item .plan-day-badge{width:34px;height:auto;flex-shrink:0;text-align:center;background:transparent;color:var(--ink);padding:0;border-radius:0;display:flex;flex-direction:column;align-items:center;line-height:1}
+    .plan-item .plan-day-badge .dd{font-family:'Geist';font-size:1rem;font-weight:600;letter-spacing:-.3px;line-height:1}
+    .plan-item .plan-day-badge .wd{font-size:.56rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);margin-top:5px}
+    .plan-item.today-item .plan-day-badge .dd{color:var(--verd)}
+    .plan-item.rest-item .plan-day-badge .dd{color:#CFCCC3}
+    .plan-item-icon{display:none}
+    .plan-item-info{flex:1;min-width:0}
+    .plan-item-title{font-size:.88rem;font-weight:500;letter-spacing:-.2px;color:var(--ink)}
+    .plan-item-sub{font-size:.74rem;color:var(--mut);margin-top:2px;font-weight:400}
+    .plan-item.completed .plan-item-title,.plan-item.completed-partial .plan-item-title,.plan-item.completed-skipped .plan-item-title{text-decoration:none;color:var(--mut2)}
+    .plan-item.rest-item .plan-item-title{color:var(--mut);font-weight:400}
+    /* accions fila B */
+    .plan-item-actions{display:flex;align-items:center;gap:8px}
+    .chk-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid #D8D5CB;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:transparent;font-size:.8rem;transition:all .15s;flex-shrink:0;padding:0}
+    .chk-btn.done{background:var(--verd-clar);border-color:var(--verd-clar);color:#fff}
+    .chk-btn.partial{background:#E8B54A;border-color:#E8B54A;color:#fff}
+    .chk-btn.skip{border-style:dashed;border-color:#D89090;color:#C26060}
+    .kebab-btn{width:30px;height:30px;border-radius:9px;border:0;background:transparent;color:#B0ADA3;cursor:pointer;font-size:1.05rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:1px;padding:0}
+    .kebab-btn:hover{background:var(--line)}
+    .add-btn{width:26px;height:26px;border-radius:50%;border:1.5px dashed #D3D1C7;background:transparent;color:var(--mut);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+    .week-hint{font-size:.66rem;color:#B0ADA3;text-align:center;margin-top:.85rem;font-weight:400}
+
+    /* INSIGHT (cursa / constància) */
+    .insight{padding:1.6rem 1.5rem 0}
+    .imod{background:#fff;border:1px solid #EFEBE2;border-radius:20px;padding:1.15rem;margin-bottom:.9rem;box-shadow:0 10px 28px -18px rgba(20,40,28,.2)}
+    .imh{font-size:.66rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between}
+    .imh .ibadge{font-size:.62rem;font-weight:600;color:#3A7355;background:#EAF5EF;padding:3px 9px;border-radius:20px;letter-spacing:0;text-transform:none}
+    .irace{display:flex;align-items:center;gap:1rem}
+    .irace .big{font-family:'Geist';font-size:2.7rem;font-weight:600;letter-spacing:-2px;line-height:.85;color:var(--verd)}
+    .irace .big .u{font-size:.95rem;color:var(--mut);font-weight:500;letter-spacing:-.3px;margin-left:2px}
+    .irace .meta{flex:1}
+    .irace .meta .a{font-size:.88rem;font-weight:600;letter-spacing:-.2px}
+    .irace .meta .b{font-size:.74rem;color:var(--mut);margin-top:3px}
+    .icurve{margin-top:1rem;padding-top:1rem;border-top:1px solid #F2EFE7}
+    .icurve .lbl{display:flex;justify-content:space-between;font-size:.66rem;color:var(--mut);margin-bottom:.65rem}
+    .icurve .lbl b{color:var(--verd);font-weight:600}
+    .ibars{display:flex;align-items:flex-end;gap:4px;height:46px}
+    .ibars i{flex:1;border-radius:3px 3px 0 0;background:#E2E5DD}
+    .ibars i.past{background:#BFD9CB}
+    .ibars i.cur{background:var(--verd)}
+    .iadh{display:flex;align-items:center;gap:1.1rem}
+    .iring{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .iring .rin{width:58px;height:58px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .iring .rin .v{font-size:1.2rem;font-weight:600;letter-spacing:-.5px;line-height:1}
+    .iring .rin .l{font-size:.52rem;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+    .iadh .br{flex:1}
+    .iadh .br .row{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+    .iadh .br .row .k{font-size:.78rem;color:#5F5E5A}
+    .iadh .br .row .v{font-size:.82rem;font-weight:600}
+    .iadh .br .row .v.g{color:var(--verd-clar)}
+    .istreak{display:flex;gap:.6rem}
+    .istreak .cell{flex:1;text-align:center;background:var(--soft);border-radius:13px;padding:.85rem .4rem}
+    .istreak .cell .v{font-family:'Geist';font-size:1.4rem;font-weight:600;letter-spacing:-.6px;line-height:1;color:var(--verd)}
+    .istreak .cell .v small{font-size:.75rem;color:var(--mut);font-weight:500}
+    .istreak .cell .l{font-size:.58rem;color:var(--mut2);text-transform:uppercase;letter-spacing:.04em;margin-top:.45rem;font-weight:500}
+    .inarr{display:flex;align-items:center;gap:.85rem}
+    .inarr .ic{width:40px;height:40px;border-radius:12px;background:#EDF4EF;color:var(--verd);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+    .inarr .tx{font-size:.84rem;color:#3F4F45;line-height:1.5}
+    .inarr .tx b{color:var(--verd);font-weight:600}
+
+    /* week nav buttons reuse */
+    .wk-nav-btns{display:flex;align-items:center;gap:4px}
+    .wk-nav-btns button{width:26px;height:26px;border-radius:8px;border:0;background:var(--soft);color:var(--verd);cursor:pointer;font-size:.82rem;display:flex;align-items:center;justify-content:center}
+    .wk-nav-btns .wklbl{font-size:.68rem;color:var(--mut2);font-weight:500;min-width:60px;text-align:center}
   </style>
 </head>
 <body>
 <div class="app">
   <div class="nav">
-    <div style="display:flex;align-items:center;gap:8px">
-      <svg width="28" height="28" viewBox="0 0 56 56" fill="none">
-        <rect width="56" height="56" rx="14" fill="#163A28"/>
+    <div style="display:flex;align-items:center;gap:9px">
+      <svg width="26" height="26" viewBox="0 0 56 56" fill="none">
+        <rect width="56" height="56" rx="15" fill="#163A28"/>
         <rect x="8" y="11" width="32" height="7" rx="2" fill="white" transform="skewX(-12)"/>
         <rect x="21" y="11" width="9" height="28" rx="2" fill="white" transform="skewX(-12)"/>
-        <circle cx="32" cy="43" r="3.5" fill="white"/>
+        <circle cx="32" cy="43" r="4" fill="#5FC68C"/>
       </svg>
-      <span class="nav-logo">tramu</span>
+      <span class="nav-logo">tram<b>u</b></span>
     </div>
     <div class="nav-avatar" id="nav-avatar" onclick="openEmailModal()">T</div>
   </div>
@@ -367,7 +493,8 @@ const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto',
 const today=new Date();
 const todayIdx=today.getDay();
 const todayName=dayNames[(todayIdx+6)%7];
-document.getElementById('greeting-date').textContent=todayName.toUpperCase()+' · '+today.getDate()+' '+months[today.getMonth()].toUpperCase();
+function _cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+document.getElementById('greeting-date').textContent=_cap(todayName)+' · '+today.getDate()+' de '+months[today.getMonth()].toLowerCase();
 
 const params=new URLSearchParams(window.location.search);
 const sportsParam=params.get('sports');
@@ -560,6 +687,17 @@ function getDayLong(d){
   const idx=dayNames.indexOf(d);
   return idx>=0?dayNamesLong[idx]:d.toUpperCase();
 }
+function dayBadge(dayName, weekStartISO){
+  const idx=dayNames.indexOf(dayName);
+  const short=idx>=0?dayNamesLong[idx]:dayName.toUpperCase();
+  let num='';
+  try{
+    const base=isoToDate(weekStartISO||selectedWeekStart);
+    base.setDate(base.getDate()+(idx>=0?idx:0));
+    num=base.getDate();
+  }catch(e){num='';}
+  return '<div class="dd">'+num+'</div><div class="wd">'+short+'</div>';
+}
 
 if(user){ initDashboard(user); }
 else {
@@ -588,7 +726,7 @@ function normalizePlan(sessions){
 async function initDashboard(user){
   if(currentEmail){
     document.getElementById('nav-avatar').textContent=currentEmail[0].toUpperCase();
-    document.getElementById('greeting-name').textContent='Hola, '+currentEmail.split('@')[0];
+    document.getElementById('greeting-name').innerHTML='Hola, '+currentEmail.split('@')[0]+'.<br><span class="gsoft">Hoy seguimos el rumbo.</span>';
     try {
       const res=await fetch('/api/get-plan?email='+encodeURIComponent(currentEmail)+'&_t='+Date.now());
       const data=await res.json();
@@ -1063,7 +1201,7 @@ async function saveWithEmail(){
   closeModal('modal-email');
   await savePlanToSupabase();
   document.getElementById('nav-avatar').textContent=email[0].toUpperCase();
-  document.getElementById('greeting-name').textContent='Hola, '+email.split('@')[0];
+  document.getElementById('greeting-name').innerHTML='Hola, '+email.split('@')[0]+'.<br><span class="gsoft">Hoy seguimos el rumbo.</span>';
   showToast('Plan guardado ✓');
 }
 
@@ -1077,12 +1215,12 @@ function renderAll(){
   const z2max=Math.round(fc*.70);
 
   let raceHTML='';
-  if(user?.carrera&&user?.fecha){
-    const diff=Math.ceil((new Date(user.fecha)-new Date())/(1000*60*60*24));
-    if(diff>0){
-      raceHTML='<div class="race-card"><div class="race-icon">🏁</div><div><div class="race-title">'+user.carrera+'</div><div class="race-sub">'+user.distancia.toUpperCase()+(user.desnivel>0?' · +'+user.desnivel+'M D+':'')+'</div></div><div style="text-align:right;margin-left:auto"><div class="race-days">'+diff+'</div><div class="race-days-lbl">Días</div></div></div>';
-    }
+  const hasRace=!!(user?.carrera&&user?.fecha);
+  let raceDaysLeft=null;
+  if(hasRace){
+    raceDaysLeft=Math.ceil((new Date(user.fecha)-new Date())/(1000*60*60*24));
   }
+  const planSubText = hasRace ? 'El camino hasta la carrera' : 'Tu plan · forma y constancia';
 
   const durMin=todaySession.duracio_min||45;
   const zona=(todaySession.tags||[]).find(t=>t.startsWith('Z'))||'Z2';
@@ -1124,13 +1262,13 @@ function renderAll(){
 
   const planLink=
     '<div class="plan-link" onclick="window.location.href=\'plan.html\'+window.location.search">'+
-      '<div class="plan-link-icon">▦</div>'+
-      '<div class="plan-link-info"><div class="plan-link-title">Plan completo</div><div class="plan-link-sub">Periodización y fases</div></div>'+
-      '<div class="plan-link-arrow">→</div>'+
+      '<div class="plan-link-icon">8</div>'+
+      '<div class="plan-link-info"><div class="plan-link-title">Tu plan completo</div><div class="plan-link-sub">'+(planSubText)+'</div></div>'+
+      '<div class="plan-link-arrow">›</div>'+
     '</div>';
 
   document.getElementById('main-content').innerHTML=
-    raceHTML+todayCard+planLink+renderCalendar()+renderWeekSection()+renderStatsCard();
+    raceHTML+todayCard+planLink+renderWeekSection()+renderInsightSection();
   renderCoachBanner();
 }
 
@@ -1180,6 +1318,7 @@ function renderCalendar(){
 function calPrevMonth(){ calendarMonth--; if(calendarMonth<0){calendarMonth=11;calendarYear--;} renderAll(); }
 function calNextMonth(){ calendarMonth++; if(calendarMonth>11){calendarMonth=0;calendarYear++;} renderAll(); }
 function selectWeek(weekStartISO){ selectedWeekStart=weekStartISO; renderAll(); }
+function navWeek(dir){ selectedWeekStart=addDaysISO(selectedWeekStart, dir*7); renderAll(); }
 
 function renderWeekSection(){
   const wd=getWeekData(selectedWeekStart);
@@ -1203,15 +1342,22 @@ function renderWeekSection(){
 
   const summary=weekSummary(wd.sessions);
   const hint=isCurrent
-    ?'<div style="text-align:right;margin-bottom:.5rem"><span style="font-size:.6rem;color:#C8C6BF;text-transform:uppercase;letter-spacing:.12em;font-weight:600">⠿ ARRASTRA · ✎ EDITA</span></div>'
+    ?'<div class="week-hint">Mantén pulsado y arrastra para reordenar</div>'
     :'';
 
   return '<div class="week-section">'+
     '<div id="reajust-banner-slot"></div>'+
-    '<div class="week-nav-head"><span class="week-nav-title">'+label+'</span>'+badge+'</div>'+
-    (summary?'<div class="week-summary">'+summary+'</div>':'')+
-    hint+
+    '<div class="section-head">'+
+      '<span class="section-title">Esta semana</span>'+
+      '<div class="wk-nav-btns">'+
+        '<button onclick="navWeek(-1)" aria-label="Anterior">‹</button>'+
+        '<span class="wklbl">'+label+'</span>'+
+        '<button onclick="navWeek(1)" aria-label="Siguiente">›</button>'+
+      '</div>'+
+    '</div>'+
+    (!isCurrent?'<div class="week-nav-head" style="margin-bottom:.6rem">'+badge+'</div>':'')+
     body+
+    hint+
   '</div>';
 }
 
@@ -1226,13 +1372,103 @@ function renderReadonlyItem(d,weekType){
   }
   const subText=d.rest?(d.sub||''):weekItemSub(d);
   return '<div class="plan-item '+cls+'">'+
-    '<div class="plan-day-badge">'+getDayLong(d.day)+'</div>'+
-    '<span class="plan-item-icon">'+(d.icon||'🏃')+'</span>'+
+    '<div class="plan-day-badge">'+dayBadge(d.day, selectedWeekStart)+'</div>'+
     '<div class="plan-item-info">'+
       '<div class="plan-item-title">'+(d.title||'Sesión')+'</div>'+
       (subText?'<div class="plan-item-sub">'+subText+'</div>':'')+
     '</div>'+
   '</div>';
+}
+
+function _weekLoad(sessions){
+  if(!sessions) return 0;
+  const train=sessions.filter(s=>!s.rest);
+  return estimateLoad(train);
+}
+
+function renderInsightSection(){
+  const hasRace=!!(user?.carrera&&user?.fecha);
+
+  // Compliment de la setmana actual
+  const cur=getWeekData(currentWeekStart);
+  const curSessions=(cur&&cur.sessions)?cur.sessions:planDays;
+  const curTrain=curSessions.filter(s=>!s.rest);
+  const curDone=curTrain.filter(s=>s.completed).length;
+
+  // Adherència acumulada i ratxa, recorrent l'històric (allWeeks)
+  let totalTrain=0,totalDone=0,streak=0;
+  const pastWeeks=(typeof allWeeks!=='undefined'&&Array.isArray(allWeeks))
+    ? allWeeks.slice().sort((a,b)=>a.setmana<b.setmana?-1:1)
+    : [];
+  pastWeeks.forEach(w=>{
+    const tr=(w.sessions||[]).filter(s=>!s.rest);
+    const dn=tr.filter(s=>s.completed).length;
+    totalTrain+=tr.length;totalDone+=dn;
+    if(tr.length&&dn>=Math.ceil(tr.length*0.6)) streak++; else if(w.setmana<currentWeekStart) streak=0;
+  });
+  if(totalTrain===0){totalTrain=curTrain.length;totalDone=curDone;}
+  const adh=totalTrain?Math.round(totalDone/totalTrain*100):0;
+  const curLoad=_weekLoad(curSessions);
+
+  if(hasRace){
+    const days=Math.max(0,Math.ceil((new Date(user.fecha)-new Date())/(1000*60*60*24)));
+    const phase=phaseForWeek(currentWeekStart)||'En progreso';
+    // corba de càrrega del bloc (periodization.weeks)
+    let curveHTML='',weekPos='';
+    if(periodization&&periodization.weeks&&periodization.weeks.length){
+      const wks=periodization.weeks;
+      const anchor=periodization._anchorMonday||currentWeekStart;
+      let curIdx=Math.round((isoToDate(currentWeekStart)-isoToDate(anchor))/(7*86400000));
+      if(curIdx<0)curIdx=0;if(curIdx>=wks.length)curIdx=wks.length-1;
+      const loads=wks.map(w=>w.load||300);
+      const maxL=Math.max.apply(null,loads)||1;
+      const bars=loads.map((l,k)=>{
+        const h=Math.max(14,Math.round(l/maxL*100));
+        const c=k<curIdx?'past':k===curIdx?'cur':'';
+        return '<i class="'+c+'" style="height:'+h+'%"></i>';
+      }).join('');
+      curveHTML='<div class="icurve"><div class="lbl"><span>Tu curva de carga</span><span><b>Semana '+(curIdx+1)+'</b> de '+wks.length+'</span></div><div class="ibars">'+bars+'</div></div>';
+      weekPos='Semana '+(curIdx+1)+' de '+wks.length;
+    }
+    const raceName=user.carrera;
+    const raceMeta=(user.distancia?user.distancia.toUpperCase():'')+(user.desnivel>0?' · +'+user.desnivel+' m':'');
+    return '<div class="insight">'+
+      '<div class="imod">'+
+        '<div class="imh"><span>Tu carrera</span><span class="ibadge">Fase: '+phase+'</span></div>'+
+        '<div class="irace"><div class="big">'+days+'<span class="u">días</span></div>'+
+          '<div class="meta"><div class="a">'+raceName+'</div><div class="b">'+raceMeta+'</div></div></div>'+
+        curveHTML+
+      '</div>'+
+      '<div class="imod">'+
+        '<div class="imh"><span>Tu preparación</span>'+(adh>=70?'<span class="ibadge">Buen rumbo</span>':'')+'</div>'+
+        '<div class="iadh"><div class="iring" style="background:conic-gradient(var(--verd-clar) '+adh+'%,#ECEAE2 0)"><div class="rin"><div class="v">'+adh+'%</div><div class="l">Cumpl.</div></div></div>'+
+          '<div class="br">'+
+            '<div class="row"><div class="k">Sesiones completadas</div><div class="v">'+totalDone+' / '+totalTrain+'</div></div>'+
+            '<div class="row"><div class="k">Esta semana</div><div class="v g">'+curDone+' / '+curTrain.length+' ✓</div></div>'+
+            '<div class="row"><div class="k">Carga semana</div><div class="v">'+curLoad+'</div></div>'+
+          '</div></div>'+
+      '</div>'+
+    '</div>';
+  } else {
+    return '<div class="insight">'+
+      '<div class="imod">'+
+        '<div class="imh"><span>Tu constancia</span></div>'+
+        '<div class="istreak">'+
+          '<div class="cell"><div class="v">'+streak+'<small> sem</small></div><div class="l">Racha</div></div>'+
+          '<div class="cell"><div class="v">'+adh+'<small>%</small></div><div class="l">Cumplimiento</div></div>'+
+          '<div class="cell"><div class="v">'+curLoad+'</div><div class="l">Carga semana</div></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="imod">'+
+        '<div class="imh"><span>Tu rumbo</span></div>'+
+        '<div class="inarr"><div class="ic">↗</div><div class="tx">'+
+          (streak>=2
+            ?'Llevas <b>'+streak+' semanas</b> siguiendo el plan. La carga sube de forma sostenida — <b>vas por buen camino</b>.'
+            :'Cada sesión es un paso. Sigue el plan esta semana y construye tu base — <b>el rumbo se hace andando</b>.')+
+        '</div></div>'+
+      '</div>'+
+    '</div>';
+  }
 }
 
 function renderStatsCard(){
@@ -1294,6 +1530,9 @@ function renderPlanItem(d,i){
     }
   }
 
+  const chkCls = isCompleted ? (compStatus==='partial'?'partial':compStatus==='skipped'?'skip':'done') : '';
+  const chkMark = isCompleted ? (compStatus==='skipped'?'✗':'✓') : '';
+
   return '<div class="plan-item '+cls+'" id="item-'+i+'"'+
     ' draggable="'+(!d.rest)+'"'+
     ' ondragstart="dragStart(event,'+i+')"'+
@@ -1301,22 +1540,21 @@ function renderPlanItem(d,i){
     ' ondrop="drop(event,'+i+')"'+
     ' ondragleave="dragLeave('+i+')"'+
     ' ondragend="dragEnd()"'+
+    (!d.rest?' ontouchstart="handleTouchStart(event,'+i+')"':'')+
     ' onclick="openSessio('+i+')">'+
-    '<div class="plan-day-badge">'+getDayLong(d.day)+'</div>'+
-    '<span class="plan-item-icon">'+(d.icon||'🏃')+'</span>'+
+    '<div class="plan-day-badge">'+dayBadge(d.day, selectedWeekStart)+'</div>'+
     '<div class="plan-item-info">'+
       '<div class="plan-item-title">'+(d.title||'Sesión')+'</div>'+
       (subText?'<div class="plan-item-sub">'+subText+'</div>':'')+
     '</div>'+
     (!d.rest?
       '<div class="plan-item-actions" onclick="event.stopPropagation()">'+
-        '<div class="drag-handle" onclick="event.stopPropagation()" ontouchstart="handleTouchStart(event,'+i+')">⠿</div>'+
-        '<button class="action-btn '+(isCompleted?'done-btn':'')+'" onclick="toggleCompleted('+i+')">✓</button>'+
-        '<button class="action-btn" onclick="openEditMenu('+i+')">✎</button>'+
+        '<button class="chk-btn '+chkCls+'" onclick="toggleCompleted('+i+')" aria-label="Marcar">'+chkMark+'</button>'+
+        '<button class="kebab-btn" onclick="openEditMenu('+i+')" aria-label="Más">⋯</button>'+
       '</div>'
       :
       '<div class="plan-item-actions" onclick="event.stopPropagation()">'+
-        '<button class="action-btn" onclick="restoreDay('+i+')">+</button>'+
+        '<button class="add-btn" onclick="restoreDay('+i+')" aria-label="Añadir">+</button>'+
       '</div>'
     )+
     '</div>';
