@@ -230,19 +230,23 @@
     .plan-link-arrow{color:#CFCCC3;font-size:1.25rem;font-weight:400}
 
     /* WEEK */
-    .week-section{margin:0 1.5rem 0}
+    .week-section{margin:0 1.1rem 0}
     .section-title{font-size:.68rem;letter-spacing:.12em;color:var(--mut)}
+    .section-head{padding:0 .4rem .55rem}
     .week-nav-head{margin-bottom:.25rem}
     .week-nav-title{display:none}
+    /* targeta englobant (Opció A) */
+    .week-card{background:#fff;border:1px solid #EFEBE2;border-radius:22px;padding:.3rem 1.15rem;box-shadow:0 10px 30px -18px rgba(20,40,28,.18)}
     .plan-list{gap:0}
     /* fila B */
     .plan-item{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:.95rem 0;gap:.85rem;-webkit-user-select:none;user-select:none}
     .plan-item:last-child{border-bottom:0}
     .plan-item.today-item,.plan-item.rest-item,.plan-item.changed,.plan-item.completed,.plan-item.completed-partial,.plan-item.completed-skipped{background:transparent;border:0;border-bottom:1px solid var(--line)}
+    .plan-item:last-child{border-bottom:0}
     .plan-item.dragging{opacity:.4}
     .plan-item.drag-over{background:#EAF5EF;border-radius:12px;transform:none;border-bottom-color:transparent}
-    .plan-item.today-item{position:relative;padding-left:14px;margin-left:-14px;padding-right:12px;margin-right:-12px;border-radius:14px;background:#F4FAF6;border-bottom-color:transparent}
-    .plan-item.today-item::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--verd-clar)}
+    .plan-item.today-item{position:relative;padding-left:12px;margin-left:-11px;padding-right:10px;margin-right:-11px;border-radius:13px;background:#F4FAF6;border-bottom-color:transparent}
+    .plan-item.today-item::before{content:'';position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:3px;background:var(--verd-clar)}
     .plan-item .plan-day-badge{width:34px;height:auto;flex-shrink:0;text-align:center;background:transparent;color:var(--ink);padding:0;border-radius:0;display:flex;flex-direction:column;align-items:center;line-height:1}
     .plan-item .plan-day-badge .dd{font-family:'Geist';font-size:1rem;font-weight:600;letter-spacing:-.3px;line-height:1}
     .plan-item .plan-day-badge .wd{font-size:.56rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);margin-top:5px}
@@ -1086,13 +1090,9 @@ function weekSummary(sessions){
 function weekItemSub(d){
   if(d.rest) return d.sub||'';
   const metrics=getSessionMetrics(d,user);
-  if(metrics){
-    const mins=d.duracio_min||45;
-    if(metrics.sport==='trail') return mins+"' · "+metrics.km+' KM'+(metrics.elev>0?' · +'+metrics.elev+'M D+':'');
-    if(metrics.sport==='running') return mins+"' · "+metrics.km+' KM · '+metrics.pace+'/KM';
-    if(metrics.sport==='cycling') return mins+"' · "+metrics.km+' KM · '+metrics.kmh+' KM/H'+(metrics.elev>0?' · +'+metrics.elev+'M':'');
-  }
-  return d.sub||((d.duracio_min||45)+"'");
+  const mins=d.duracio_min||45;
+  if(metrics&&metrics.km) return mins+' min · '+metrics.km+' km';
+  return mins+' min';
 }
 
 function showCoachBanner(working,message){coachBannerState={working:working,message:message};renderCoachBanner();}
@@ -1346,7 +1346,6 @@ function renderWeekSection(){
     :'';
 
   return '<div class="week-section">'+
-    '<div id="reajust-banner-slot"></div>'+
     '<div class="section-head">'+
       '<span class="section-title">Esta semana</span>'+
       '<div class="wk-nav-btns">'+
@@ -1355,8 +1354,11 @@ function renderWeekSection(){
         '<button onclick="navWeek(1)" aria-label="Siguiente">›</button>'+
       '</div>'+
     '</div>'+
-    (!isCurrent?'<div class="week-nav-head" style="margin-bottom:.6rem">'+badge+'</div>':'')+
-    body+
+    '<div class="week-card">'+
+      '<div id="reajust-banner-slot"></div>'+
+      (!isCurrent?'<div class="week-nav-head" style="margin-bottom:.6rem">'+badge+'</div>':'')+
+      body+
+    '</div>'+
     hint+
   '</div>';
 }
@@ -1520,13 +1522,11 @@ function renderPlanItem(d,i){
     subText=d.sub||'';
   } else {
     const metrics=getSessionMetrics(d,user);
-    if(metrics){
-      const mins=d.duracio_min||45;
-      if(metrics.sport==='trail') subText=mins+"' · "+metrics.km+' KM'+(metrics.elev>0?' · +'+metrics.elev+'M D+':'');
-      else if(metrics.sport==='running') subText=mins+"' · "+metrics.km+' KM · '+metrics.pace+'/KM';
-      else if(metrics.sport==='cycling') subText=mins+"' · "+metrics.km+' KM · '+metrics.kmh+' KM/H'+(metrics.elev>0?' · +'+metrics.elev+'M':'');
+    const mins=d.duracio_min||45;
+    if(metrics&&metrics.km){
+      subText=mins+' min · '+metrics.km+' km';
     } else {
-      subText=d.sub||((d.duracio_min||45)+"'");
+      subText=mins+' min';
     }
   }
 
