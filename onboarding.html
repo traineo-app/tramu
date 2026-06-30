@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>tramu — Configura tu plan</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -133,12 +135,23 @@
   .nivel-card.sel .nivel-card-title{color:#163A28}
   .nivel-card-sub{font-size:.72rem;color:#888780;margin-top:2px;font-weight:500;line-height:1.4}
 </style>
+<style>
+  /* PREMIUM THEME · Geist — onboarding */
+  :root{--verd:#163A28;--verd-clar:#3DA56E;--verd-viu:#5FC68C;--bg:#FCFBF8;--ink:#16160F;--mut:#AAA69B;--line:#F1EEE5;--soft:#F6F4EE}
+  body{font-family:'Geist','Inter',sans-serif;background:#E7E4DC;letter-spacing:-.014em;color:var(--ink)}
+  .app{background:var(--bg)}
+  .progress-step{font-family:'Geist';font-weight:600;letter-spacing:-.3px;color:var(--verd)}
+  .day-num{font-family:'Geist';font-weight:600;letter-spacing:-.3px}
+  .dist-opt-dist{font-family:'Geist';font-weight:600;letter-spacing:-.3px}
+  .field-input{font-family:'Geist';border-radius:12px}
+  .field-input:focus{border-color:var(--verd)}
+</style>
 </head>
 <body>
 <div class="app">
   <div class="top">
     <div class="nav">
-      <span class="nav-logo">trai<span class="nav-neo">neo</span></span>
+      <span class="nav-logo">tram<span class="nav-neo">u</span></span>
       <button class="btn-skip" onclick="savePlan()">Saltar →</button>
     </div>
     <div class="progress-wrap">
