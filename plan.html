@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>tramu — Plan completo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Outfit',sans-serif;background:#F1EFE8;min-height:100vh}
+    body{font-family:'Geist',sans-serif;background:#F1EFE8;min-height:100vh}
     .app{max-width:390px;margin:0 auto;min-height:100vh;background:#F8F7F4;padding-bottom:3rem}
     .nav{display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem}
     .btn-back{background:#fff;border:.5px solid #E8E6DF;color:#163A28;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center}
@@ -50,7 +51,7 @@
     .week-sessions{display:flex;flex-direction:column;gap:4px;margin-top:.75rem}
     .week-session{font-size:.82rem;color:#555;padding:.4rem .65rem;background:#F8F7F4;border-radius:6px;display:flex;align-items:center;gap:.5rem}
     .week-session-dot{width:5px;height:5px;border-radius:50%;background:#888780;flex-shrink:0}
-    .btn-open-week{width:100%;background:#163A28;color:#fff;border:none;border-radius:8px;padding:.6rem;font-size:.82rem;font-weight:500;font-family:'Outfit',sans-serif;cursor:pointer;margin-top:.75rem}
+    .btn-open-week{width:100%;background:#163A28;color:#fff;border:none;border-radius:8px;padding:.6rem;font-size:.82rem;font-weight:500;font-family:'Geist',sans-serif;cursor:pointer;margin-top:.75rem}
     .summary-card{margin:0 1.25rem 1rem;background:#163A28;border-radius:14px;padding:1.25rem}
     .summary-label{font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
     .summary-text{font-size:.9rem;color:#fff;line-height:1.5}
@@ -60,6 +61,17 @@
     .loading-text{font-size:.9rem;color:#888780;text-align:center}
     .chevron{font-size:.7rem;color:#C8C6BF;transition:transform .2s}
     .week-item.open .chevron{transform:rotate(90deg)}
+  </style>
+  <style>
+    /* PREMIUM THEME · Geist — plan */
+    :root{--verd:#163A28;--verd-clar:#3DA56E;--verd-viu:#5FC68C;--bg:#FCFBF8;--ink:#16160F;--mut:#AAA69B;--line:#F1EEE5;--soft:#F6F4EE}
+    body{font-family:'Geist',sans-serif;background:#E7E4DC;letter-spacing:-.014em;color:var(--ink)}
+    .app{background:var(--bg)}
+    .summary-card{margin:0 1.1rem 1.4rem;background:var(--verd);border-radius:24px;padding:1.5rem;position:relative;overflow:hidden}
+    .summary-card::after{content:'';position:absolute;top:-30%;right:-22%;width:65%;height:95%;background:radial-gradient(circle,rgba(74,158,107,.20),transparent 70%);pointer-events:none}
+    .week-item.current .week-num{background:var(--verd)}
+    .btn-open-week{background:var(--verd);border-radius:13px;font-family:'Geist';font-weight:600;padding:.85rem}
+    .spinner{border-color:var(--line);border-top-color:var(--verd-clar)}
   </style>
 </head>
 <body>
@@ -203,7 +215,7 @@ function renderPlan(){
     const isRace=raceWeek&&i===raceWeek-1;
     const color=isRace?'#E04040':isCurrent?'#163A28':'#4A9E6B';
     bars+='<rect x="'+x+'" y="'+y+'" width="'+barWidth+'" height="'+barH+'" rx="2" fill="'+color+'" opacity="'+(isCurrent||isRace?'1':'.75')+'"/>';
-    bars+='<text x="'+(x+barWidth/2)+'" y="'+(chartH-6)+'" text-anchor="middle" font-size="9" fill="#888780" font-family="Outfit">S'+w.weekNum+'</text>';
+    bars+='<text x="'+(x+barWidth/2)+'" y="'+(chartH-6)+'" text-anchor="middle" font-size="9" fill="#888780" font-family="Geist">S'+w.weekNum+'</text>';
     const lineX=x+barWidth/2;
     const lineY=chartH-20-(w.load/maxLoad)*barAreaH;
     linePoints.push(lineX+','+lineY);
@@ -268,7 +280,7 @@ weeks.forEach((w,i)=>{
   });
   weeksHTML+='</div>';
 
-  const regenHTML='<div style="margin:0 1.25rem 1.5rem"><button onclick="regenerate()" style="width:100%;background:#fff;color:#163A28;border:.5px solid #E8E6DF;border-radius:10px;padding:.75rem;font-size:.8rem;font-weight:500;font-family:\'Outfit\',sans-serif;cursor:pointer">↻ Regenerar plan completo</button></div>';
+  const regenHTML='<div style="margin:0 1.25rem 1.5rem"><button onclick="regenerate()" style="width:100%;background:#fff;color:#163A28;border:.5px solid #E8E6DF;border-radius:10px;padding:.75rem;font-size:.8rem;font-weight:500;font-family:\'Geist\',sans-serif;cursor:pointer">↻ Regenerar plan completo</button></div>';
   document.getElementById('content').innerHTML=topCard+graphHTML+summaryHTML+weeksHTML+regenHTML;
 }
 
