@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>tramu — Sesión</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Inter',-apple-system,sans-serif;background:#F1EFE8;min-height:100vh;color:#111110}
@@ -196,6 +198,32 @@
 
     .toast{position:fixed;bottom:6rem;left:50%;transform:translateX(-50%);background:#111110;color:#fff;font-size:.8rem;font-weight:600;padding:.65rem 1.1rem;border-radius:20px;z-index:210;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90%;text-align:center}
     .toast.show{opacity:1}
+  </style>
+  <style>
+    /* PREMIUM THEME · Geist — sessio */
+    :root{--verd:#163A28;--verd-clar:#3DA56E;--verd-viu:#5FC68C;--bg:#FCFBF8;--ink:#16160F;--mut:#AAA69B;--line:#F1EEE5;--soft:#F6F4EE}
+    body{font-family:'Geist','Inter',sans-serif;background:#E7E4DC;letter-spacing:-.014em;color:var(--ink)}
+    .app{background:var(--bg)}
+    .hero{background:var(--verd);padding:1.4rem 1.5rem 1.8rem;border-radius:0 0 28px 28px}
+    .hero::before{display:none}
+    .hero::after{content:'';position:absolute;top:-30%;right:-22%;width:65%;height:95%;background:radial-gradient(circle,rgba(74,158,107,.20),transparent 70%);pointer-events:none}
+    .btn-back{background:rgba(255,255,255,.1);border:0;border-radius:11px}
+    .nav-logo{font-weight:600;color:rgba(255,255,255,.5)}
+    .nav-logo b,.nav-neo{color:rgba(255,255,255,.7)}
+    .hero-icon{display:none}
+    .hero-label{display:flex;align-items:center;gap:8px;font-size:.7rem;color:#8FBFA4;text-transform:uppercase;letter-spacing:.06em;font-weight:500;position:relative}
+    .hero-label::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--verd-viu);box-shadow:0 0 0 4px rgba(95,198,140,.18)}
+    .hero-title{font-size:1.6rem;font-weight:600;letter-spacing:-.6px;position:relative}
+    .hero-stats{background:transparent;margin-top:1.2rem;gap:0;position:relative}
+    .hero-stat{padding:0;text-align:left}
+    .hero-stat+.hero-stat{border-left:1px solid rgba(255,255,255,.12);padding-left:1rem}
+    .hero-stat:not(:last-child){padding-right:1rem}
+    .hero-stat-val{font-family:'Geist',sans-serif;font-size:1.2rem;font-weight:600;letter-spacing:-.5px}
+    .hero-stat-lbl{font-size:.6rem;color:rgba(255,255,255,.4);letter-spacing:.05em;margin-top:.45rem;font-weight:500}
+    .point-bullet,.ex-num{font-family:'Geist';font-weight:600;border-radius:10px}
+    .tl-time{font-family:'Geist';font-weight:600;letter-spacing:-.3px}
+    .spinner{border-color:var(--line);border-top-color:var(--verd-clar)}
+    .btn-primary,.btn-empezar{font-family:'Geist'}
   </style>
 </head>
 <body>
