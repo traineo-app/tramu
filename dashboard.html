@@ -767,7 +767,10 @@ async function initDashboard(user){
           document.getElementById('modal-catchup').classList.add('open');
           return;
         }
-        await buildPlan(user, phaseForWeek(currentWeekStart));
+        // Setmana nova sense catch-up pendent: reajustem el mapa segons el fet
+        // i generem la nova des del mapa reajustat.
+        try{ await reajustarMapa(); }catch(e){ console.log('reajust mapa failed',e); }
+        await buildPlan(user, periodization?phaseForWeek(currentWeekStart):null);
         return;
       }
     } catch(e){ console.log('No saved plan',e); }
@@ -822,6 +825,24 @@ function phaseForWeek(weekStart){
   const pw=periodization.weeks[offset];
   return pw?(pw.phase||null):null;
 }
+async function reajustarMapa(){
+  // Reajusta el mapa (plan completo) perquè reflecteixi les setmanes reals
+  // (el que s'ha fet/ajustat al dashboard) i doni continuïtat coherent a les futures.
+  if(!user||!currentEmail) return;
+  const body={
+    userData:user,
+    raceDate:(user.carrera&&user.fecha)?user.fecha:null,
+    raceName:(user.carrera&&user.fecha)?user.carrera:null,
+    email:currentEmail,
+    forceRegenerate:true,
+    realWeeks:allWeeks||[],
+    currentWeekStart:currentWeekStart
+  };
+  const res=await fetch('/api/plan-completo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const data=await res.json();
+  if(data&&data.weeks&&data.weeks.length) periodization=data;
+}
+
 async function loadPeriodizationSync(){
   if(!user) return;
   const body={userData:user,raceDate:(user.carrera&&user.fecha)?user.fecha:null,raceName:(user.carrera&&user.fecha)?user.carrera:null,email:currentEmail};
@@ -2027,10 +2048,12 @@ async function confirmCatchUp(){
         body:JSON.stringify({email:currentEmail,userData:user,sessions:prev.sessions,resum:prev.resum||'',weekStartDate:prevWeekStart})});
     }catch(e){ console.log('save prev failed',e); }
   }
-  // Si estàvem esperant generar la setmana nova → generar-la ara amb el compliment real
+  // Si estàvem esperant generar la setmana nova → primer REAJUSTEM el mapa
+  // segons el que s'ha fet, i després generem la setmana derivada del mapa reajustat.
   if(pendingNewWeekAfterCatchUp){
     pendingNewWeekAfterCatchUp=false;
-    await buildPlan(user, phaseForWeek(currentWeekStart));
+    if(currentEmail){ try{ await reajustarMapa(); }catch(e){ console.log('reajust mapa failed',e); } }
+    await buildPlan(user, periodization?phaseForWeek(currentWeekStart):null);
     return;
   }
   renderAll();
