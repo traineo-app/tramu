@@ -14,11 +14,16 @@ const BASE_INSTRUCTIONS = `Eres el coach IA de tramu. Tu metodología completa e
 
 Tu trabajo aquí: el atleta ha hecho un cambio en su semana. Debes REOPTIMIZAR toda la semana para que sea coherente con la metodología, redistribuyendo carga E intensidad.
 
-REGLA #1 — DÍAS DEL ATLETA SON INMUTABLES:
-Días con "canviat":true o "completed":true:
-- Devuelve title, duracio_min, custom, tags EXACTAMENTE iguales al input
-- Solo puedes ajustar "why" para explicar cómo encaja
-- NO los toques bajo ningún concepto
+REGLA #1 — LO QUE EL ATLETA HA TOCADO A MANO ES SAGRADO:
+Días con "userLocked":true o "completed":true:
+- Devuelve dia, title, duracio_min, custom, tags, rest EXACTAMENTE iguales al input
+- NO los muevas de día, NO cambies su contenido, NO los conviertas en descanso
+- Solo puedes ajustar "why" para explicar cómo encaja el resto alrededor
+- Estos días son decisiones del atleta: intocables
+
+IMPORTANTE — "canviat":true SIN "userLocked" son ajustes TUYOS de una vez anterior:
+- Esos SÍ los puedes volver a tocar/redistribuir libremente si la metodología lo pide
+- No los trates como inmutables; solo lo son los "userLocked" o "completed"
 
 REGLA #2 — REDISTRIBUCIÓN DE VOLUMEN cuando hay déficit/superávit:
 - delta_load > 0 → FALTAN unidades de carga → añade minutos en 1-3 días no modificados
@@ -104,6 +109,7 @@ export default async function handler(req, res) {
       rest: d.rest || false,
       min: d.duracio_min || 45,
       tags: d.tags || [],
+      userLocked: d.userLocked || false,
       canviat: d.canviat || false,
       custom: d.custom || null,
       completed: d.completed || false,
@@ -140,7 +146,7 @@ Devuelve SOLO JSON válido:
   "setmana": [
     {"dia":"Lu","rest":false,"icon":"🏃","title":"...","sub":"...","why":"...","tags":[...],"duracio_min":45,"canviat":false,"custom":null}
   ],
-  "missatge": "Frase corta sobre el ajuste (máx 14 palabras)",
+  "missatge": "Qué se ha ajustado y por qué, claro y breve (máx 16 palabras). Ej: 'Suavizado el miércoles porque el jueves llevas tirada larga'",
   "resum": "Resumen breve de la semana"
 }`;
 
