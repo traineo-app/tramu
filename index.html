@@ -1,118 +1,176 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>tramu — Entrena con inteligencia</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',-apple-system,sans-serif;background:#0D1C12;min-height:100vh}
-    .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1.5rem;text-align:center;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;top:-120px;right:-80px;width:380px;height:380px;border-radius:50%;background:rgba(74,158,107,.07);pointer-events:none}
-    .hero::after{content:'';position:absolute;bottom:-80px;left:-60px;width:260px;height:260px;border-radius:50%;background:rgba(74,158,107,.05);pointer-events:none}
-
-    /* Logo */
-    .logo-wrap{margin-bottom:2.75rem;position:relative;z-index:1}
-    .logo-icon{width:68px;height:68px;margin:0 auto 1.1rem}
-    .logo-name{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;font-weight:400;color:#fff;letter-spacing:-.5px;line-height:1}
-    .logo-neo{color:rgba(255,255,255,.28)}
-    .tagline{font-size:.62rem;color:rgba(255,255,255,.3);letter-spacing:.22em;text-transform:uppercase;margin-top:.5rem;font-weight:600}
-
-    /* Headline */
-    h1{font-family:'Bebas Neue',sans-serif;font-size:3.2rem;font-weight:400;color:#fff;letter-spacing:-.5px;line-height:.95;margin-bottom:.9rem;max-width:380px;position:relative;z-index:1}
-    .sub{font-size:.9rem;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:2rem;max-width:320px;font-weight:400;position:relative;z-index:1}
-
-    /* Badges */
-    .badges{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.25rem;position:relative;z-index:1}
-    .badge{background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:.68rem;padding:.3rem .75rem;border-radius:20px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-
-    /* Tabs */
-    .tabs{display:flex;gap:0;background:rgba(255,255,255,.07);border-radius:13px;padding:4px;margin-bottom:1.1rem;width:100%;max-width:340px;position:relative;z-index:1}
-    .tab-btn{flex:1;padding:.6rem;border:none;border-radius:10px;background:transparent;color:rgba(255,255,255,.4);font-size:.85rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:.01em}
-    .tab-btn.active{background:rgba(255,255,255,.12);color:#fff}
-
-    /* Form */
-    .form{display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:340px;position:relative;z-index:1}
-    .form-panel{display:none;flex-direction:column;gap:.6rem}
-    .form-panel.active{display:flex}
-    input{padding:.9rem 1rem;border-radius:11px;border:.5px solid rgba(255,255,255,.12);font-size:.95rem;font-family:'Inter',sans-serif;background:rgba(255,255,255,.07);color:#fff;outline:none;transition:border-color .15s;width:100%;font-weight:400}
-    input:focus{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1)}
-    input::placeholder{color:rgba(255,255,255,.25)}
-    .btn-primary{padding:.9rem;background:#4A9E6B;color:#0A1F12;border:none;border-radius:11px;font-size:.92rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:filter .15s;letter-spacing:.02em;text-transform:uppercase}
-    .btn-primary:hover{filter:brightness(1.08)}
-    .btn-loading{opacity:.6;cursor:default}
-    .legal{font-size:.68rem;color:rgba(255,255,255,.18);margin-top:1.25rem;max-width:300px;line-height:1.7;position:relative;z-index:1;font-weight:400}
-    .error-msg{font-size:.8rem;color:#F0A080;text-align:center;display:none;font-weight:500}
-    .error-msg.show{display:block}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tramu — Entrena con inteligencia</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--verd:#163A28;--verd-fosc:#08170D;--verd-clar:#3DA56E;--verd-viu:#5FC68C;--crema:#FCFBF8;--ink:#16160F;--mut:#AAA69B}
+  html{scroll-behavior:smooth}
+  body{font-family:'Geist',sans-serif;background:var(--verd-fosc);color:#fff;letter-spacing:-.014em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .wrap{max-width:420px;margin:0 auto;position:relative}
+  .hero{padding:2.2rem 1.5rem 2rem;position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column}
+  .hero::before{content:'';position:absolute;top:-10%;right:-30%;width:80%;height:55%;background:radial-gradient(circle,rgba(95,198,140,.18),transparent 68%);pointer-events:none}
+  .topbar{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;margin-bottom:3rem}
+  .logo{display:flex;align-items:center;gap:9px}
+  .logo svg{width:30px;height:30px}
+  .logo-name{font-size:1.15rem;font-weight:600;letter-spacing:-.5px}
+  .logo-name b{color:var(--verd-viu)}
+  .login-link{font-size:.82rem;color:rgba(255,255,255,.55);font-weight:500;background:none;border:none;font-family:'Geist';padding:.4rem .2rem;cursor:pointer}
+  .login-link:hover{color:#fff}
+  .hero-copy{position:relative;z-index:2}
+  h1{font-size:2.65rem;font-weight:600;letter-spacing:-1.6px;line-height:1.02;margin-bottom:1.1rem;margin-top:.5rem}
+  h1 .soft{color:rgba(255,255,255,.42);font-weight:500}
+  .lead{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.6;margin-bottom:1.8rem;max-width:340px}
+  .lead b{color:rgba(255,255,255,.8);font-weight:500}
+  .cta-row{display:flex;flex-direction:column;gap:.7rem;position:relative;z-index:2;margin-bottom:2.5rem}
+  .panel{display:none;flex-direction:column;gap:.7rem}
+  .panel.active{display:flex}
+  input{padding:.95rem 1.1rem;border-radius:13px;border:.5px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;font-family:'Geist';font-size:.95rem;outline:none;transition:all .15s;width:100%}
+  input:focus{border-color:var(--verd-viu);background:rgba(255,255,255,.09)}
+  input::placeholder{color:rgba(255,255,255,.32)}
+  .btn{padding:1rem;background:var(--verd-viu);color:#08170D;border:none;border-radius:13px;font-family:'Geist';font-size:1rem;font-weight:600;letter-spacing:-.2px;cursor:pointer;transition:filter .15s;width:100%}
+  .btn:hover{filter:brightness(1.06)}
+  .btn-loading{opacity:.6;cursor:default}
+  .microcopy{font-size:.72rem;color:rgba(255,255,255,.35);text-align:center;font-weight:400}
+  .back-link{font-size:.78rem;color:rgba(255,255,255,.4);text-align:center;background:none;border:none;font-family:'Geist';cursor:pointer;padding:.3rem}
+  .back-link:hover{color:#fff}
+  .error-msg{font-size:.8rem;color:#F0A080;text-align:center;display:none;font-weight:500}
+  .error-msg.show{display:block}
+  .showcase{position:relative;z-index:1;margin:0 -.3rem;flex:1;display:flex;align-items:flex-end;justify-content:center;min-height:200px}
+  .device{width:100%;max-width:340px;background:var(--crema);border-radius:26px 26px 0 0;padding:1.1rem 1rem .4rem;box-shadow:0 -20px 60px -20px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);transform:translateY(8px)}
+  .d-greet{font-size:.6rem;color:var(--mut);font-weight:500;margin-bottom:.15rem}
+  .d-greet-n{font-size:1rem;font-weight:600;color:var(--ink);letter-spacing:-.5px;margin-bottom:.8rem}
+  .d-greet-n .s{color:var(--mut);font-weight:500}
+  .d-hero{background:var(--verd);border-radius:16px;padding:.9rem 1rem;position:relative;overflow:hidden;margin-bottom:.7rem}
+  .d-hero::after{content:'';position:absolute;top:-40%;right:-20%;width:60%;height:120%;background:radial-gradient(circle,rgba(95,198,140,.2),transparent 70%)}
+  .d-lbl{display:flex;align-items:center;gap:6px;font-size:.55rem;color:#8FBFA4;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:.5rem}
+  .d-lbl .pip{width:5px;height:5px;border-radius:50%;background:var(--verd-viu)}
+  .d-title{font-size:1.05rem;font-weight:600;color:#fff;letter-spacing:-.4px;margin-bottom:.6rem;position:relative}
+  .d-stats{display:flex;gap:0;position:relative}
+  .d-stat{flex:1}
+  .d-stat+.d-stat{border-left:1px solid rgba(255,255,255,.13);padding-left:.6rem}
+  .d-stat:not(:last-child){padding-right:.6rem}
+  .d-sv{font-size:.85rem;font-weight:600;color:#fff;letter-spacing:-.3px}
+  .d-sv .u{font-size:.6rem;color:#8FBFA4}
+  .d-sl{font-size:.5rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-top:.3rem;font-weight:500}
+  .d-row{display:flex;align-items:center;gap:.6rem;padding:.55rem 0;border-bottom:.5px solid #F1EEE5}
+  .d-row:last-child{border-bottom:none}
+  .d-row.now{background:#F4FAF6;border-radius:9px;padding-left:.5rem;padding-right:.4rem;margin:0 -.3rem;border-bottom-color:transparent;position:relative}
+  .d-row.now::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:2.5px;border-radius:3px;background:var(--verd-clar)}
+  .d-date{width:22px;text-align:center;flex-shrink:0}
+  .d-dd{font-size:.75rem;font-weight:600;color:var(--ink);line-height:1}
+  .d-wd{font-size:.42rem;color:var(--mut);text-transform:uppercase;margin-top:.15rem;font-weight:500}
+  .d-info{flex:1;min-width:0}
+  .d-a{font-size:.72rem;font-weight:500;color:var(--ink)}
+  .d-b{font-size:.55rem;color:var(--mut);margin-top:.1rem}
+  .d-chk{width:15px;height:15px;border-radius:50%;border:1.3px solid #D8D5CB;flex-shrink:0}
+  .taste{background:var(--crema);color:var(--ink);padding:2.8rem 1.5rem;border-radius:26px 26px 0 0;position:relative;z-index:3;margin-top:-.5rem}
+  .taste-eyebrow{font-size:.66rem;color:var(--verd-clar);letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;text-align:center}
+  .taste-h{font-size:1.6rem;font-weight:600;letter-spacing:-.8px;text-align:center;margin-bottom:2rem;color:var(--ink);line-height:1.1}
+  .steps{display:flex;flex-direction:column;gap:1rem}
+  .step{display:flex;gap:.9rem;align-items:flex-start;background:#fff;border:1px solid #EFEBE2;border-radius:16px;padding:1rem 1.1rem;box-shadow:0 8px 24px -18px rgba(20,40,28,.2)}
+  .step-n{width:30px;height:30px;border-radius:10px;background:#EDF4EF;color:var(--verd);font-weight:600;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .step-t{font-size:.92rem;font-weight:600;letter-spacing:-.3px;margin-bottom:.2rem}
+  .step-d{font-size:.8rem;color:var(--mut);line-height:1.5}
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:1.5rem}
+  .why-card{background:#fff;border:1px solid #EFEBE2;border-radius:14px;padding:.9rem}
+  .why-ic{font-size:1.1rem;margin-bottom:.4rem}
+  .why-t{font-size:.8rem;font-weight:600;letter-spacing:-.2px;margin-bottom:.15rem}
+  .why-d{font-size:.7rem;color:var(--mut);line-height:1.4}
+  .final{text-align:center;padding:2.5rem 1.5rem 3rem;background:var(--crema);color:var(--ink)}
+  .final-h{font-size:1.5rem;font-weight:600;letter-spacing:-.7px;margin-bottom:.4rem}
+  .final-s{font-size:.9rem;color:var(--mut);margin-bottom:1.5rem}
+  .final .btn{max-width:320px;margin:0 auto}
+  .legal{font-size:.68rem;color:#C0BDB3;margin-top:1.2rem}
+</style>
 </head>
 <body>
-  <div class="hero">
-    <div class="logo-wrap">
-      <svg class="logo-icon" viewBox="0 0 56 56" fill="none">
-        <rect width="56" height="56" rx="16" fill="rgba(255,255,255,.08)"/>
-        <rect x="8" y="11" width="32" height="7" rx="2" fill="white" transform="skewX(-12)"/>
-        <rect x="21" y="11" width="9" height="28" rx="2" fill="white" transform="skewX(-12)"/>
-        <circle cx="32" cy="43" r="3.5" fill="white"/>
-      </svg>
-      <div class="logo-name">tramu</div>
-      <div class="tagline">Entrena con inteligencia</div>
+<div class="wrap">
+  <section class="hero">
+    <div class="topbar">
+      <div class="logo">
+        <svg viewBox="0 0 56 56" fill="none"><rect width="56" height="56" rx="15" fill="#163A28"/><rect x="8" y="11" width="32" height="7" rx="2" fill="#fff" transform="skewX(-12)"/><rect x="21" y="11" width="9" height="28" rx="2" fill="#fff" transform="skewX(-12)"/><circle cx="32" cy="43" r="4" fill="#5FC68C"/></svg>
+        <span class="logo-name">tram<b>u</b></span>
+      </div>
+      <button class="login-link" onclick="showLogin()">Ya tengo cuenta</button>
     </div>
-
-    <h1>Fuerza y resistencia.<br>A tu ritmo.</h1>
-    <p class="sub">Tu entrenador personal con IA para running, ciclismo, triatlón y gimnasio.</p>
-
-    <div class="badges">
-      <span class="badge">Running</span>
-      <span class="badge">Ciclismo</span>
-      <span class="badge">Triatlón</span>
-      <span class="badge">Gimnasio</span>
+    <div class="hero-copy">
+      <h1>Cada semana,<br><span class="soft">un paso más cerca.</span></h1>
+      <p class="lead">Tu entrenador con IA que planifica y <b>se adapta a tu vida</b>. El deporte es parte de tu vida, no tu vida.</p>
     </div>
-
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('new')">Empezar</button>
-      <button class="tab-btn" onclick="switchTab('login')">Ya tengo cuenta</button>
-    </div>
-
-    <div class="form">
-      <div class="form-panel active" id="panel-new">
+    <div class="cta-row">
+      <div class="panel active" id="panel-new">
         <input type="text" id="new-name" placeholder="Tu nombre">
         <input type="email" id="new-email" placeholder="Tu correo electrónico">
-        <button class="btn-primary" id="btn-new" onclick="startNew()">Empezar gratis →</button>
+        <button class="btn" id="btn-new" onclick="startNew()">Empezar gratis →</button>
+        <p class="microcopy">Gratis · Tu plan listo en 1 minuto</p>
       </div>
-      <div class="form-panel" id="panel-login">
+      <div class="panel" id="panel-login">
         <input type="email" id="login-email" placeholder="Tu correo electrónico">
-        <button class="btn-primary" id="btn-login" onclick="doLogin()">Acceder a mi plan →</button>
+        <button class="btn" id="btn-login" onclick="doLogin()">Acceder a mi plan →</button>
         <p class="error-msg" id="login-error">No encontramos una cuenta con ese email. ¿Quieres empezar uno nuevo?</p>
+        <button class="back-link" onclick="showNew()">← Volver a empezar</button>
       </div>
     </div>
-
+    <div class="showcase">
+      <div class="device">
+        <div class="d-greet">Jueves · semana 6 de 8</div>
+        <div class="d-greet-n">Hola, Marc. <span class="s">Hoy seguimos el rumbo.</span></div>
+        <div class="d-hero">
+          <div class="d-lbl"><span class="pip"></span>Tu sesión de hoy</div>
+          <div class="d-title">Rodaje largo en Z2</div>
+          <div class="d-stats">
+            <div class="d-stat"><div class="d-sv">75<span class="u">min</span></div><div class="d-sl">Duración</div></div>
+            <div class="d-stat"><div class="d-sv">Z2</div><div class="d-sl">Zona</div></div>
+            <div class="d-stat"><div class="d-sv">+650<span class="u">m</span></div><div class="d-sl">Desnivel</div></div>
+          </div>
+        </div>
+        <div class="d-row now"><div class="d-date"><div class="d-dd">25</div><div class="d-wd">Jue</div></div><div class="d-info"><div class="d-a">Rodaje largo en Z2</div><div class="d-b">75 min · 12 km</div></div><div class="d-chk"></div></div>
+        <div class="d-row"><div class="d-date"><div class="d-dd">27</div><div class="d-wd">Sáb</div></div><div class="d-info"><div class="d-a">Series en cuesta</div><div class="d-b">60 min · 9 km</div></div><div class="d-chk"></div></div>
+      </div>
+    </div>
+  </section>
+  <section class="taste">
+    <div class="taste-eyebrow">Así funciona</div>
+    <h2 class="taste-h">Un plan que se mueve<br>contigo</h2>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div><div class="step-t">Cuéntanos tu objetivo</div><div class="step-d">Una carrera, ponerte en forma o volver tras una pausa. En un minuto.</div></div></div>
+      <div class="step"><div class="step-n">2</div><div><div class="step-t">Recibe tu plan</div><div class="step-d">La IA diseña tu semana según tu nivel, tus días y tu meta.</div></div></div>
+      <div class="step"><div class="step-n">3</div><div><div class="step-t">Entrena y ajusta</div><div class="step-d">¿Un día no puedes? El plan se recalcula solo. Sin culpa, sin líos.</div></div></div>
+    </div>
+    <div class="why">
+      <div class="why-card"><div class="why-ic">🧭</div><div class="why-t">Siempre con rumbo</div><div class="why-d">Cada sesión es un paso hacia tu objetivo.</div></div>
+      <div class="why-card"><div class="why-ic">🔄</div><div class="why-t">Se adapta a ti</div><div class="why-d">Cambias algo y el plan responde al instante.</div></div>
+      <div class="why-card"><div class="why-ic">🏃</div><div class="why-t">Multideporte</div><div class="why-d">Running, ciclismo, triatlón y gimnasio.</div></div>
+      <div class="why-card"><div class="why-ic">💚</div><div class="why-t">Sin presión</div><div class="why-d">Entrena lo justo para progresar sano.</div></div>
+    </div>
+  </section>
+  <section class="final">
+    <div class="final-h">¿Empezamos?</div>
+    <div class="final-s">Tu primer plan está a un minuto.</div>
+    <button class="btn" onclick="scrollTop()">Crear mi plan gratis →</button>
     <p class="legal">Tus datos deportivos no se venderán nunca.</p>
-  </div>
-
+  </section>
+</div>
 <script>
-  function switchTab(tab){
-    document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',(tab==='new'&&i===0)||(tab==='login'&&i===1)));
-    document.getElementById('panel-new').classList.toggle('active',tab==='new');
-    document.getElementById('panel-login').classList.toggle('active',tab==='login');
-    document.getElementById('login-error').classList.remove('show');
-  }
-
+  function showLogin(){document.getElementById('panel-new').classList.remove('active');document.getElementById('panel-login').classList.add('active');document.getElementById('login-error').classList.remove('show');scrollTop();}
+  function showNew(){document.getElementById('panel-login').classList.remove('active');document.getElementById('panel-new').classList.add('active');}
+  function scrollTop(){window.scrollTo({top:0,behavior:'smooth'});}
   function startNew(){
     const name=document.getElementById('new-name').value.trim();
     const email=document.getElementById('new-email').value.trim();
     if(!email||!email.includes('@')){alert('Introduce un email válido');return;}
     window.location.href='onboarding.html?email='+encodeURIComponent(email)+'&name='+encodeURIComponent(name||'');
   }
-
   async function doLogin(){
     const email=document.getElementById('login-email').value.trim();
     if(!email||!email.includes('@')){alert('Introduce un email válido');return;}
     const btn=document.getElementById('btn-login');
-    btn.textContent='Buscando tu plan...';
-    btn.classList.add('btn-loading');
-    btn.disabled=true;
+    btn.textContent='Buscando tu plan...';btn.classList.add('btn-loading');btn.disabled=true;
     document.getElementById('login-error').classList.remove('show');
     try{
       const res=await fetch('/api/get-plan?email='+encodeURIComponent(email));
@@ -135,15 +193,11 @@
         window.location.href=url;
       } else {
         document.getElementById('login-error').classList.add('show');
-        btn.textContent='Acceder a mi plan →';
-        btn.classList.remove('btn-loading');
-        btn.disabled=false;
+        btn.textContent='Acceder a mi plan →';btn.classList.remove('btn-loading');btn.disabled=false;
       }
     }catch(e){
       document.getElementById('login-error').classList.add('show');
-      btn.textContent='Acceder a mi plan →';
-      btn.classList.remove('btn-loading');
-      btn.disabled=false;
+      btn.textContent='Acceder a mi plan →';btn.classList.remove('btn-loading');btn.disabled=false;
     }
   }
 </script>
