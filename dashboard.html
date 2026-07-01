@@ -772,7 +772,10 @@ async function initDashboard(user){
       }
     } catch(e){ console.log('No saved plan',e); }
   }
-  await buildPlan(user);
+  // ── Usuari nou (sense pla previ): generem PRIMER el mapa, després la 1a setmana
+  //    derivada d'ell, perquè dashboard i plan completo neixin coordinats. ──
+  if(currentEmail){ try{ await loadPeriodizationSync(); }catch(e){} }
+  await buildPlan(user, periodization?phaseForWeek(currentWeekStart):null);
 }
 
 var _tipInterval=null;
@@ -834,6 +837,22 @@ async function buildPlan(user,phase){
   const previousWeek=(prev&&prev.sessions&&prev.sessions.length)
     ? {sessions:prev.sessions,phase:prev.phase||null}
     : null;
+  // ── Coordinació amb el mapa: quins títols preveu el plan completo per aquesta setmana ──
+  // El coach els ha de respectar perquè dashboard i plan completo neixin coherents.
+  let plannedTitles=null, plannedFocus=null;
+  if(periodization&&periodization.weeks&&periodization.weeks.length){
+    const anchor=periodization._anchorMonday||currentWeekStart;
+    const isRolling=periodization.objetivo&&periodization.objetivo!=='carrera';
+    let off=Math.round((isoToDate(currentWeekStart)-isoToDate(anchor))/(7*86400000));
+    const n=periodization.weeks.length;
+    let idx=isRolling?(((off%n)+n)%n):Math.min(Math.max(off,0),n-1);
+    const pw=periodization.weeks[idx];
+    if(pw){
+      plannedTitles=Array.isArray(pw.sessions)?pw.sessions:null;
+      plannedFocus=pw.focus||null;
+      if(!phase) phase=pw.phase||null;
+    }
+  }
   try {
     const response=await fetch('/api/coach',{
       method:'POST',
@@ -872,6 +891,8 @@ async function buildPlan(user,phase){
         stressTestData: user.stressTestData || (function(){ try{ return JSON.parse(sessionStorage.getItem('tramu_stress_test_data')||'null'); }catch(e){ return null; } })(),
         previousWeek: previousWeek,
         phase: phase || null,
+        plannedTitles: plannedTitles,
+        plannedFocus: plannedFocus,
         weekNumber: (allWeeks ? allWeeks.length : 0) + 1
       })
     });
