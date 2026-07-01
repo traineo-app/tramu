@@ -341,7 +341,8 @@ async function handlePlanGeneration(req, res) {
       "_nota_trail": "si la sesion es trail, desnivel_m DEBE ser > 0 (metros reales de subida)"
     }
   ],
-  "resum": "Frase d'1-2 línies explicant la lògica del pla"
+  "resum": "Frase d'1-2 línies explicant la lògica del pla",
+  "missatge": "Si hi ha setmana anterior: frase breu (màx 16 paraules) explicant com aquesta setmana s'adapta al que es va fer i quina és la seva intenció. Ex: 'Semana de más carga: la anterior la completaste entera, toca progresar'"
 }
 \`\`\`
 
@@ -400,6 +401,7 @@ async function handlePlanGeneration(req, res) {
   return res.status(200).json({
     setmana: validated,
     resum: data.resum || data.resumen || '',
+    missatge: data.missatge || '',
     phase: data.phase || data.fase || null,
     usage: response.usage
   });
