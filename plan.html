@@ -148,12 +148,24 @@ function showPlanTips(titulo){
 async function loadPlan(forceRegenerate){
   showPlanTips(forceRegenerate?'Regenerando tu plan':'Generando tu plan');
   try {
+    // ── Coordinació amb el dashboard: carreguem les setmanes REALS de Supabase ──
+    // El dashboard mana. plan-completo ha de reflectir aquestes setmanes, no inventar.
+    let realWeeks=[];
+    if(emailParam){
+      try{
+        const gp=await fetch('/api/get-plan?email='+encodeURIComponent(emailParam)+'&_t='+Date.now());
+        const gd=await gp.json();
+        if(gd&&Array.isArray(gd.weeks)) realWeeks=gd.weeks;
+      }catch(e){ /* si falla, generem sense coordinació */ }
+    }
     const body={
       userData:user,
       raceDate:hasRace?user.fecha:null,
       raceName:hasRace?user.carrera:null,
       email:emailParam||'',
-      forceRegenerate:!!forceRegenerate
+      forceRegenerate:!!forceRegenerate,
+      realWeeks:realWeeks,
+      currentWeekStart:getMondayISO(new Date())
     };
     const res=await fetch('/api/plan-completo',{
       method:'POST',
@@ -166,6 +178,20 @@ async function loadPlan(forceRegenerate){
     }
     if(data.weeks){
       planData=data;
+      // ── Garantia de coherència: la setmana ACTUAL del mapa = la del dashboard ──
+      // No depenem que la IA sigui fidel; sobreescrivim amb la realitat.
+      try{
+        const curMonday=getMondayISO(new Date());
+        const dashCur=(realWeeks||[]).find(function(w){return w.setmana===curMonday;});
+        if(dashCur&&dashCur.sessions&&planData._anchorMonday){
+          const off=Math.round((isoToDate(curMonday)-isoToDate(planData._anchorMonday))/(7*86400000));
+          const idx=hasRace?off:((off%planData.weeks.length)+planData.weeks.length)%planData.weeks.length;
+          if(planData.weeks[idx]){
+            const titles=dashCur.sessions.filter(function(s){return !s.rest;}).map(function(s){return s.title||'Sesión';});
+            if(titles.length) planData.weeks[idx].sessions=titles;
+          }
+        }
+      }catch(e){ /* si no casa, deixem el mapa tal com ve */ }
       renderPlan();
     }
   } catch(e){
