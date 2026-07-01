@@ -64,12 +64,18 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const { userData, raceDate, raceName, email, forceRegenerate } = req.body;
+    const { userData, raceDate, raceName, email, forceRegenerate, realWeeks, currentWeekStart } = req.body;
     const objetivo = raceDate ? "carrera" : (userData?.objetivo || "forma");
     const sig = periodizationSig(userData, objetivo, raceDate);
 
+    // realWeeks = setmanes REALS del dashboard (font de veritat del que s'ha fet/planificat).
+    // El dashboard mana: el mapa ha de reflectir-les, no inventar-ne de noves per aquestes dates.
+    const realWeeksArr = Array.isArray(realWeeks) ? realWeeks : [];
+
     // ── 1. Cache: si hi ha periodització vàlida desada, retorna-la ──
-    if (email && !forceRegenerate) {
+    // Nota: el cache només és vàlid si NO hi ha setmanes reals per coordinar
+    // (si n'hi ha, cal reconstruir el mapa perquè reflecteixi el dashboard).
+    if (email && !forceRegenerate && realWeeksArr.length === 0) {
       const { data: cachedProfile } = await supabase
         .from("profiles")
         .select("periodization")
@@ -164,6 +170,34 @@ Nomenclatura OBLIGATORIA: "Ciclo 1 · Semana X/${weeks}". Ciclo rolling 3+1 con 
       fotoBlock = `\n\n# SIN HISTÓRICO STRAVA\nNo hay foto de Strava. Usa el nivel declarado (${userData?.nivel || "intermedio"}) y el volumen base para estimar de qué fase partir según el tiempo disponible.`;
     }
 
+    // ── COORDINACIÓ AMB EL DASHBOARD: setmanes reals ja viscudes/en curs ──
+    // El dashboard mana. Aquestes setmanes s'han de reflectir al mapa TAL QUAL
+    // (mateixos títols de sessió), no regenerar-les. La IA només genera les futures.
+    let realWeeksBlock = "";
+    if (realWeeksArr.length > 0) {
+      const anchor = currentWeekStart || null;
+      const lines = realWeeksArr
+        .slice()
+        .sort((a, b) => (a.setmana < b.setmana ? -1 : 1))
+        .map((w) => {
+          const isCurrent = anchor && w.setmana === anchor;
+          const titles = (w.sessions || [])
+            .map((s) => s.rest ? "Descanso" : (s.title || "Sesión"))
+            .join(" · ");
+          const doneCount = (w.sessions || []).filter((s) => !s.rest && s.completed).length;
+          const trainCount = (w.sessions || []).filter((s) => !s.rest).length;
+          return `- Semana del ${w.setmana}${isCurrent ? " (ACTUAL — la que ve el usuario en el dashboard)" : ""}: ${titles || "sin sesiones"} [completadas ${doneCount}/${trainCount}]`;
+        })
+        .join("\n");
+      realWeeksBlock = `\n\n# SEMANAS REALES DEL DASHBOARD (FUENTE DE VERDAD — el dashboard manda)
+Estas semanas YA existen con contenido real (el usuario las ve y las ajusta en el dashboard). REGLAS ESTRICTAS:
+- Para estas fechas, refleja EXACTAMENTE estos títulos de sesión en el mapa (no inventes otros, no los reordenes).
+- La semana marcada ACTUAL debe coincidir título por título con lo que hay en el dashboard.
+- Si una semana no tiene sesiones completadas, refléjalo igualmente tal cual (no la maquilles).
+- Genera/ajusta SOLO las semanas que NO están en esta lista, dándoles continuidad coherente (fase, carga, progresión) a partir de lo ya hecho.
+${lines}`;
+    }
+
     const userMessage = `${objectiveTask[objetivo] || objectiveTask.forma}
 
 # DATOS DEL ATLETA
@@ -177,11 +211,11 @@ ${userData?.fcmax ? `- FCmax: ${userData.fcmax} bpm` : ""}
 ${objetivo === "carrera"
         ? `- CARRERA: ${raceName} el ${raceDate} (distancia ${userData?.distancia || ""}${userData?.desnivel ? ", +" + userData.desnivel + "m D+" : ""})`
         : ""}
-${fotoBlock}
+${fotoBlock}${realWeeksBlock}
 
 # TAREA
 
-Genera ${weeks} semanas. Para cada semana retorna: weekNum, phase (respeta la nomenclatura del objetivo), totalHours (coherente con ${volumBase}h base, varía según la fase — taper y descarga van MUY por debajo), load (100-700, dibujando la curva descrita), focus (una frase clara), sessions (3-4 títulos descriptivos en castellano).
+Genera ${weeks} semanas. Para cada semana retorna: weekNum, phase (respeta la nomenclatura del objetivo), totalHours (coherente con ${volumBase}h base, varía según la fase — taper y descarga van MUY por debajo), load (100-700, dibujando la curva descrita), focus (una frase clara), sessions (3-4 títulos descriptivos en castellano).${realWeeksArr.length > 0 ? "\nRECUERDA: las semanas listadas en 'SEMANAS REALES DEL DASHBOARD' van con sus títulos exactos; solo generas las demás." : ""}
 
 **FORMATO OBLIGATORIO** — Devuelve SOLO un objeto JSON válido (sin markdown, sin \`\`\`json, sin preámbulo):
 
@@ -229,13 +263,25 @@ Genera ${weeks} semanas. Para cada semana retorna: weekNum, phase (respeta la no
     }
 
     // ── 3. Adjuntar metadades i persistir ──
+    // _anchorMonday: si ja existia un mapa, conservem l'àncora original perquè
+    // el càlcul de "setmana actual" no es descol·loqui en reajustar.
+    let anchorMonday = getMondayISO(new Date());
+    if (email) {
+      const { data: prev } = await supabase
+        .from("profiles")
+        .select("periodization")
+        .eq("email", email)
+        .maybeSingle();
+      if (prev?.periodization?._anchorMonday) anchorMonday = prev.periodization._anchorMonday;
+    }
+
     const result = {
       totalWeeks: data.totalWeeks || weeks,
       objetivo: data.objetivo || objetivo,
       weeks: data.weeks,
       resumen: data.resumen || data.resum || "",
       _sig: sig,
-      _anchorMonday: getMondayISO(new Date()),
+      _anchorMonday: anchorMonday,
       _generatedAt: new Date().toISOString()
     };
 
