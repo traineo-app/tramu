@@ -721,6 +721,7 @@ function normalizePlan(sessions){
     rest: d.rest||d.descanso===true||d.title==='Descanso'||d.titulo==='Descanso'||false,
     duracio_min: d.duracio_min||d.duracion||d.duration||d.minuts||45,
     canviat: d.canviat||false,
+    userLocked: d.userLocked||false,
     skipped: d.skipped||false,
     completed: d.completed||false,
     completion: d.completion||null,
@@ -770,7 +771,7 @@ async function initDashboard(user){
         // Setmana nova sense catch-up pendent: reajustem el mapa segons el fet
         // i generem la nova des del mapa reajustat.
         try{ await reajustarMapa(); }catch(e){ console.log('reajust mapa failed',e); }
-        await buildPlan(user, periodization?phaseForWeek(currentWeekStart):null);
+        await buildPlan(user, periodization?phaseForWeek(currentWeekStart):null, true);
         return;
       }
     } catch(e){ console.log('No saved plan',e); }
@@ -851,7 +852,7 @@ async function loadPeriodizationSync(){
   if(data&&data.weeks&&data.weeks.length) periodization=data;
 }
   
-async function buildPlan(user,phase){
+async function buildPlan(user,phase,isNewWeek){
   showPlanLoading();
   const prevWeekStart=addDaysISO(currentWeekStart,-7);
   const prev=allWeeks.find(w=>w.setmana===prevWeekStart);
@@ -935,6 +936,12 @@ async function buildPlan(user,phase){
       loadPeriodization();
       if(currentEmail){ await savePlanToSupabase(); pregenTodayDetail(); }
       else setTimeout(()=>openEmailModal(),2000);
+      // Banner explicatiu del pas de setmana (~10s)
+      if(isNewWeek){
+        var msg=data.missatge||(data.resum? 'Nueva semana lista. '+data.resum : 'Nueva semana generada según lo que hiciste.');
+        showCoachBanner(false,msg);
+        setTimeout(function(){hideCoachBanner();},10000);
+      }
     } else throw new Error('Format incorrecte');
   } catch(error){
     console.error('Error IA:',error);
@@ -1154,7 +1161,7 @@ async function reajustarDiferit(descripcioCanvi,loadingMsg){
   const requestId=++reajustRequestId;
   showCoachBanner(true,loadingMsg);
   const immutableSnapshot=planDays.map((d,i)=>{
-    if(d.canviat===true||d.completed===true) return {idx:i,day:JSON.parse(JSON.stringify(d))};
+    if(d.userLocked===true||d.completed===true) return {idx:i,day:JSON.parse(JSON.stringify(d))};
     return null;
   }).filter(x=>x!==null);
   try {
@@ -1167,9 +1174,15 @@ async function reajustarDiferit(descripcioCanvi,loadingMsg){
     if(requestId!==reajustRequestId) return;
     if(data.setmana){
       let aiPlan=normalizePlan(data.setmana);
+        // Re-imposició FORTA: les sessions bloquejades per l'usuari (userLocked)
+        // i les completades tornen a la seva posició exacta, passi el que passi.
         immutableSnapshot.forEach(function(item){
-          var targetIdx=aiPlan.findIndex(function(d){return d.day===item.day.day;});
-          if(targetIdx>=0) aiPlan[targetIdx]=item.day;
+          // 1r intent: mateixa posició (índex). 2n: per dia. Garanteix que no es perdin.
+          if(aiPlan[item.idx]){ aiPlan[item.idx]=item.day; }
+          else{
+            var targetIdx=aiPlan.findIndex(function(d){return d.day===item.day.day;});
+            if(targetIdx>=0) aiPlan[targetIdx]=item.day;
+          }
         });
         var todayPosCk=dayNames.indexOf(todayName);
         aiPlan=aiPlan.map(function(d){
@@ -1184,7 +1197,7 @@ async function reajustarDiferit(descripcioCanvi,loadingMsg){
       renderAll();
       showCoachBanner(false,data.missatge||'Plan ajustado ✓');
       if(currentEmail) await savePlanToSupabase();
-      setTimeout(function(){if(requestId===reajustRequestId) hideCoachBanner();},3500);
+      setTimeout(function(){if(requestId===reajustRequestId) hideCoachBanner();},10000);
     } else {hideCoachBanner();}
   } catch(error){
     console.error('Reajust error:',error);
@@ -1635,12 +1648,12 @@ function performSwap(srcIdx,dstIdx){
   let desc;
   if(dst.rest){
     desc='Mogut "'+src.title+'" del '+srcDay+' al '+dstDay+'. '+srcDay+' ara és descans.';
-    planDays[dstIdx]={...src,day:dstDay,canviat:true};
+    planDays[dstIdx]={...src,day:dstDay,canviat:true,userLocked:true};
     planDays[srcIdx]={day:srcDay,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,completed:false,duracio_min:0};
   } else {
     desc='Intercanviat "'+src.title+'" ('+srcDay+') amb "'+dst.title+'" ('+dstDay+').';
-    planDays[dstIdx]={...src,day:dstDay,canviat:true};
-    planDays[srcIdx]={...dst,day:srcDay,canviat:true};
+    planDays[dstIdx]={...src,day:dstDay,canviat:true,userLocked:true};
+    planDays[srcIdx]={...dst,day:srcDay,canviat:true,userLocked:true};
   }
   renderAll();
   reajustarDiferit(desc,'Coach reorganizando la semana...');
@@ -1709,7 +1722,7 @@ async function confirmSession(){
   if(selectedNewSession.title==='Descanso'){
     planDays[editingDayIdx]={day:current.day,rest:true,icon:'💤',title:'Descanso',sub:'Recuperación activa',tags:[],why:'',skipped:false,completed:false,duracio_min:0};
   } else {
-    planDays[editingDayIdx]={...selectedNewSession,day:current.day,rest:false,skipped:false,completed:false,duracio_min:selectedNewSession.duracio_min||45,canviat:true};
+    planDays[editingDayIdx]={...selectedNewSession,day:current.day,rest:false,skipped:false,completed:false,duracio_min:selectedNewSession.duracio_min||45,canviat:true,userLocked:true};
   }
   renderAll();
   reajustarDiferit(desc,'Coach ajustando el plan...');
@@ -1730,7 +1743,7 @@ function restoreDay(idx){
   const used=planDays.filter(d=>!d.rest).map(d=>d.title);
   const pick=allS.find(s=>!used.includes(s.title))||allS[0];
   const dayName=planDays[idx].day;
-  planDays[idx]={...pick,day:dayName,rest:false,skipped:false,completed:false,duracio_min:45,canviat:true};
+  planDays[idx]={...pick,day:dayName,rest:false,skipped:false,completed:false,duracio_min:45,canviat:true,userLocked:true};
   renderAll();
   reajustarDiferit('Afegit "'+pick.title+'" al '+dayName+'.','Coach ajustando...');
 }
@@ -1857,7 +1870,7 @@ async function confirmAdjust(){
   else if(sport==='cycling') desc+=', '+adjustValues.km+' km a '+adjustValues.speed+' km/h, '+adjustValues.elev+'m D+';
   desc+=' (era '+orig+' min). Redistribuye la carga si hace falta.';
   closeModal('modal-time');
-  planDays[idx]={...s,duracio_min:adjustValues.time,canviat:true,custom:{km:adjustValues.km,pace:adjustValues.pace,speed:adjustValues.speed,elev:adjustValues.elev,sport:sport}};
+  planDays[idx]={...s,duracio_min:adjustValues.time,canviat:true,userLocked:true,custom:{km:adjustValues.km,pace:adjustValues.pace,speed:adjustValues.speed,elev:adjustValues.elev,sport:sport}};
   renderAll();
   reajustarDiferit(desc,'Coach reajustando la semana...');
 }
@@ -2053,7 +2066,7 @@ async function confirmCatchUp(){
   if(pendingNewWeekAfterCatchUp){
     pendingNewWeekAfterCatchUp=false;
     if(currentEmail){ try{ await reajustarMapa(); }catch(e){ console.log('reajust mapa failed',e); } }
-    await buildPlan(user, periodization?phaseForWeek(currentWeekStart):null);
+    await buildPlan(user, periodization?phaseForWeek(currentWeekStart):null, true);
     return;
   }
   renderAll();
