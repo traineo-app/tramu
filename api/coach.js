@@ -97,7 +97,8 @@ async function handlePlanGeneration(req, res) {
     pacez2, race5k, race10k, ftp,
     musculos, obj_gym, equipamiento, gym_ubi, gym_mat, gym_purpose,
     stravaStats, stressTestData,
-    previousWeek, weekNumber, cycleInfo
+    previousWeek, weekNumber, cycleInfo,
+    plannedTitles, plannedFocus
   } = req.body;
 
   const sportsList = Array.isArray(sports) ? sports : (sports || 'running').split(',');
@@ -273,6 +274,14 @@ async function handlePlanGeneration(req, res) {
     ctx += `- Si ha completat poc (<60% sessions) → reduceix volum 15-20% i prioritza adherència sobre estímul.\n`;
     ctx += `- Si RPE "fàcil" generalitzat → pots pujar lleugerament intensitat o volum.\n`;
     ctx += `- NO recuperar sessions perdudes: una sessió saltada no es compensa, segueix endavant.\n`;
+  }
+
+  if (Array.isArray(plannedTitles) && plannedTitles.length) {
+    ctx += `\n## GUÍA DEL PLAN GENERAL (plan completo) — el mapa manda\n`;
+    ctx += `El plan completo ya ha definido qué sesiones toca esta semana. DEBES generar sesiones que se correspondan con estos títulos (mismo tipo y enfoque), para que dashboard y plan completo sean coherentes:\n`;
+    plannedTitles.forEach(t => { ctx += `- ${t}\n`; });
+    if (plannedFocus) ctx += `**Enfoque de la semana:** ${plannedFocus}\n`;
+    ctx += `Puedes concretar días, duración y detalle, pero NO cambies el tipo de sesión ni añadas/quites sesiones clave respecto a esta guía.\n`;
   }
 
   if (weekNumber) {
